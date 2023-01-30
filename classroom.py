@@ -23,6 +23,5 @@ class Classroom:
 
 
 
-
 x = Classroom("PC0102", 24)
 y = Classroom("Td0203", 24, True)
