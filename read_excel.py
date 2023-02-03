@@ -1,81 +1,127 @@
 import pandas as pd
 import openpyxl
 import program
-import classes
-
-data = pd.read_excel("SCE_ProgramsCourses.xlsx")
-
-
-#print(data)
+import course
+import string
 
 
-wb = openpyxl.load_workbook("SCE_ProgramsCourses.xlsx")
+def get_color_code(ws):
 
-# Get the first worksheet
-ws = wb.worksheets[0]
+    
 
-lst = []
+    lab_flag = None
+    hybrid_flag = None
+    online_flag = None
+    course_flag = None
+    while not lab_flag and not hybrid_flag and not online_flag and not course_flag:
+        for row in ws.iter_rows():
+            for cell in row:
 
-term = 1
-r = 0
-c = 0
+               
 
-for sheet in wb.worksheets:
+                if cell.value == "Class runs in a lab":
+                    lab_flag = cell.fill.start_color.index
+                elif cell.value == "Class runs in a lab and Classroom":
+                    hybrid_flag = cell.fill.start_color.index
+                elif cell.value == "Online only course":
+                    online_flag = cell.fill.start_color.index
+                elif cell.value == "Transcript Hours":
+                    course_flag = cell.fill.start_color.index
+
+
+    return [lab_flag, hybrid_flag, online_flag, course_flag]
+
+
+
+
+def create_course(row, flags):
+    lab_flag = flags[0]
+    hybrid_flag = flags[1]
+    online_flag = flags[2]
+    #course_flag = flags[3]
+    if row[1] == None or row[2] == None:
+        return
+    new_course = course.Course(row[1].value)
+    new_course.desc = row[2].value
+    new_course.hours = row[3].value
+
+    if row[1].fill == lab_flag:
+        new_course.type = 'l'
+    elif row[1].fill == online_flag:
+        new_course.type = 'o'
+    elif row[1].fill == hybrid_flag:
+        new_course.type = 'h'
+
+    return new_course
+
+
+'''
+Takes the cooridinate to the header of a program block in an excel file
+Returns a Program object with Course objects loaded into it
+'''
+def create_program(sheet, header, flags):
+    
+    wb = openpyxl.load_workbook("SCE_ProgramsCourses.xlsx")
+
+    # Get the first worksheet
     ws = sheet
-    for row in ws.iter_rows():
-        r += 1
-        if r> 6: 
-            print("--- Started Classes ---")
-            cl = classes.Class("temp")
-        for cell in row:
-            c += 1
-            if c > 5:
-                continue
-            if cell.value == "Term 1":
-                term = 1
-            elif cell.value == "Term 2":
-                term = 2
-            elif cell.value == "Term 3":
-                term = 3
-            elif "Total Term" in str(cell.value):
-                break
+    #program_name = ws[cords].value
+
+    new_program = program.Program(header.value)
+
+    term = 0
+    courses = [[],[],[]]
+
+    x = header.column
+    #print(x)
+    y = header.row
+    
+    for row in ws.iter_rows(min_row = y+1, min_col = x, max_col = x+4):
+        #print('----\n', row[0].value, row[1].value, row[2].value, row[0].coordinate, '\n-----')
+        if row[0].value != None:
+   
+            term += 1
+     
+        if row[1].value != None:
+
+            new_course = create_course(row, flags)
+            #print(courses, term)
+            courses[term-1].append(new_course)
 
 
-            fill = cell.fill.start_color.rgb
-            print(fill, ' - ', cell.value)
-            if cell.value == "Class runs in a lab":
-                lab_flag = fill
-            elif cell.value == "Class runs in a lab and Classroom":
-                hybrid_flag = fill
-            elif cell.value == "Online only course":
-                online_flag = fill
+    new_program.courses = courses
 
-            if r > 6:
-                if cell.value == None:
-                    continue
-                if c == 2:
-                    cl.id = cell.value
-                if c == 3:
-                    cl.desc = cell.value
-                if c == 4:
-                    cl.hours = int(cell.value)
-                cl.term = term
+    return new_program
 
-                if fill == lab_flag:
-                    cl.type = "l"
-                elif fill == hybrid_flag:
-                    cl.type = "h"
-                elif fill == online_flag:
-                    cl.type = "o"
-                else:
-                    cl.type = "c"
-        if r > 6 and cl.id != "temp":
-            lst.append(cl)
+
+#Returns the index of a letter in the alphabet
+def char_position(letter):
+    return ord(letter.lower()) - 97
+    
+
+
+def read_excel(filename):
+    wb = openpyxl.load_workbook(filename)
+    flags = get_color_code(wb.worksheets[0])
+
+    
+    programs = []
+    #print(flags)
+    for sheet in wb.worksheets:
         
-        c = 0
-        
+        for row in sheet.iter_rows():
+            for cell in row:
+                if cell.fill.start_color.index == flags[-1] and cell.value != "Transcript Hours" and cell.value != "Pre-requisites":
+                    #print(cell.value, 'TRIGGERED CREATE_PROGRAM')
+                    new_program = create_program(sheet, cell, flags)
+                    programs.append(new_program)
 
-    r = 0
+    return programs
 
-for x in lst:
-    print(str(x))
+
+programs = read_excel("SCE_ProgramsCourses.xlsx")
+
+
+
+for prog in programs:
+    print(prog)
