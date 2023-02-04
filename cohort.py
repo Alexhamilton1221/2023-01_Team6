@@ -16,7 +16,11 @@ class Cohort:
         self.classroom = classroom
 
     def generate_name(self):
-        self.name = self.program.name + "0" + str(self.term) + "0" + str(self.number)
+        # Checks if there are over 10 cohorts in one program (extremely unlikely) to make the name correct
+        if self.number < 10:
+            self.name = self.program.name + "0" + str(self.term) + "0" + str(self.number)
+        else:
+            self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
     def same_name(self, name):
         return self.name == name
