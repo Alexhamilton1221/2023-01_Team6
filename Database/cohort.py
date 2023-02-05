@@ -1,9 +1,7 @@
 
 class Cohort:
 
-    def __init__(self, name, program, term, number, count, classroom):
-        # The name of the cohort
-        self.name = name
+    def __init__(self, program, term, number, count, courses):
         # The program of the cohort
         self.program = program
         # The Term of the cohort
@@ -12,8 +10,8 @@ class Cohort:
         self.number = number
         # The number of students in the cohort
         self.count = count
-        # The room assigned to the program
-        self.classroom = classroom
+        # The Courses Taken By this cohort
+        self.courses = courses
 
     def generate_name(self):
         # Checks if there are over 10 cohorts in one program (extremely unlikely) to make the name correct
@@ -21,6 +19,8 @@ class Cohort:
             self.name = self.program.name + "0" + str(self.term) + "0" + str(self.number)
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
+
+
 
     def same_name(self, name):
         return self.name == name
@@ -37,6 +37,5 @@ class Cohort:
     def same_count(self, count):
         return self.count == count
 
-    def same_classroom(self, classroom):
-        return self.classroom == classroom
+
 

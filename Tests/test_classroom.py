@@ -1,5 +1,5 @@
 from unittest import TestCase
-import classroom as cl
+from Database import classroom as cl
 
 
 class TestClassroom(TestCase):
