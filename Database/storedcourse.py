@@ -1,7 +1,7 @@
 from Database.course import Course
 class StoredCourse:
     # This is the long term stored info about the course
-    def __init__(self, name, total_hours, term, prerequisites, delivery):
+    def __init__(self, name, total_hours, term, prerequisites, delivery = "Class"):
         # The name of the course
         self.name = name
 

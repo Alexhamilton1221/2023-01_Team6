@@ -19,3 +19,5 @@ def temp_create_courses():
     PCOM.add_course(StoredCourse("PCOM 0109 Class Portion", 6, 3, []))
     PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab"))
 
+    print(PCOM.get_term_hours(1))
+
