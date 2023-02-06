@@ -150,7 +150,7 @@ def temp_create_courses():
     BC.add_course(StoredCourse("ACCT 0211", 28, 12, [], "Lab"))
     # Term 3
     BC.add_course(StoredCourse("SCMT 0505", 21, 3, []))
-    BC.add_course(StoredCourse("PCOM 0151", 39, 3, [], "Class", "H=3h"))
+    BC.add_course(StoredCourse("PCOM 0151", 33, 3, [], "Class", "H=3h"))
 
     return [PCOM, BCOM, PM, BA, GLM, FS, DXD, BC]
 
