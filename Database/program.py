@@ -12,6 +12,7 @@ class Program:
         # Gets the hours of a single term
         hours = 0
         for course in self.stored_courses:
+            # Checks if the course is within the designed specification, default is always true
             if specification(course):
                 hours += course.total_hours
 
