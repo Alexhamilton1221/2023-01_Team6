@@ -1,5 +1,5 @@
 class Course:
-
+    # This is the single instance of a course
     def __init__(self, name, total_hours, prerequisites, delivery = "Class"):
         self.name = name
 
