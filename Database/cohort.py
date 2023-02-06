@@ -20,7 +20,17 @@ class Cohort:
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
+    def get_hours_total(self):
+        # Gets the total number of courses in hours
+        hours = 0
+        for course in self.courses:
+            hours += course.total_hours
 
+    def get_hours_remaining(self):
+        # Gets the remaining number of courses in hours
+        hours = 0
+        for course in self.courses:
+            hours += course.hours_remaining
 
     def same_name(self, name):
         return self.name == name
