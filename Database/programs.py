@@ -2,10 +2,12 @@
 class Programs:
 
     def __init__(self, programs):
+        # A list of programs
         self.programs = programs
 
 
     def add_program(self, program):
+        # Adds a new program to the course
         self.programs.append(program)
 
     def find_program(self, specification):

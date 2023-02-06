@@ -1,8 +1,9 @@
 
 class Program:
     def __init__(self, name):
+        # The name of the program
         self.name = name
-
+        # A list of stored courses,
         self.stored_courses = []
 
     def add_course(self, stored_course):
