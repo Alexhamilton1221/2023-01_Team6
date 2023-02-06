@@ -20,7 +20,7 @@ def temp_create_courses():
     PCOM.add_course(StoredCourse("PCOM 0109 Class Portion", 6, 3, [], "Class", "H=2h"))
     PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab"))
 
-    BCOM = Program("PCOM")
+    BCOM = Program("BCOM")
     # PCOM TERM 1
     BCOM.add_course(StoredCourse("PCOM 0203", 15, 1, []))
     BCOM.add_course(StoredCourse("SUPR 0751", 7, 1, [], "Class", "H=2h"))
