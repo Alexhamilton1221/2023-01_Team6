@@ -115,7 +115,7 @@ def temp_create_courses():
     CMSK203 = StoredCourse("CMSK 0203", 18, 2, [], "Lab", "H=2h|COREC=CMSK 202")
     FS.add_course(CMSK203)
     # Term 3
-    FS.add_course(StoredCourse("PCOM 0160", 50, 3, [], "Class", "H=3h"))
+    FS.add_course(StoredCourse("PCOM 0160", 50, 3, [], "Lab", "H=3h"))
 
     # Digital Experience Design
     DXD = Program("DXD")
