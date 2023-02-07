@@ -31,11 +31,14 @@ class Cohort:
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
-    def get_hours_total(self):
+    def get_hours(self, specification=lambda x: True):
         # Gets the total number of courses in hours
         hours = 0
         for course in self.courses:
-            hours += course.total_hours
+            if specification(course):
+                hours += course.total_hours
+
+        return hours
 
     def get_hours_remaining(self):
         # Gets the remaining number of courses in hours
