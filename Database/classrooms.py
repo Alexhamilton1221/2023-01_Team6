@@ -1,7 +1,7 @@
 
 class Classrooms:
     # A data storage class
-    def __init__(self, classrooms):
+    def __init__(self, classrooms = []):
         self.classrooms = classrooms
 
     def add_classroom(self, room):

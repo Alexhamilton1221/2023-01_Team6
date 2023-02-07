@@ -15,15 +15,6 @@ class Programs:
                 return a_program
         return None
 
-    def get_courses(self, program_name, specifcation):
-        # Generate the courses that follow a specifcation
-        program = self.get_program(lambda x: x.name == program_name)
-
-        courses = []
-        for a_course in program.stored_courses:
-            if specifcation(a_course):
-                return courses.append(a_course.generate_course)
-        return courses
     def show_hours(self):
         # Shows hours separated by information
         for a_program in self.programs:
