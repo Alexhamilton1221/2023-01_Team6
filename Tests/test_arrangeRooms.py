@@ -67,7 +67,35 @@ class Test(TestCase):
         # There is room for 30 more students
         assert 30 == students
 
+    def test_givenRoomsWithClassAndLabs_Calc_students_Classes_ShowAmounts(self):
+        room1 = Classroom("11032", 30)
+        room2 = Classroom("11032", 30, True)
+        rooms = Classrooms([room1, room2])
 
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        PCOM = programs.get_program(lambda x: x.name == "PCOM")
+        cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
+        cohorts = Cohorts([cohort])
 
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        students = calc_space.calc_extra_students(spare_rooms[0][1], 70, spare_rooms[0][0].size)
 
+        # There is room for 30 more students
+        assert 30 == students
+
+    def test_givenRoomsWithClassAndLabs_Calc_students_labs_ShowAmounts(self):
+        room1 = Classroom("11032", 30)
+        room2 = Classroom("11032", 30, True)
+        rooms = Classrooms([room1, room2])
+
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        PCOM = programs.get_program(lambda x: x.name == "PCOM")
+        cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
+        cohorts = Cohorts([cohort])
+
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, True)
+        students = calc_space.calc_extra_students(spare_rooms[0][1], 70, spare_rooms[0][0].size)
+
+        # There is room for 60 more students
+        assert 60 == students
 
