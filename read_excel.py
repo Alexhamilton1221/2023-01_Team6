@@ -1,13 +1,11 @@
 import pandas as pd
 import openpyxl
-import program
-import course
+from Database.program import Program
+from Database.course import Course
 import string
 
 
 def get_color_code(ws):
-
-    
 
     lab_flag = None
     hybrid_flag = None
@@ -41,7 +39,7 @@ def create_course(row, flags):
     #course_flag = flags[3]
     if row[1] == None or row[2] == None:
         return
-    new_course = course.Course(row[1].value)
+    new_course = Course(row[1].value, 0, [])
     new_course.desc = row[2].value
     new_course.hours = row[3].value
 
@@ -67,7 +65,7 @@ def create_program(sheet, header, flags):
     ws = sheet
     #program_name = ws[cords].value
 
-    new_program = program.Program(header.value)
+    new_program = Program(header.value)
 
     term = 0
     courses = [[],[],[]]

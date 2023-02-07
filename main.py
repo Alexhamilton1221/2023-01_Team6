@@ -6,7 +6,7 @@ from tkinter import ttk, filedialog
 from tkinter import messagebox
 import pandas as pd
 import openpyxl
-import classroom
+from Database.classroom import Classroom
 
 
 #Global variables for 2 excel paths
