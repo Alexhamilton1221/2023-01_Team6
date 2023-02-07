@@ -9,14 +9,14 @@ class TestPrograms(TestCase):
         programs = Programs(hardCodedCourses.temp_create_courses())
         PCOM = programs.programs[0]
 
-        foundProgram = programs.find_program(lambda x: x.name == "PCOM")
+        foundProgram = programs.get_program(lambda x: x.name == "PCOM")
 
         assert PCOM == foundProgram
 
     def test_givennotExist_findProgram_returnNone(self):
         programs = Programs(hardCodedCourses.temp_create_courses())
 
-        foundProgram = programs.find_program(lambda x: x.name == "PCssOM")
+        foundProgram = programs.get_program(lambda x: x.name == "PCssOM")
 
         assert None == foundProgram
 

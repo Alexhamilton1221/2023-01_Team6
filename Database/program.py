@@ -12,6 +12,8 @@ class Program:
     def add_course(self, stored_course):
         self.stored_courses.append(stored_course)
 
+
+
     def get_hours(self, specification=lambda course: True):
         # Gets the hours of a single term
         hours = 0

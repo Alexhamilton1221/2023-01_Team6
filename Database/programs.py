@@ -4,19 +4,26 @@ class Programs:
     def __init__(self, programs):
         # A list of programs
         self.programs = programs
-
-
     def add_program(self, program):
         # Adds a new program to the course
         self.programs.append(program)
 
-    def find_program(self, specification):
+    def get_program(self, specification):
         # Finds a program with the following specification
         for a_program in self.programs:
             if specification(a_program):
                 return a_program
         return None
 
+    def get_courses(self, program_name, specifcation):
+        # Generate the courses that follow a specifcation
+        program = self.get_program(lambda x: x.name == program_name)
+
+        courses = []
+        for a_course in program.stored_courses:
+            if specifcation(a_course):
+                return courses.append(a_course.generate_course)
+        return courses
     def show_hours(self):
         # Shows hours separated by information
         for a_program in self.programs:
