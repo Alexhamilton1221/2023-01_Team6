@@ -22,6 +22,9 @@ class Program:
 
         return hours
 
+
+
+    #Other stuff
     def add_class(self, term, name, hours, islab=False):
         self.courses[term].append("name" + "Hours")  # TODO -- create and append a "Class" object
 
@@ -30,7 +33,7 @@ class Program:
 
         for term in self.courses:
             for course in term:
-                output.append(course.id)
+                output.append(course.name)
 
         return str(output)
 
