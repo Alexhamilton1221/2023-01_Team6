@@ -1,2 +1,6 @@
 /venv/
+read_excel.py
 /env/
+/.idea/
+/__pycache__/
+/Test_Excel_Files/

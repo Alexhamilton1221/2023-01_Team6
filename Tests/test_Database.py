@@ -5,7 +5,6 @@ from Database.cohort import Cohort
 from Database.course import Course
 from Database.lecture import Lecture
 from Database.classroom import Classroom
-from Database.day import Day
 
 class TestData(TestCase):
 

@@ -21,6 +21,8 @@ class TestProgram(TestCase):
 
         hours = BC.get_hours()
 
+
+
     def test_whereOneTermSecifcationGiven_gethours_getTerm1hourse(self):
         # Bookkeeping Certificate
         BC = Program("BC")
