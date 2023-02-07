@@ -22,4 +22,6 @@ class Course:
         self.lectures.append(lecture)
         if self.hours_remaining <= 0:
             self.finished = True
+    def is_lab(self):
+        return self.delivery == "Lab"
 

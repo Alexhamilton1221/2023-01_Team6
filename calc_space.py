@@ -24,7 +24,7 @@ def get_FullStack_hours():
     return hours_per_day * days  # NOTE GET NUMBER OF HOURS TO CHECK CLASSES, ONCE GOTTEN CHECK FOR OVER TO SEE CAPACITY
 
 
-def calc_cohort_hours_class(classrooms, cohorts):
+def calc_cohort_hours(classrooms, cohorts, core, lab):
     # Cohorts, the cohort database class (not array)
     # Classrooms, the classrooms database class (not array)
 
@@ -35,9 +35,9 @@ def calc_cohort_hours_class(classrooms, cohorts):
 
     c_num = 0
     r_num = 0
-    cohorts_by_size = cohorts.get_cohorts(lambda x: x.program.is_core())
+    cohorts_by_size = cohorts.get_cohorts(lambda x: x.program.is_core() == core)
     cohorts_by_size.sort(key=lambda x: x.count, reverse=True)
-    rooms_by_size = classrooms.get_rooms(lambda x: not x.is_lab)
+    rooms_by_size = classrooms.get_rooms(lambda x: x.is_lab == lab)
     rooms_by_size.sort(key=lambda x: x.size, reverse=True)
 
     try:
@@ -50,8 +50,8 @@ def calc_cohort_hours_class(classrooms, cohorts):
                 raise RoomsException
             hours_left = get_hours()
 
-            while cohorts_by_size[c_num].get_hours(lambda x: x.delivery == "Class") < hours_left:
-                hours_left -= cohorts_by_size[c_num].get_hours(lambda x: x.delivery == "Class")
+            while cohorts_by_size[c_num].get_hours(lambda x: x.is_lab() == lab) < hours_left:
+                hours_left -= cohorts_by_size[c_num].get_hours(lambda x: x.is_lab() == lab)
                 c_num += 1
                 # if all courses are full, should return the amount of spare hours for classrooms
 

@@ -46,6 +46,7 @@ class Cohort:
         for course in self.courses:
             hours += course.hours_remaining
 
+
     def same_name(self, name):
         return self.name == name
 
