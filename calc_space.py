@@ -155,13 +155,11 @@ def calc_cohort_capacity(classrooms, cohorts):
                         cohorts_with_spare_rooms.append((cohorts_by_size[c_num], size_lab))
 
             c_num += 1
-                # if all courses are full, should return the amount of spare hours for classrooms
-
+            # if all courses are full, should return the amount of spare hours for classrooms
 
     return cohorts_with_spare_rooms
 
     # If there are not enough rooms, calculates the number of hours that the class needs
-
 
 
 def calc_extra_students(spare_hours, length, room_size):
@@ -170,3 +168,55 @@ def calc_extra_students(spare_hours, length, room_size):
     # rooms size - the size of the room
     number_of_classes = math.floor(spare_hours / length)
     return room_size * number_of_classes
+
+
+def calc_program_room(programs, classrooms, cohorts):
+    # This calculates the amount of students each program can take, and the excess classroom room
+    try:
+        spare_hours = []
+        for core in [True, False]:
+            for lab in [False, True]:
+                spare_hours.append(calc_cohort_hours(classrooms, cohorts, core, lab))
+    except:
+        # This is a temp exception until a more thorough system of finding out the overcapacity is made
+        raise ValueError
+
+    # This is the room that the currently made cohorts can take, assuming only Term one classes can make cohorts
+    cohort_room = calc_cohort_capacity(classrooms, cohorts)
+    for program in programs.programs:
+        student_count = 0
+        for cohort in cohort_room:
+            if program.name == cohort[0].program.name:
+                student_count += cohort[1]
+        if student_count > 0:
+            print(
+                program.name + " has room for " + str(student_count) + " more students with the current allocation of "
+                                                                       "rooms and "
+                                                                       "cohorts")
+
+    print("Additionally, space rooms give the following capacity for new cohorts:")
+    # Goes through all variation of true false to form the list containing:
+    # [core class, core lab, program class, program lab]
+
+
+    # Prints the information from the space hours into a more readable format for the viewer
+    print(" CORE:")
+    for room in spare_hours[0]:
+        print("     Classroom " + room[0].name + " has room for " + str(
+            room[1]) + " spare hours worth of additional core "
+                       "cohorts with"
+                       "a capacity of " + str(
+            room[0].size) + " students")
+    for room in spare_hours[1]:
+        print("     Lab " + room[0].name + " has room for " + str(
+            room[1]) + " spare hours worth of additional core cohorts with "
+                       "a capacity of " + str(room[0].size) + " students")
+    print(" PROGRAM:")
+    for room in spare_hours[2]:
+        print("     Classroom " + room[0].name + " has room for " + str(
+            room[1]) + " spare hours worth of additional program cohorts with "
+                       "a capacity of " + str(room[0].size) + " students")
+    for room in spare_hours[3]:
+        print("     Lab " + room[0].name + " has room for " + str(
+            room[1]) + " spare hours worth of additional program cohorts with "
+                       "a capacity of " + str(room[0].size) + " students")
