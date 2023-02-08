@@ -1,4 +1,6 @@
 from unittest import TestCase
+
+import hardCodedCourses
 from Database.cohort import Cohort
 from Database.program import Program
 from Database.classroom import Classroom
@@ -30,3 +32,13 @@ class TestCohort(TestCase):
         c1.generate_name()
 
         assert c1.name == "BCOM0110"
+
+
+    def test_givencohortwithcoureses_gethours_showhours(self):
+        PCOM = hardCodedCourses.temp_create_courses()[0]
+
+        c1 = Cohort(PCOM, 1, 1, 24, PCOM.get_instance_courses(lambda x: x.term == 1))
+
+        output = c1.get_hours(lambda x: x.is_lab() == False)
+
+        assert 70 == output

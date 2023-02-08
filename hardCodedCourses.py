@@ -8,8 +8,8 @@ def temp_create_courses():
     PCOM.add_course(StoredCourse("PCOM 0101", 35, 1, []))
     PCOM.add_course(StoredCourse("PCOM 0105", 35, 1, []))
     PCOM.add_course(StoredCourse("PCOM 0107", 18, 1, [], "Lab"))
-    PCOM.add_course(StoredCourse("PCOM 0107", 7, 1, [], "Lab"))
-    PCOM.add_course(StoredCourse("PCOM 0107", 6, 1, [], "Lab"))
+    PCOM.add_course(StoredCourse("CMSK 0233", 7, 1, [], "Lab"))
+    PCOM.add_course(StoredCourse("CMSK 0235", 6, 1, [], "Lab"))
     # PCOM TERM 2
     PCOM.add_course(StoredCourse("PCOM 0102", 35, 2, []))
     PCOM.add_course(StoredCourse("PCOM 0201", 35, 2, []))
@@ -18,7 +18,7 @@ def temp_create_courses():
     PCOM.add_course(StoredCourse("PCOM 0202", 33, 3, []))
     PCOM.add_course(StoredCourse("PCOM 0103", 35, 3, []))
     PCOM.add_course(StoredCourse("PCOM 0109 Class Portion", 6, 3, [], "Class", "H=2h"))
-    PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab"))
+    PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab", "H=2h"))
 
     BCOM = Program("BCOM")
     # BCOM TERM 1
@@ -147,7 +147,7 @@ def temp_create_courses():
     # Term 2
     BC.add_course(StoredCourse("ACCT 0206", 12, 2, []))
     BC.add_course(StoredCourse("ACCT 0210", 28, 2, [], "Lab"))
-    BC.add_course(StoredCourse("ACCT 0211", 28, 12, [], "Lab"))
+    BC.add_course(StoredCourse("ACCT 0211", 28, 2, [], "Lab"))
     # Term 3
     BC.add_course(StoredCourse("SCMT 0505", 21, 3, []))
     BC.add_course(StoredCourse("PCOM 0151", 33, 3, [], "Class", "H=3h"))

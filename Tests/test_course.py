@@ -13,3 +13,17 @@ class TestCourse(TestCase):
         course.add_lecture(lecture1)
 
         assert lecture1 == course.lectures[0]
+
+    def test_givenNotLabCoure_is_lab_returnFalse(self):
+        course = Course("CMPT101", 8, [])
+
+        output = course.is_lab()
+
+        return not output
+
+    def test_givenLabCoure_is_lab_returnTrue(self):
+        course = Course("CMPT102", 8, [], "Lab")
+
+        output = course.is_lab()
+
+        return output

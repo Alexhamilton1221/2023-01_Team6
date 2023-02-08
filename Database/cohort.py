@@ -1,7 +1,7 @@
 
 class Cohort:
 
-    def __init__(self, program, term, number, count, courses):
+    def __init__(self, program, term, number, count, courses, room = None, lab = None):
         # The program of the cohort
         self.program = program
         # The Term of the cohort
@@ -12,7 +12,18 @@ class Cohort:
         self.count = count
         # The Courses Taken By this cohort
         self.courses = courses
+        # The room of the cohort (if applicable)
+        self.room = room
+        # The Lab of the cohort (if applicable)
+        self.lab = lab
 
+    def set_room(self, room):
+        # Sets the room of the cohort
+        self.room = room
+
+    def set_lab(self, lab):
+        # Sets the lab of the cohort
+        self.lab = lab
     def generate_name(self):
         # Checks if there are over 10 cohorts in one program (extremely unlikely) to make the name correct
         if self.number < 10:
@@ -20,17 +31,21 @@ class Cohort:
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
-    def get_hours_total(self):
+    def get_hours(self, specification=lambda x: True):
         # Gets the total number of courses in hours
         hours = 0
         for course in self.courses:
-            hours += course.total_hours
+            if specification(course):
+                hours += course.total_hours
+
+        return hours
 
     def get_hours_remaining(self):
         # Gets the remaining number of courses in hours
         hours = 0
         for course in self.courses:
             hours += course.hours_remaining
+
 
     def same_name(self, name):
         return self.name == name
@@ -46,6 +61,9 @@ class Cohort:
 
     def same_count(self, count):
         return self.count == count
+
+    def __str__(self):
+        return self.name
 
 
 
