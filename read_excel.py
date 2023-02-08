@@ -1,10 +1,11 @@
-import pandas as pd
 import openpyxl
 from Database.program import Program
 from Database.course import Course
 from Database.classroom import Classroom
 from Database.classrooms import Classrooms
 from Database.cohort import Cohort
+from Database.cohorts import Cohorts
+
 import string
 
 
@@ -139,27 +140,33 @@ def get_classrooms(filename):
 def get_registration(filename):
 
     ws = openpyxl.load_workbook(filename).worksheets[3]
-    cohorts = []
+    cohorts = Cohorts()
 
     for i in range(3):
         for row in ws.iter_rows(min_col=(i*2)+1, max_col=(i*2)+2, min_row=2):
             program_name = ""
+
+            if row[0].value == None:
+                continue
 
             for char in row[0].value:
                 if not char.isnumeric():
                     program_name = program_name + char
 
             number = 1
-            for o in cohorts:
-                if o.program == program_name:
+            for o in cohorts.cohorts:
+                if o.program == program_name and o.term == 0:
                     number += 1
 
-            new_cohort = Cohort(program_name, 1, number, int(row[1].value), [])
+            new_cohort = Cohort(program_name, 0, number, int(row[1].value), [])
 
-            cohorts.append(new_cohort)
+            cohorts.add_cohort(new_cohort)
+        
+        for cohort in cohorts.cohorts:
+            cohort.term += 1
 
 
 
     return cohorts
 
-print(get_registration("SCE_ProgramsCourses_(2023-02-01).xlsx"))
+get_registration("SCE_ProgramsCourses_(2023-02-01).xlsx").show_cohorts()
