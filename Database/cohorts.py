@@ -27,4 +27,4 @@ class Cohorts:
     def show_cohorts(self):
         # Shows hours separated by information
         for a_cohort in self.cohorts:
-            print(a_cohort.name)
+            print(a_cohort.program, a_cohort.term, a_cohort.number, " - ", a_cohort.count, sep='')
