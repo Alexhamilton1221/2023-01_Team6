@@ -62,5 +62,8 @@ class Cohort:
     def same_count(self, count):
         return self.count == count
 
+    def __str__(self):
+        return self.name
+
 
 
