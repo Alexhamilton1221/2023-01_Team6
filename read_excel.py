@@ -2,6 +2,9 @@ import pandas as pd
 import openpyxl
 from Database.program import Program
 from Database.course import Course
+from Database.classroom import Classroom
+from Database.classrooms import Classrooms
+from Database.cohort import Cohort
 import string
 
 
@@ -117,9 +120,46 @@ def read_excel(filename):
     return programs
 
 
-programs = read_excel("SCE_ProgramsCourses.xlsx")
+#SCE_ProgramsCourses_(2023-02-01).xlsx
+
+def get_classrooms(filename):
+    ws = openpyxl.load_workbook(filename).worksheets[4]
+
+    room_list = Classrooms()
+
+    for row in ws.iter_rows(min_row=2):
+        room_no = row[0].value.split(' ')[0]
+        cap = int(row[1].value)
+        new_classroom = Classroom(room_no, cap, ("lab" in row[0].value.lower()))
+        room_list.add_classroom(new_classroom)
+
+    return room_list
+
+
+def get_registration(filename):
+
+    ws = openpyxl.load_workbook(filename).worksheets[3]
+    cohorts = []
+
+    for i in range(3):
+        for row in ws.iter_rows(min_col=(i*2)+1, max_col=(i*2)+2, min_row=2):
+            program_name = ""
+
+            for char in row[0].value:
+                if not char.isnumeric():
+                    program_name = program_name + char
+
+            number = 1
+            for o in cohorts:
+                if o.program == program_name:
+                    number += 1
+
+            new_cohort = Cohort(program_name, 1, number, int(row[1].value), [])
+
+            cohorts.append(new_cohort)
 
 
 
-for prog in programs:
-    print(prog)
+    return cohorts
+
+print(get_registration("SCE_ProgramsCourses_(2023-02-01).xlsx"))
