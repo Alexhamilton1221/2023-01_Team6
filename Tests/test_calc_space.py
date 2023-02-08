@@ -153,4 +153,36 @@ class Test(TestCase):
         extra_cohort_room = calc_space.calc_cohort_capacity(rooms, cohorts)
         assert [(PCOMC1, 2), (BC1, 2), (GLM1, 8)] == extra_cohort_room
 
+    def test_givenClassroomsandCohorts_CalcprogramRoom_ShowCapacity(self):
+        # This creates the room for the test
+        room1 = Classroom("11032", 30)
+        room2 = Classroom("11033", 24)
+        room3 = Classroom("11034", 30)
+        room4 = Classroom("11032 Computer Lab", 30, True)
+        rooms = Classrooms([room1, room2, room3, room4])
+
+        # This creates the program for the tes
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        PCOM = programs.get_program(lambda x: x.name == "PCOM")
+        BC = programs.get_program(lambda x: x.name == "BC")
+        GLM = programs.get_program(lambda x: x.name == "GLM")
+
+        # This creates the cohorts of the test
+        # Core
+        PCOMC1 = Cohort(PCOM, 1, 1, 28, PCOM.get_instance_courses(lambda x: x.term == 1))
+        PCOMC2 = Cohort(PCOM, 1, 2, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
+        PCOMC3 = Cohort(PCOM, 2, 1, 25, PCOM.get_instance_courses(lambda x: x.term == 2))
+        PCOMC4 = Cohort(PCOM, 3, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 3))
+        PCOMC5 = Cohort(PCOM, 3, 2, 24, PCOM.get_instance_courses(lambda x: x.term == 3))
+
+        # Program
+        BC1 = Cohort(BC, 1, 1, 28, BC.get_instance_courses(lambda x: x.term == 1))
+        BC2 = Cohort(BC, 2, 1, 20, BC.get_instance_courses(lambda x: x.term == 2))
+        GLM1 = Cohort(GLM, 1, 1, 22, BC.get_instance_courses(lambda x: x.term == 1))
+
+        cohorts = Cohorts([PCOMC1, PCOMC2, PCOMC3, PCOMC4, PCOMC5, BC1, BC2, GLM1])
+        for cohort in cohorts.cohorts:
+            cohort.generate_name()
+
+        calc_space.calc_program_room(programs, rooms, cohorts)
 
