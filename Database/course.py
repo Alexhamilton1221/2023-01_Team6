@@ -25,3 +25,15 @@ class Course:
     def is_lab(self):
         return self.delivery == "Lab"
 
+    def is_equal(self, other):
+        if type(other) != Course:
+            return False
+        if len(self.prerequisites) != len(other.prerequisites):
+            return False
+        prereqs = zip(self.prerequisites, other.prerequisites)
+        for prereq in prereqs:
+            if prereq[0] != prereq[1]:
+                return False
+
+        return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.total_hours and self.delivery == other.delivery
+
