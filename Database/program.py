@@ -1,9 +1,9 @@
 
 class Program:
     def __init__(self, name):
-        # The name of the program
+        # The name of the program (string)
         self.name = name
-        # A list of stored courses,
+        # A list of stored courses, (array of Stored course object (!!!NOT Course!!!))
         self.stored_courses = []
 
 

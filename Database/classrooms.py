@@ -2,6 +2,7 @@
 class Classrooms:
     # A data storage class
     def __init__(self, classrooms = []):
+        # An array of classrooms
         self.classrooms = classrooms
 
     def add_classroom(self, room):
