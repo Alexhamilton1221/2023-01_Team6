@@ -2,7 +2,7 @@ from Database.cohort import Cohort
 class Cohorts:
 
     def __init__(self, cohorts=[]):
-        # The cohorts of the database
+        # The cohorts of the database (array of cohort)
         self.cohorts = cohorts
 
     def add_cohort(self, cohort):

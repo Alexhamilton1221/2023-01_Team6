@@ -2,19 +2,19 @@
 class Cohort:
 
     def __init__(self, program, term, number, count, courses, room = None, lab = None):
-        # The program of the cohort
+        # The program of the cohort (program class)
         self.program = program
-        # The Term of the cohort
+        # The Term of the cohort (integer)
         self.term = term
-        # The number for the cohort (as in BCOM cohort 1 BCOM cohort 2
+        # The number for the cohort (as in BCOM cohort 1 BCOM cohort 2 (integer)
         self.number = number
-        # The number of students in the cohort
+        # The number of students in the cohort (integer)
         self.count = count
-        # The Courses Taken By this cohort
+        # The Courses Taken By this cohort (array of course object)
         self.courses = courses
-        # The room of the cohort (if applicable)
+        # The room of the cohort (if applicable) (classroom object)
         self.room = room
-        # The Lab of the cohort (if applicable)
+        # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
 
     def set_room(self, room):

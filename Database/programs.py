@@ -2,7 +2,7 @@
 class Programs:
 
     def __init__(self, programs):
-        # A list of programs
+        # A list of programs (array of program object)
         self.programs = programs
     def add_program(self, program):
         # Adds a new program to the course
