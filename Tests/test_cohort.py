@@ -42,3 +42,5 @@ class TestCohort(TestCase):
         output = c1.get_hours(lambda x: x.is_lab() == False)
 
         assert 70 == output
+
+

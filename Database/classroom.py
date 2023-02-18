@@ -9,7 +9,6 @@ class Classroom:
         # Cohorts assigned to the Room (array of Cohorts)
         self.cohorts = []
 
-
     def same_name(self, name):
         return self.name == name
 
