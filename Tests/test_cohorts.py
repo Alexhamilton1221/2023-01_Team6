@@ -16,13 +16,22 @@ class TestCohorts(TestCase):
 
         assert cohort == gottenCohort
 
-    def test_create_cohort__create_corhgorts_assignReasableCohorts(self):
+    def test_create_cohort_Single_type_assignReasableCohorts(self):
         programs = Programs(temp_create_courses())
         classrooms = Classrooms(temp_Classroom_add())
-        students = [["PCOM 1", 67], ["PCOM 2", 56], ["PCOM 3", 28], ["BC 1", 25], ["BC 2", 43], ["BC 3", 17]]
+        students = [["PCOM 1", 67]]
 
         cohorts = Cohorts()
         cohorts.create_cohorts(classrooms, programs, students)
+    def test_create_cohort__create_corhgorts_assignReasableCohorts(self):
+        programs = Programs(temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["PCOM 1", 67], ["PCOM 2", 56], ["PCOM 3", 28], ["BA 1", 25], ["BA 2", 43], ["BA 3", 30], ["FS 2", 17]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+
+        cohorts.show_cohorts()
 
     
 

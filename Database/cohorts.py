@@ -2,6 +2,7 @@ import math
 
 from Database.classrooms import Classrooms
 from Database.cohort import Cohort
+from Database.programs import Programs
 from calc_space import get_hours
 from calc_space import get_FullStack_hours
 
@@ -12,11 +13,14 @@ class NearLimit(Exception):
     # "Raises if the amount of students is near the abosoltue limit of courses
     pass
 
+
 class OverLimit(Exception):
     # def __init__(self):
 
     # "Raises if there are too many students for the program to handle
     pass
+
+
 class Cohorts:
 
     def __init__(self, cohorts=[]):
@@ -50,13 +54,15 @@ class Cohorts:
             for group in students:
                 if group[3] == level:
                     p_students.append(group)
-            p_students.sort(key=lambda student: student[2])
+            p_students.sort(key=lambda student: student[2], reverse=True)
             p_sorted_students.append(p_students)
 
         return p_sorted_students
 
-    @staticmethod
-    def __check_if_fits__(capacities, group, programs, classroom_hours, lab_hours):
+
+    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours):
+        not_core = int(not program.is_core())
+
         fits = False
         for capacity in capacities:
             # This stores the hours that are to be removed if the capacity is correct
@@ -64,76 +70,134 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
-            hours_per_cohort = programs.get_program(group[0]).get_hours(lambda course: not course.is_lab())
-            total_hours = hours_per_cohort * capacities[2]
-            if programs.get_program(group[0]).is_core():
+            hours_per_cohort = program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1])
+            total_hours = hours_per_cohort * capacity[2]
 
-                # Goes through every classroom
-                while room_num < len(classroom_hours) and total_hours > 0:
-                    # Checks if room is not too small
-                    if classroom_hours[room_num][1] >= capacity[1]:
-                        # Removes all possibles hours from the classroom
-                        total_hours -= math.floor(classroom_hours[room_num][1] / hours_per_cohort)
+
+            # Goes through every classroom
+            while room_num < len(classroom_hours) and total_hours > 0:
+                # Checks if room is not too small
+                if classroom_hours[room_num][2 + not_core] >= hours_per_cohort:
+                    # Removes all possibles hours from the classroom
+                    total_hours -= hours_per_cohort * math.floor(classroom_hours[room_num][2 + not_core] / hours_per_cohort)
+                else:
+                    room_num += 1
+                # If the classrooms was able to handle hours
+            if room_num == len(classroom_hours):
+                # This means that the current capacity cannot hold the students
+                # Changes the way that the students are stored
+                continue
+
+            room_num = 0
+            # Hours per cohort is the amount of hours this cohort will need for the program
+            # total hours is the total number of hours needed for all cohorts
+            hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
+            total_hours = hours_per_cohort * capacity[2]
+            while room_num < len(lab_hours) and total_hours > 0:
+                # Checks if the group is full stack
+                if group[0] == "FS":
+                    if lab_hours[room_num][4] >= hours_per_cohort:
+                        total_hours -= math.floor(lab_hours[room_num][4] / hours_per_cohort)
+                # Checks if room is not too small
+                if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
+                    # Removes all possibles hours from the classroom
+                    total_hours -= hours_per_cohort * math.floor(lab_hours[room_num][2 + not_core] / hours_per_cohort)
+                else:
                     room_num += 1
 
-                    # If the classrooms was able to handle hours
-                if room_num == len(classroom_hours):
-                    # This means that the current capacity cannot hold the students
-                    # Changes the way that the students are stored
-                    continue
+            if room_num == len(lab_hours):
+                # This means that the current capacity cannot hold the students
+                # Changes the way that the students are stored
+                continue
 
-                room_num = 0
-                # Hours per cohort is the amount of hours this cohort will need for the program
-                # total hours is the total number of hours needed for all cohorts
-                hours_per_cohort = programs.get_program(group[0]).get_hours(lambda course: course.is_lab())
-                total_hours = hours_per_cohort * capacities[2]
-                while room_num < len(lab_hours) and total_hours > 0:
-                    # Checks if room is not too small
-                    if lab_hours[room_num][1] >= capacity[1]:
-                        # Removes all possibles hours from the classroom
-                        total_hours -= math.floor(lab_hours[room_num][1] / hours_per_cohort)
-                    room_num += 1
-
-                if room_num == len(lab_hours):
-                    # This means that the current capacity cannot hold the students
-                    # Changes the way that the students are stored
-                    continue
-
-                return True, capacity
+            return True, capacity
         return False, None
 
-    @staticmethod
-    def __remove_hours_from_room_core__(capacity, group, programs, classroom_hours, lab_hours):
+    def __create_unassigned_cohorts__(self, capacity, group, program):
+        # Creates cohorts for a specific group of students (program term) and balances the amounts
+        cohorts = []
+        # CREATE COHORTS AND SET THEM DOWN THERE NOT DONE
+        for i in range(capacity[2]):
+            # TEMP
+            cohorts.append(Cohort(program, group[1], i + 1, capacity[1],
+                                  program.get_instance_courses()))
+        extra_students = len(cohorts) * capacity[1] - group[2]
+        c_num = 0
+        while extra_students > 0:
+            cohorts[c_num].count -= 1
+            extra_students -= 1
+            c_num += 1
+            if c_num == len(cohorts):
+                c_num = 0
+
+        return cohorts
+
+    def __set_rooms__(self, capacity, group, program, classroom_hours, lab_hours):
+        # Adds a value for checking if a room is core or not and deducts the correct hours
+        not_core = int(not program.is_core())
+
+        assigned_class_index = 0
+        assigned_lab_index = 0
+        cohorts = self.__create_unassigned_cohorts__(capacity, group, program)
 
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        hours_per_cohort = programs.get_program(group[0]).get_hours(lambda course: not course.is_lab())
+        hours_per_cohort = program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1])
         total_hours = hours_per_cohort * capacity[2]
         # Goes through every classroom
         while room_num < len(classroom_hours) and total_hours > 0:
             # Checks if room is not too small
-            if classroom_hours[room_num][1] >= capacity[1]:
+            if classroom_hours[room_num][2 + not_core] >= hours_per_cohort:
+                # Gets the amount of cohorts that fit in the room
+                fitting_cohorts = math.floor(classroom_hours[room_num][2 + not_core] / hours_per_cohort)
+                if fitting_cohorts > total_hours / hours_per_cohort:
+                    fitting_cohorts = int(total_hours / hours_per_cohort)
+                for i in range(fitting_cohorts):
+                    cohorts[assigned_class_index + i].room = classroom_hours[room_num][0]
+                assigned_class_index += fitting_cohorts
                 # Removes all possibles hours from the classroom and removes them from the classroom
-                total_hours -= math.floor(classroom_hours[room_num][1] / hours_per_cohort)
-                classroom_hours[room_num][1] -= math.floor(classroom_hours[room_num][1] / hours_per_cohort)
-            room_num += 1
+                total_hours -= hours_per_cohort * fitting_cohorts
+                classroom_hours[room_num][2 + not_core] -= hours_per_cohort * fitting_cohorts
+            else:
+                room_num += 1
 
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        hours_per_cohort = programs.get_program(group[0]).get_hours(lambda course: course.is_lab())
+        hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
         total_hours = hours_per_cohort * capacity[2]
         while room_num < len(lab_hours) and total_hours > 0:
-            # Checks if room is not too small
-            if lab_hours[room_num][1] >= capacity[1]:
-                # Removes all possibles hours from the classroom
-                total_hours -= math.floor(lab_hours[room_num][1] / hours_per_cohort)
-                lab_hours[room_num][1] -= math.floor(classroom_hours[room_num][1] / hours_per_cohort)
-            room_num += 1
+            # Goes through full stack hours first
+            if group[0] == "FS":
+                # DOES NOT WORK CURRENTLY - FIX
+                if lab_hours[room_num][4] + lab_hours[room_num][2 + not_core] >= hours_per_cohort:
+                    # Removes all possibles hours from the classroom
+                    total_hours -= hours_per_cohort * lab_hours[room_num][4] / hours_per_cohort
+                    lab_hours[room_num][4] -= hours_per_cohort * math.floor(lab_hours[room_num][4] / hours_per_cohort)
 
-    @staticmethod
-    def __student_assignment__(students, class_by_size, labs_by_size, programs, safety_net=1.1):
+            # Checks if room is not too small
+            if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
+                fitting_cohorts = math.floor(lab_hours[room_num][2 + not_core] / hours_per_cohort)
+                if fitting_cohorts > total_hours / hours_per_cohort:
+                    fitting_cohorts = int(total_hours / hours_per_cohort)
+
+                for i in range(fitting_cohorts):
+                    cohorts[assigned_lab_index + i].lab = lab_hours[room_num][0]
+                assigned_lab_index += fitting_cohorts
+                # Removes all possibles hours from the classroom
+                total_hours -= hours_per_cohort * fitting_cohorts
+                lab_hours[room_num][2 + not_core] -= hours_per_cohort * fitting_cohorts
+            else:
+                room_num += 1
+
+        return cohorts
+
+
+    def __student_assignment__(self, students, class_by_size, labs_by_size, programs, safety_net=1.1):
+
+        # This holds the list of all cohorts created by the function, to be added at the end if they fit
+        cohorts = []
 
         # These are lists of all the classrooms sizes by themselves, Ex [40, 36, 30, 24]
         class_sizes = []
@@ -149,7 +213,7 @@ class Cohorts:
             classroom_hours.append([room, room.size, get_hours(), get_hours()])
             if room.size not in class_sizes:
                 class_sizes.append(room.size)
-        classroom_hours.sort(key=lambda room: room.size)
+        #classroom_hours.sort()
 
         # This creates a separate list containing the lab hours for core (left) and program (right), with extra hours
         # that full stack classes get on the far right.
@@ -159,10 +223,10 @@ class Cohorts:
             lab_hours.append([room, room.size, get_hours(), get_hours(), get_FullStack_hours()])
             if room.size not in class_sizes:
                 lab_sizes.append(room.size)
-        lab_sizes.sort(key=lambda room: room.size)
+        #lab_sizes.sort()
 
         # This pruduces a matrix with the outer array being the sorted priority
-        sorted_priority_students = Cohorts.__students_by_priority__(students)
+        sorted_priority_students = self.__students_by_priority__(students)
 
         for p_students in sorted_priority_students:
             # Go through all groups of students
@@ -170,6 +234,10 @@ class Cohorts:
                 # goes through all class sizes, and find the cohorts that leave around 10% extra room
                 # capacities format is [Spare Space, cohort Size, cohort count]
                 capacities = []
+                # This gets the program of courese
+                program = programs.get_program(lambda program: program.name == group[0])
+
+                # This gets the capacity of ever class size with the possible cohort size
                 for size in class_sizes:
                     # gets the size of the cohort with the safety net making the class bigger
                     cohort_count = math.ceil((group[2] * safety_net / size))
@@ -178,24 +246,38 @@ class Cohorts:
                     extra_space = (cohort_count * size) - group[2]
                     capacities.append([extra_space, cohort_size, cohort_count])
 
-                # Sorts the cohorts from the largest amount of extra space
-                capacities.sort(key=lambda capacity: capacity[0], reverse=True)
 
+
+
+                # Sorts the cohorts from the least amount of extra space (since the 10% extra is already accounted for)
+                capacities.sort(key=lambda capacity: capacity[0])
 
                 # Returns whether cohort fit, and which capacity it fit in (if it did)
-                fits, capacity = Cohorts.__check_if_fits__(capacities, group, programs, classroom_hours, lab_hours)
+                fits, capacity = self.__check_if_fits__(capacities, group, program, classroom_hours, lab_hours)
                 if not fits:
-                    if group[3] < 50:
+                    if group[3] > 50:
                         raise NearLimit
                         # If the group cannot fit, raises the priority of the group so they get first choice of room
                     group[3] += 1
 
-                    Cohorts.__student_assignment__(students, labs_by_size, class_by_size, programs, safety_net)
+                    self.__student_assignment__(students, labs_by_size, class_by_size, programs, safety_net)
                     return  # Very important return statement do not remove else the computer will violently detonate
                 else:
                     # If there is enouh room in the classes for this cohort, removes its hours from the class
                     # so futor cohorts do not stack
-                    Cohorts.__remove_hours_from_room_core__(capacity, group, programs, classroom_hours, lab_hours)
+                    new_cohorts = self.__set_rooms__(capacity, group, program, classroom_hours, lab_hours)
+                    for a_cohort in new_cohorts:
+                        a_cohort.generate_name()
+                        cohorts.append(a_cohort)
+
+        # This adds the rooms to the classroom
+        for cohort in cohorts:
+            if cohort.room is not None:
+                cohort.room.add_cohort(cohort)
+            if cohort.lab is not None:
+                cohort.lab.add_cohort(cohort)
+        # Adds the cohort to the data class since they all fix
+        self.cohorts = cohorts
 
     def create_cohorts(self, classrooms, programs, students):
         # Given an amount of classrooms in the classrooms object

@@ -5,6 +5,8 @@ from Database.course import Course
 
 
 class TestProgram(TestCase):
+
+
     def test_whereNoSecifcationGiven_gethours_getallhoursofYear(self):
         # Bookkeeping Certificate
         BC = Program("BC")
