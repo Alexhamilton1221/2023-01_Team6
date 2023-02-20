@@ -23,10 +23,18 @@ class TestCohorts(TestCase):
 
         cohorts = Cohorts()
         cohorts.create_cohorts(classrooms, programs, students)
+
+    def test_create_cohort_small_amount_type_assignReasableCohorts(self):
+        programs = Programs(temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["PCOM 1", 67], ["BCOM 1", 20]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
     def test_create_cohort__create_corhgorts_assignReasableCohorts(self):
         programs = Programs(temp_create_courses())
         classrooms = Classrooms(temp_Classroom_add())
-        students = [["PCOM 1", 67], ["PCOM 2", 56], ["PCOM 3", 28], ["BA 1", 25], ["BA 2", 43], ["BA 3", 30], ["FS 2", 17]]
+        students = [["PCOM 1", 67], ["PCOM 2", 45],["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 60], ["BC 1", 36]]
 
         cohorts = Cohorts()
         cohorts.create_cohorts(classrooms, programs, students)

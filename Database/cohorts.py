@@ -76,7 +76,11 @@ class Cohorts:
 
             # Goes through every classroom
             while room_num < len(classroom_hours) and total_hours > 0:
-                # Checks if room is not too small
+                # Checks if the room is too small
+                if classroom_hours[room_num][1] < capacity[1]:
+                    room_num += 1
+                    continue
+                # Checks if room has enough hours
                 if classroom_hours[room_num][2 + not_core] >= hours_per_cohort:
                     # Removes all possibles hours from the classroom
                     total_hours -= hours_per_cohort * math.floor(classroom_hours[room_num][2 + not_core] / hours_per_cohort)
@@ -94,18 +98,22 @@ class Cohorts:
             hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
             total_hours = hours_per_cohort * capacity[2]
             while room_num < len(lab_hours) and total_hours > 0:
+                # Checks if the room is too small
+                if lab_hours[room_num][1] < capacity[1]:
+                    room_num += 1
+                    continue
                 # Checks if the group is full stack
                 if group[0] == "FS":
                     if lab_hours[room_num][4] >= hours_per_cohort:
                         total_hours -= math.floor(lab_hours[room_num][4] / hours_per_cohort)
-                # Checks if room is not too small
+                # Checks if room has enough hours remaining
                 if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
                     # Removes all possibles hours from the classroom
                     total_hours -= hours_per_cohort * math.floor(lab_hours[room_num][2 + not_core] / hours_per_cohort)
-                else:
-                    room_num += 1
 
-            if room_num == len(lab_hours):
+                room_num += 1
+
+            if total_hours > 0:
                 # This means that the current capacity cannot hold the students
                 # Changes the way that the students are stored
                 continue
@@ -147,6 +155,10 @@ class Cohorts:
         total_hours = hours_per_cohort * capacity[2]
         # Goes through every classroom
         while room_num < len(classroom_hours) and total_hours > 0:
+            # Checks if the room is too small
+            if classroom_hours[room_num][1] < capacity[1]:
+                room_num += 1
+                continue
             # Checks if room is not too small
             if classroom_hours[room_num][2 + not_core] >= hours_per_cohort:
                 # Gets the amount of cohorts that fit in the room
@@ -159,8 +171,8 @@ class Cohorts:
                 # Removes all possibles hours from the classroom and removes them from the classroom
                 total_hours -= hours_per_cohort * fitting_cohorts
                 classroom_hours[room_num][2 + not_core] -= hours_per_cohort * fitting_cohorts
-            else:
-                room_num += 1
+
+            room_num += 1
 
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
@@ -168,6 +180,10 @@ class Cohorts:
         hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
         total_hours = hours_per_cohort * capacity[2]
         while room_num < len(lab_hours) and total_hours > 0:
+            # Checks if the room is too small
+            if lab_hours[room_num][1] < capacity[1]:
+                room_num += 1
+                continue
             # Goes through full stack hours first
             if group[0] == "FS":
                 # DOES NOT WORK CURRENTLY - FIX
@@ -200,30 +216,8 @@ class Cohorts:
         cohorts = []
 
         # These are lists of all the classrooms sizes by themselves, Ex [40, 36, 30, 24]
-        class_sizes = []
-        lab_sizes = []
         # These are list all the classrooms by the hours stored within
-        classroom_hours = []
-        lab_hours = []
-
-        # This creates a separate list containing the classrooms hours for core (left) and program (right)
-        # As cohorts are assigned the amount of spare hours will be decreased
-        for room in class_by_size:
-            # FORMAT [ROOM, ROOM SIZE, CORE HOURS, PROGRAM HOURS]
-            classroom_hours.append([room, room.size, get_hours(), get_hours()])
-            if room.size not in class_sizes:
-                class_sizes.append(room.size)
-        #classroom_hours.sort()
-
-        # This creates a separate list containing the lab hours for core (left) and program (right), with extra hours
-        # that full stack classes get on the far right.
-        # As cohorts are assigned the amount of spare hours will be decreased
-        for room in labs_by_size:
-            # FORMAT [ROOM, ROOM SIZE,CORE HOURS, PROGRAM HOURS, FULL STACK ONLY HOURS]
-            lab_hours.append([room, room.size, get_hours(), get_hours(), get_FullStack_hours()])
-            if room.size not in class_sizes:
-                lab_sizes.append(room.size)
-        #lab_sizes.sort()
+        class_sizes, lab_sizes, classroom_hours, lab_hours = Classrooms.rooms_by_size_with_hours(class_by_size, labs_by_size)
 
         # This pruduces a matrix with the outer array being the sorted priority
         sorted_priority_students = self.__students_by_priority__(students)
@@ -260,7 +254,7 @@ class Cohorts:
                         # If the group cannot fit, raises the priority of the group so they get first choice of room
                     group[3] += 1
 
-                    self.__student_assignment__(students, labs_by_size, class_by_size, programs, safety_net)
+                    self.__student_assignment__(students, class_by_size, labs_by_size, programs, safety_net)
                     return  # Very important return statement do not remove else the computer will violently detonate
                 else:
                     # If there is enouh room in the classes for this cohort, removes its hours from the class
@@ -295,9 +289,17 @@ class Cohorts:
         # Do all again with priority level 0-1-2
         try:
             self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs)
+            return 0
         except NearLimit:
+
             # If the class does not fit, removes the 10% safty to try to match room sizes
-            self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, 1.0)
+            try:
+                self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, 1.0)
+                print("WARNING: NEAR CAPACITY")
+                return 1
+            except NearLimit:
+                print("WARNING: TOO MANY STUDENTS. (ADD better error handeling here)")
+                return 2
 
     def add_cohort(self, cohort):
         # Adds a new cohort to the list
