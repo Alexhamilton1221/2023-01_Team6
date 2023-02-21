@@ -9,7 +9,8 @@ class Classroom:
         # Cohorts assigned to the Room (array of Cohorts)
         self.cohorts = []
 
-
+    def add_cohort(self, cohort):
+        self.cohorts.append(cohort)
     def same_name(self, name):
         return self.name == name
 

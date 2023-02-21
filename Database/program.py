@@ -37,14 +37,18 @@ class Program:
 
     #Other stuff
     def add_class(self, term, name, hours, islab=False):
-        self.courses[term].append("name" + "Hours")  # TODO -- create and append a "Class" object
+        return
+        #self.stored_courses[term].append("name" + "Hours")  # TODO -- create and append a "Class" object
 
     def __repr__(self) -> str:
-        output = [self.name]
-
-        for term in self.courses:
-            for course in term:
-                output.append(course.name)
-
-        return str(output)
+        return self.name
+        # Conlan: what is this? there is no term in stored_courses?
+        # output = [self.name]
+        #
+        # for term in self.stored_courses:
+        #     # ???
+        #     for course in term:
+        #         output.append(course.name)
+        #
+        # return str(output)
 

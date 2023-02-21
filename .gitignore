@@ -1,4 +1,5 @@
 /venv/
+read_excel.py
 /env/
 /.idea/
 /__pycache__/
@@ -6,3 +7,4 @@
 Database/__pycache__/classroom.cpython-39.pyc
 Database/__pycache__/course.cpython-39.pyc
 Database/__pycache__/program.cpython-39.pyc
+/TODO.txt
