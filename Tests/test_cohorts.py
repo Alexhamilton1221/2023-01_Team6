@@ -41,9 +41,7 @@ class TestCohorts(TestCase):
         students = [["PCOM 1", 67], ["PCOM 2", 45],["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50], ["BC 1", 36]]
 
         cohorts = Cohorts()
-        fail_type = cohorts.create_cohorts(classrooms, programs, students)
-
-
+        cohorts.create_cohorts(classrooms, programs, students)
 
         cohorts.show_cohorts()
 
@@ -57,8 +55,14 @@ class TestCohorts(TestCase):
         students = [["PCOM 1", 120]]
         cohorts.create_cohorts(classrooms, programs, students)
 
+    def test_full_Stack_extra_assigne_cohorts(self):
+        programs = Programs(temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["FS 1", 90]]
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
 
-    
+        cohorts.show_cohorts()
 
 
 

@@ -8,7 +8,6 @@ from calc_space import get_FullStack_hours
 
 
 class NearLimit(Exception):
-
     pass
 
 
@@ -76,7 +75,6 @@ class Cohorts:
     @staticmethod
     def __students_by_priority__(students):
         # This takes a list of students in the format [("PCOM 1", 54),("PCOM 2", 45), ("PCOM 3", 81), ("PC 2", 32)]
-        # and
         priority_levels = []
         # goes through each group and adds it priority level to the group
         for group in students:
@@ -85,9 +83,11 @@ class Cohorts:
         priority_levels.sort(reverse=True)
 
         p_sorted_students = []
+        # Make
         for level in priority_levels:
             p_students = []
             for group in students:
+                # Checks if the grous priority level is the same
                 if group[3] == level:
                     p_students.append(group)
             p_students.sort(key=lambda student: student[2], reverse=True)
@@ -143,7 +143,7 @@ class Cohorts:
                 # Checks if the group is full stack
                 if group[0] == "FS":
                     if lab_hours[room_num][4] >= hours_per_cohort:
-                        total_hours -= math.floor(lab_hours[room_num][4] / hours_per_cohort)
+                        total_hours -= hours_per_cohort * math.floor(lab_hours[room_num][4] / hours_per_cohort)
                 # Checks if room has enough hours remaining
                 if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
                     # Removes all possibles hours from the classroom
@@ -165,8 +165,7 @@ class Cohorts:
         cohorts = []
         # CREATE COHORTS AND SET THEM DOWN THERE NOT DONE
         for i in range(capacity[2]):
-            # TEMP
-            cohorts.append(Cohort(program, group[1], i + 1, capacity[3],
+            cohorts.append(Cohort(program, group[1], i + 1, capacity[1],
                                   program.get_instance_courses(lambda course: course.term == i + 1)))
         extra_students = len(cohorts) * capacity[1] - group[2]
         c_num = 0
@@ -193,9 +192,9 @@ class Cohorts:
             # Extra space is the size of the cohort times the size of the cohort minus the amount of student
             # Note: this line is extreemly important as it determenes what cohort sizes and amounts are priorities
             # To be made
-            extra_space = size * cohort_count - group[2]
+            extra_space = math.floor(size * cohort_count - (group[2] * safety_net))
 
-            capacities.append([extra_space, size, cohort_count, cohort_size])
+            capacities.append([extra_space, cohort_size, cohort_count])
         # Sorts the cohorts from the least amount of extra space (since the 10% extra is already accounted for)
         capacities.sort(key=lambda capacity: capacity[0])
         return capacities
@@ -286,6 +285,7 @@ class Cohorts:
 
         for p_students in sorted_priority_students:
             # Go through all groups of students
+
             for group in p_students:
                 # goes through all class sizes, and find the cohorts that leave around 10% extra room
                 # capacities format is [Spare Space, cohort Size, cohort count]
@@ -301,9 +301,9 @@ class Cohorts:
                         # Checks if the safty has been removed, if so there is no room for the safty to be removed
 
                         if safety_net == 1.0:
-                            raise NearLimit
-                        else:
                             raise OverLimit
+                        else:
+                            raise NearLimit
                         # If the group cannot fit, raises the priority of the group so they get first choice of room
                     group[3] += 1
 
@@ -321,7 +321,6 @@ class Cohorts:
         # Adds the cohort to the data class since they all fix
         self.cohorts = cohorts
 
-
     def create_cohorts(self, classrooms, programs, students):
         # Given an amount of classrooms in the classrooms object
         # programs from the programs object
@@ -333,12 +332,11 @@ class Cohorts:
         # These are the sorted lists of classrooms by their size from largest to smallest
         classes_by_size, labs_by_size = Classrooms.rooms_by_size(classrooms)
 
-        # Classes by most even?
         # Compare the minimal amount it is different from
         # Do all again with priority level 0-1-2
         try:
-            fail_type = None
-            self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs)
+
+            self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, 1.1)
         except NearLimit:
 
             # If the class does not fit, removes the 10% safty to try to match room sizes
