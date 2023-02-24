@@ -1,12 +1,16 @@
 class Classroom:
     def __init__(self, name, size, is_lab=False):
-        # Name/# of Class
+        # Name/# of Class (String)
         self.name = name
-        # Student Max Capacity
+        # Student Max Capacity (Integer)
         self.size = size
-        # whether the classroom is a lab
+        # whether the classroom is a lab (Boolean)
         self.is_lab = is_lab
+        # Cohorts assigned to the Room (array of Cohorts)
+        self.cohorts = []
 
+    def add_cohort(self, cohort):
+        self.cohorts.append(cohort)
     def same_name(self, name):
         return self.name == name
 
