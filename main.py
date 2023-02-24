@@ -1,51 +1,15 @@
 #modules
-import os
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 import customtkinter
-from tkinter import ttk, filedialog
-from tkinter import messagebox
-
+import gui_functions as gu
 #Global variables for 2 excel paths
 stud_file=''
 res_file=''
 
-def import_excel(file_name,imp_type):
-   global stud_file,res_file
-   try:
-       file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
-       f_name = os.path.basename(file.name)
 
-       if file:
-           file_name.configure(text=f_name)
-
-       #Checks flag variable to update correct path
-       if imp_type==1:
-            stud_file=os.path.abspath(file.name)
-       elif imp_type==2:
-            res_file=os.path.abspath(file.name)
-        
-   except:
-        messagebox.showwarning("Warning", "Failed to upload file.")
-
-
-#This function forms the schedule. It takes the 2 names of each excel file
-#names as parameters.
-def form_schedule(student_list_name,resouce_list_name):
-    global stud_file,res_file #These are the complete paths to the 2 excel files
-
-    print('Creating Schedule')
- 
-    #If the schedule creation is successfull show successful message.
-    #messagebox.showinfo("Note", "Successfully formed a Schedule")
-
-#Function for downloading scedule, maybe need this
-def save_schedule():
-    print('Downloading Schedule')
-    messagebox.showinfo("Note", "Successfully downloaded the Schedule")
-
-
+    
 def main():
     #Setup Window
     root = tk.Tk()
@@ -121,25 +85,25 @@ def main():
     
     
     #Create Buttons 
-    btn_student_list = Button(frame_t1_background,borderwidth=0,command=lambda: import_excel(student_list_name,1))
+    btn_student_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(student_list_name,1))
     student_list_img = PhotoImage(file="Images\import_students.png") 
     btn_student_list.config(image=student_list_img)
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
     
-    btn_classroom_list = Button(frame_t1_background,borderwidth=0,command=lambda: import_excel(resouce_list_name,2))
+    btn_classroom_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(resouce_list_name,2))
     clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
     btn_classroom_list.config(image=clsasroom_list_img)
     btn_classroom_list.place(relx=0.35, rely=0.92,relwidth=0.11, relheight=0.035)
     
     
-    btn_generate_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
+    btn_generate_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
     generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
     btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.65, rely=0.92,relwidth=0.065, relheight=0.035)
     
 
     
-    btn_download_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: save_schedule())
+    btn_download_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: gu.save_schedule())
     download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
     btn_download_schedule.config(image=download_schedule_img)
     btn_download_schedule.place(relx=0.80, rely=0.92,relwidth=0.065, relheight=0.035)
@@ -217,22 +181,59 @@ def main():
   
 ###################################################################################################
     #Schedule Tab    
-    
+
     #Information Tab Frames
     frame_t2_background = tk.Frame(schedule_tab, bg='#80c1ff', bd=5)
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t2_schedule = tk.Frame(schedule_tab, bd=5)
     frame_t2_schedule.place(relx=0.65, rely=0.2, relwidth=0.6, relheight=0.7, anchor='n')
+    
+   
 
+    #Information Canvas
+
+    #Create Dropdown for Classrooms
+    var_dispclass = StringVar(root) ; var_dispclass.set("one") 
+    dispclass = OptionMenu(frame_t2_background, var_dispclass, "one", "two", "three") #Replace Default Values with Classrooms
+    dispclass.place(relx=0.85, rely=0.15, relwidth=0.05, relheight=0.025, anchor='n')
     
-    variable = StringVar(root) ; #variable.set("one") 
-    w = OptionMenu(frame_t2_background, variable, "one", "two", "three") #Replace Default Values with Classrooms
-    w.place(relx=0.85, rely=0.15, relwidth=0.05, relheight=0.025, anchor='n')
+  
+    #Create Dropdown for Weeks
+    weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
+    var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
+    #display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda: gu.form_schedule_screen()) #Replace Default Values with Classrooms
+    display_week=tk.OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
+
+    display_week.place(relwidth=0.05, relheight=0.025, relx=0.5, rely=0.15)
+
+    # Create labels for each day of the week
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+    for i, day in enumerate(days):
+        tk.Label(frame_t2_schedule, text=day).grid(row=0, column=i+1)
+
+    # Create labels for each class period
+    times =["6:00 am", "6:30 am", "7:00 am", "7:30 am", "8:00 am", "8:30 am",
+             "9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
+             "11:30 am",
+             "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
+             "3:00 pm", "3:30 pm",
+             "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm",
+             "7:00 pm"]
+    for i, time in enumerate(times):
+        tk.Label(frame_t2_schedule, text=time).grid(row=i+1, column=0)
+
+    # Create entry boxes for each class
+    entries = {}
+    for i, time in enumerate(times):
+        for j, day in enumerate(days):
+            #In here check for timeslots that classroom is using
+            entry = tk.Entry(frame_t2_schedule,bg='red')
+            entry.grid(row=i+1, column=j+1, sticky="nsew")
+            entry.config(state=DISABLED) #Make it so that nobody can type into class
+            entries[(i, j)] = entry
     
-    
-    
-    
+
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
     root.mainloop()  
