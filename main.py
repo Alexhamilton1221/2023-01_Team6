@@ -4,12 +4,13 @@ from tkinter import *
 from tkinter import ttk
 import customtkinter
 import gui_functions as gu
+from tkinter import font
+import tkinter.font as tkFont
+
 #Global variables for 2 excel paths
 stud_file=''
 res_file=''
 
-
-    
 def main():
     #Setup Window
     root = tk.Tk()
@@ -39,6 +40,10 @@ def main():
     style.theme_use("Tab_Style")
     style.configure("TNotebook", background=myblue)
     
+    #Create Fonts
+    roboto_18=customtkinter.CTkFont(family='Roboto Medium', size=-18)
+    helv36 = tkFont.Font(family='Helvetica', size=12, weight=tkFont.BOLD)
+
 
     #Create All Tabs
     tabControl.add(information_tab, text ='Information')
@@ -64,23 +69,23 @@ def main():
     #Information Tab Labels for Totals
     
     #Plain Text Labels
-    totals = customtkinter.CTkLabel(master=frame_t1_totals, text="Totals", font=("Roboto Medium", -18))
+    totals = customtkinter.CTkLabel(master=frame_t1_totals, text="Totals", font=roboto_18)
     totals.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=0.001)
     
     #Labels that print Totals from inputed data using generate button
 
     info_label_totals=[] ;  info_label_totals_y=[0.05,0.1,0.5,0.55,0.6,0.65,0.7]
     for i in range(0,7,1):
-        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="test", font=("Roboto Medium", -18))
+        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="test", font=roboto_18)
         new_lbl.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=info_label_totals_y[i])  
         info_label_totals.append(new_lbl)
     
     
     #Labels for excel file names
-    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=("Roboto Medium", -18))
+    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18)
     student_list_name.place(relwidth=0.40, relheight=0.1, relx=0.025, rely=0.89)
 
-    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=("Roboto Medium", -18))
+    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18)
     resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.36, rely=0.89)
     
     
@@ -116,7 +121,7 @@ def main():
     info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20]
     for i in range(0,6,1):
         text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=("Roboto Medium", -18))
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18)
         info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
    
@@ -174,7 +179,7 @@ def main():
     info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
     for i in range(0,9,1):
         text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=("Roboto Medium", -18))
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18)
         info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
         
@@ -182,7 +187,7 @@ def main():
 ###################################################################################################
     #Schedule Tab    
 
-    #Information Tab Frames
+    #Schedule Tab Frames
     frame_t2_background = tk.Frame(schedule_tab, bg='#80c1ff', bd=5)
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
@@ -190,27 +195,25 @@ def main():
     frame_t2_schedule.place(relx=0.65, rely=0.2, relwidth=0.6, relheight=0.7, anchor='n')
     
    
-
-    #Information Canvas
-
     #Create Dropdown for Classrooms
-    var_dispclass = StringVar(root) ; var_dispclass.set("one") 
-    dispclass = OptionMenu(frame_t2_background, var_dispclass, "one", "two", "three") #Replace Default Values with Classrooms
-    dispclass.place(relx=0.85, rely=0.15, relwidth=0.05, relheight=0.025, anchor='n')
-    
-  
+    #Using temp classrooms for now, find way to get them
+    var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
+    dispclass = OptionMenu(frame_t2_background, var_dispclass, "Classroom X", "Classroom Y", "Classroom Z") #Replace Default Values with Classrooms
+    dispclass.place(relx=0.85, rely=0.15, relwidth=0.075, relheight=0.025, anchor='n')
+    dispclass.config(font=helv36)
+
     #Create Dropdown for Weeks
+    #Using temporary 9 week schedule
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
-    #display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda: gu.form_schedule_screen()) #Replace Default Values with Classrooms
-    display_week=tk.OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
-
-    display_week.place(relwidth=0.05, relheight=0.025, relx=0.5, rely=0.15)
+    display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
+    display_week.place(relwidth=0.07, relheight=0.025, relx=0.4, rely=0.15)
+    display_week.config(font=helv36)
 
     # Create labels for each day of the week
     days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
     for i, day in enumerate(days):
-        tk.Label(frame_t2_schedule, text=day).grid(row=0, column=i+1)
+        tk.Label(frame_t2_schedule, text=day, font=roboto_18).grid(row=0, column=i+1)
 
     # Create labels for each class period
     times =["6:00 am", "6:30 am", "7:00 am", "7:30 am", "8:00 am", "8:30 am",
@@ -218,17 +221,17 @@ def main():
              "11:30 am",
              "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
              "3:00 pm", "3:30 pm",
-             "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm",
-             "7:00 pm"]
+             "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm"]
     for i, time in enumerate(times):
-        tk.Label(frame_t2_schedule, text=time).grid(row=i+1, column=0)
+        tk.Label(frame_t2_schedule, text=time, font=roboto_18).grid(row=i+1, column=0)
 
     # Create entry boxes for each class
+    # To set colour use disabledbackground='yellow'
     entries = {}
     for i, time in enumerate(times):
         for j, day in enumerate(days):
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule,bg='red')
+            entry = tk.Entry(frame_t2_schedule, width=25, font=roboto_18)
             entry.grid(row=i+1, column=j+1, sticky="nsew")
             entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(i, j)] = entry
