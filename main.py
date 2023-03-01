@@ -89,8 +89,82 @@ def main():
     resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.36, rely=0.89)
     
     
+
+
+
+    #Information Tab Labels for Core Courses
+    info_label_core_names={"lbl0":"Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PCOM","lbl5":"BCOM"}
+    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.25,0.475]
+    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20]
+    for i in range(0,6,1):
+        text=info_label_core_names[f"lbl{i}"]
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18)
+        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
+        info_label_core.append(info_label_core_names[f"lbl{i}"])
+   
+    #Creates 23 StrVars and set values to zero for all Spinboxes
+    vars = []
+    for j in range(0,23,1):
+        var = StringVar(root,value=0)
+        vars.append(var)
+
+    #Create Spinbox Objects for Core Courses
+    core_spn_xvals=[0.28,0.53,0.78] 
+    spn_core={"spn_pcom_t1": "spn_0","spn_pcom_t2" :"spn_1","spn_pcom_t3":"spn_2","spn_bcom_t1": "spn_3","spn_bcom_t2":"spn_4","spn_bcom_t3":"spn_5"}
+    spn_names = []
+    for i, spn in enumerate(spn_core):
+        if i>=3:
+            spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_core[spn].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i-3], rely=0.475)
+        
+        else:
+            spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_core[spn].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i], rely=0.25)
+
+        spn_names.append(spn)
+
+    #Create Spinbox Objects for Non-Core Courses
+    pcom_spn_xvals=[0.28,0.53,0.78] 
+    spn_noncore={'spn_pm_t1': 'spn_0', 'spn_pm_t2': 'spn_1', 'spn_pm_t3': 'spn_2', 'spn_ba_t1': 'spn_3', 'spn_ba_t2': 'spn_4', 
+                       'spn_ba_t3': 'spn_5', 'spn_glm_t1': 'spn_6', 'spn_glm_t2': 'spn_7', 'spn_glm_t3': 'spn_8', 'spn_fs_t1': 'spn_9', 
+                       'spn_fs_t2': 'spn_10', 'spn_fs_t3': 'spn_11', 'spn_dxd_t1': 'spn_12', 'spn_dxd_t2': 'spn_13', 'spn_dxd_t3': 'spn_14'}
+                       #'spn_bk_t1': 'spn_15', 'spn_bk_t2': 'spn_16', 'spn_bk_t3': 'spn_17'}
+    
+    for j, spn in enumerate(spn_noncore):
+        if j>=3 and j<6:
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-3], rely=0.28)
+        elif j>=6 and j<9:
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-6], rely=0.38)
+        elif j>=9 and j<12:
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-9], rely=0.48)
+        elif j>=12 and j<15:
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.58)
+        else:
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[-1], rely=0.18)
+        
+        spn_names.append(spn)
+
+        i+=1
+   
+    #Information Tab Labels for Non Core Courses
+    info_label_core_names={"lbl0":"Non Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
+    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01,0.01,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.15,0.25,0.35,0.45,0.55]
+    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
+    for i in range(0,9,1):
+        text=info_label_core_names[f"lbl{i}"]
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18)
+        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
+        info_label_core.append(info_label_core_names[f"lbl{i}"])
+        
+
+         
     #Create Buttons 
-    btn_student_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(student_list_name,1))
+    btn_student_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(student_list_name,1, [spn_names, vars]))
     student_list_img = PhotoImage(file="Images\import_students.png") 
     btn_student_list.config(image=student_list_img)
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
@@ -113,76 +187,6 @@ def main():
     btn_download_schedule.config(image=download_schedule_img)
     btn_download_schedule.place(relx=0.80, rely=0.92,relwidth=0.065, relheight=0.035)
     
-    
-    
-    #Information Tab Labels for Core Courses
-    info_label_core_names={"lbl0":"Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PCOM","lbl5":"BCOM"}
-    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.25,0.475]
-    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20]
-    for i in range(0,6,1):
-        text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18)
-        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
-        info_label_core.append(info_label_core_names[f"lbl{i}"])
-   
-    #Creates 23 StrVars and set values to zero for all Spinboxes
-    vars = []
-    for j in range(0,23,1):
-        var = StringVar(root,value=0)
-        vars.append(var)
-
-    #Create Spinbox Objects for Core Courses
-    core_spn=[]; core_spn_xvals=[0.28,0.53,0.78] 
-    spn_names_core={"spn_0":"spn_pcom_t1","spn_1":"spn_pcom_t2","spn_2":"spn_pcom_t3","spn_3":"spn_bcom_t1","spn_4":"spn_bcom_t2","spn_5":"spn_bcom_t3"}
-    for i in range(0,6,1):
-        if i>=3:
-            spn_names_core[f"spn_{i}"]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_core[f"spn_{i}"].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i-3], rely=0.475)
-            core_spn.append(spn_names_core[f"spn_{i}"])
-        
-        else:
-            spn_names_core[f"spn_{i}"]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_core[f"spn_{i}"].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i], rely=0.25)
-            core_spn.append(spn_names_core[f"spn_{i}"])
-
-    #Create Spinbox Objects for Non-Core Courses
-    non_core_spn=[]; pcom_spn_xvals=[0.28,0.53,0.78] 
-    spn_names_noncore={"spn_0":"spn_pm_t1","spn_1":"spn_pm_t2","spn_2":"spn_pm_t3","spn_3":"spn_ba_t1","spn_4":"spn_ba_t2","spn_5":"spn_ba_t3"
-                    ,"spn_6":"spn_glm_t1","spn_7":"spn_glm_t2","spn_8":"spn_glm_t3","spn_9":"spn_fs_t1","spn_10":"spn_fs_t2","spn_11":"spn_fs_t3"
-                    ,"spn_12":"spn_dxd_t1","spn_13":"spn_dxd_t2","spn_14":"spn_dxd_t3"}
-    for j in range(0,15,1):
-        if j>=3 and j<6:
-            spn_names_noncore[f"spn_{j}"]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_noncore[f"spn_{j}"].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-3], rely=0.28)
-            non_core_spn.append(spn_names_noncore[f"spn_{j}"])
-        elif j>=6 and j<9:
-            spn_names_noncore[f"spn_{j}"]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_noncore[f"spn_{j}"].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-6], rely=0.38)
-            non_core_spn.append(spn_names_noncore[f"spn_{j}"])
-        elif j>=9 and j<12:
-            spn_names_noncore[f"spn_{j}"]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_noncore[f"spn_{j}"].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-9], rely=0.48)
-            non_core_spn.append(spn_names_noncore[f"spn_{j}"])
-        elif j>=12 and j<15:
-            spn_names_noncore[f"spn_{j}"]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_noncore[f"spn_{j}"].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.58)
-            non_core_spn.append(spn_names_noncore[f"spn_{j}"])  
-        else:
-            spn_names_noncore[f"spn_{j}"]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_names_noncore[f"spn_{j}"].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j], rely=0.18)
-            non_core_spn.append(spn_names_noncore[f"spn_{j}"])
-        i+=1
-   
-    #Information Tab Labels for Non Core Courses
-    info_label_core_names={"lbl0":"Non Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
-    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01,0.01,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.15,0.25,0.35,0.45,0.55]
-    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
-    for i in range(0,9,1):
-        text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18)
-        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
-        info_label_core.append(info_label_core_names[f"lbl{i}"])
-        
   
 ###################################################################################################
     #Schedule Tab    
