@@ -115,8 +115,8 @@ def get_registration(filename):
             continue
 
         #Index of values unsure - template not uploaded yet
-        course = row[0].value 
-        term = row[1].value 
+        course = row[1].value 
+        term = row[0].value 
         num = row[2].value
 
         registration[course + " " + str(term)] = int(num)

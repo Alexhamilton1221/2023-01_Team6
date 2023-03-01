@@ -23,7 +23,7 @@ def main():
     mydarkred="#781C29"
     myblue="#ADD8E6"
     mytext="#FFFFFF"
-    myframebg = "#231F20"
+    myframebg = "#252526"
     
     #Settup Tab Control & Tabs
     tabControl = ttk.Notebook(root)
@@ -36,8 +36,9 @@ def main():
     style.theme_create( "Tab_Style", parent="alt", settings={
         "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
         "TNotebook.Tab": {
-            "configure": {"padding": [5, 1], "background": mydarkred },
-            "map":       {"background": [("selected", myred)],
+            "configure": {"text_color": (mytext),
+            "padding": [5, 1], "background": mydarkred },
+            "map":       {"background": [("selected", '#3e3e42')],
                           "expand": [("selected", [4, 4, 4, 0])] } } } )
 
     style.theme_use("Tab_Style")
@@ -57,7 +58,7 @@ def main():
     #Information Tab
 
     #Information Tab Frames
-    frame_t1_background = tk.Frame(information_tab, bg="#121212", bd=5)
+    frame_t1_background = tk.Frame(information_tab, bg="#3e3e42", bd=5)
     frame_t1_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
     
     frame_t1_displaycore = tk.Frame(information_tab, bd=5, bg=myframebg)
@@ -118,11 +119,11 @@ def main():
     for i, spn in enumerate(spn_core):
         if i>=3:
             spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_core[spn].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i-3], rely=0.475)
+            spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i-3], rely=0.5)
         
         else:
             spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_core[spn].place(relwidth=0.05, relheight=0.13, relx=core_spn_xvals[i], rely=0.25)
+            spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i], rely=0.25)
 
         spn_names.append(spn)
 
@@ -136,31 +137,41 @@ def main():
     for j, spn in enumerate(spn_noncore):
         if j>=3 and j<6:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-3], rely=0.28)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-3], rely=0.30)
         elif j>=6 and j<9:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-6], rely=0.38)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-6], rely=0.45)
         elif j>=9 and j<12:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-9], rely=0.48)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-9], rely=0.60)
         elif j>=12 and j<15:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.58)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-12], rely=0.75)
         elif j>=15 and j<18:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-15], rely=0.68)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-15], rely=0.90)
         else:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j], rely=0.18)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j], rely=0.15)
         
         spn_names.append(spn)
 
         i+=1
    
-
+    # Place Term Header
+    for i in range(3):
+        term_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"Term {i+1}", font=roboto_18, text_color=mytext)
+        term_label.place(relwidth=0.1, relheight=0.1, relx=(0.25*(i+1)), rely=0.025)
     
+
+    noncore_label_text = ["PM", "BA", "GLM", "FS", "DXD", "BK"]
+    for i, label_text in enumerate(noncore_label_text):
+        course_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=label_text, font=roboto_18, text_color=mytext)   
+        course_label.place(relwidth=0.2, relheight=0.1, relx=0.01, rely= (0.15+(0.15*(i))))
+       
+        '''
     #Information Tab Labels for Non Core Courses
-    info_label_core_names={"lbl0":"Non Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
+    info_label_core_names={":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
     info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01,0.01,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.15,0.25,0.35,0.45,0.55]
     info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
     for i in range(0,9,1):
@@ -169,31 +180,34 @@ def main():
         info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
         
-
+'''
          
     #Create Buttons 
-    btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration File", font=(roboto_18, 12),
+    btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration",bg=myred, fg=mytext, 
                               command=lambda: gu.import_excel(student_list_name,1, [spn_names, vars]))
     #student_list_img = PhotoImage(file="Images\import_students.png") 
     #btn_student_list.config(image=student_list_img)
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
     
-    btn_classroom_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(resouce_list_name,2))
-    clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
-    btn_classroom_list.config(image=clsasroom_list_img)
+    btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
+                                command=lambda: gu.import_excel(resouce_list_name,2))
+    #clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
+    #btn_classroom_list.config(image=clsasroom_list_img)
     btn_classroom_list.place(relx=0.35, rely=0.92,relwidth=0.11, relheight=0.035)
     
     
-    btn_generate_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
-    generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
-    btn_generate_schedule.config(image=generate_schedule_img)
+    btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
+                                   command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
+    #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
+    #btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.65, rely=0.92,relwidth=0.065, relheight=0.035)
     
 
     
-    btn_download_schedule = Button(frame_t1_background,borderwidth=0,command=lambda: gu.save_schedule())
-    download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
-    btn_download_schedule.config(image=download_schedule_img)
+    btn_download_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Download",bg=myred,fg=mytext,
+                                   command=lambda: gu.save_schedule())
+    #download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
+    #btn_download_schedule.config(image=download_schedule_img)
     btn_download_schedule.place(relx=0.80, rely=0.92,relwidth=0.065, relheight=0.035)
     
   
@@ -201,7 +215,7 @@ def main():
     #Schedule Tab    
 
     #Schedule Tab Frames
-    frame_t2_background = tk.Frame(schedule_tab, bg='#80c1ff', bd=5)
+    frame_t2_background = tk.Frame(schedule_tab, bg=myframebg, bd=5)
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t2_schedule = tk.Frame(schedule_tab, bd=5)
