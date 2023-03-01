@@ -15,12 +15,15 @@ def main():
     #Setup Window
     root = tk.Tk()
     root.title('Scheduler')
-    root.geometry("1920x1080")
+    root.geometry("1280x720")
 
     #custom colours
     mygreen = "#d2ffd2"
-    myred = "#dd0202"
+    myred = "#8B2332"
+    mydarkred="#781C29"
     myblue="#ADD8E6"
+    mytext="#FFFFFF"
+    myframebg = "#231F20"
     
     #Settup Tab Control & Tabs
     tabControl = ttk.Notebook(root)
@@ -33,12 +36,12 @@ def main():
     style.theme_create( "Tab_Style", parent="alt", settings={
         "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
         "TNotebook.Tab": {
-            "configure": {"padding": [5, 1], "background": mygreen },
+            "configure": {"padding": [5, 1], "background": mydarkred },
             "map":       {"background": [("selected", myred)],
                           "expand": [("selected", [4, 4, 4, 0])] } } } )
 
     style.theme_use("Tab_Style")
-    style.configure("TNotebook", background=myblue)
+    style.configure("TNotebook", background=myframebg)
     
     #Create Fonts
     roboto_18=customtkinter.CTkFont(family='Roboto Medium', size=-18)
@@ -54,38 +57,38 @@ def main():
     #Information Tab
 
     #Information Tab Frames
-    frame_t1_background = tk.Frame(information_tab, bg='#80c1ff', bd=5)
+    frame_t1_background = tk.Frame(information_tab, bg="#121212", bd=5)
     frame_t1_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
     
-    frame_t1_displaycore = tk.Frame(information_tab, bd=5)
+    frame_t1_displaycore = tk.Frame(information_tab, bd=5, bg=myframebg)
     frame_t1_displaycore.place(relx=0.375, rely=0.1, relwidth=0.7, relheight=0.2, anchor='n')
     
-    frame_t1_displayrest = tk.Frame(information_tab, bd=5)
+    frame_t1_displayrest = tk.Frame(information_tab, bd=5, bg=myframebg)
     frame_t1_displayrest.place(relx=0.375, rely=0.4, relwidth=0.7, relheight=0.5, anchor='n')
     
-    frame_t1_totals = tk.Frame(information_tab, bd=5)
+    frame_t1_totals = tk.Frame(information_tab, bd=5, bg=myframebg)
     frame_t1_totals.place(relx=0.85, rely=0.1, relwidth=0.15, relheight=0.8, anchor='n')
     
     #Information Tab Labels for Totals
     
     #Plain Text Labels
-    totals = customtkinter.CTkLabel(master=frame_t1_totals, text="Totals", font=roboto_18)
+    totals = customtkinter.CTkLabel(master=frame_t1_totals, text="Totals", font=roboto_18,text_color=mytext, )
     totals.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=0.001)
     
     #Labels that print Totals from inputed data using generate button
 
     info_label_totals=[] ;  info_label_totals_y=[0.05,0.1,0.5,0.55,0.6,0.65,0.7]
     for i in range(0,7,1):
-        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="test", font=roboto_18)
+        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="test", font=roboto_18,text_color=mytext)
         new_lbl.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=info_label_totals_y[i])  
         info_label_totals.append(new_lbl)
     
     
     #Labels for excel file names
-    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18)
+    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18,text_color=mytext)
     student_list_name.place(relwidth=0.40, relheight=0.1, relx=0.025, rely=0.89)
 
-    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18)
+    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18, text_color=mytext)
     resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.36, rely=0.89)
     
     
@@ -98,7 +101,7 @@ def main():
     info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20]
     for i in range(0,6,1):
         text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18)
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18, text_color=mytext)
         info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
    
@@ -144,35 +147,35 @@ def main():
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.58)
         elif j>=15 and j<18:
-            try:
-                spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-                spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-15], rely=0.68)
-            except:
-                print("wahoo")
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-15], rely=0.68)
         else:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[-1], rely=0.18)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j], rely=0.18)
         
         spn_names.append(spn)
 
         i+=1
    
+
+    
     #Information Tab Labels for Non Core Courses
     info_label_core_names={"lbl0":"Non Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
     info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01,0.01,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.15,0.25,0.35,0.45,0.55]
     info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
     for i in range(0,9,1):
         text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18)
+        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18, text_color=mytext)
         info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
         
 
          
     #Create Buttons 
-    btn_student_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(student_list_name,1, [spn_names, vars]))
-    student_list_img = PhotoImage(file="Images\import_students.png") 
-    btn_student_list.config(image=student_list_img)
+    btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration File", font=(roboto_18, 12),
+                              command=lambda: gu.import_excel(student_list_name,1, [spn_names, vars]))
+    #student_list_img = PhotoImage(file="Images\import_students.png") 
+    #btn_student_list.config(image=student_list_img)
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
     
     btn_classroom_list = Button(frame_t1_background,borderwidth=0,command=lambda: gu.import_excel(resouce_list_name,2))
