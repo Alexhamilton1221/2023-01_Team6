@@ -6,9 +6,10 @@ import customtkinter
 from tkinter import ttk, filedialog
 from tkinter import messagebox
 import datetime
+import read_excel
 #from datetime import datetime, timedelta
 
-def import_excel(file_name,imp_type):
+def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
    try:
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
@@ -20,11 +21,15 @@ def import_excel(file_name,imp_type):
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
+            registration = read_excel.get_registration(stud_file)
+
+            update_spinners(registration, spn)
+
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
         
-   except:
-        messagebox.showwarning("Warning", "Failed to upload file.")
+   except Exception as e:
+        messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
 
 
 #This function forms the schedule. It takes the 2 names of each excel file
@@ -58,3 +63,19 @@ def form_schedule_screen(frame_t2_background):
      # Horizontal lines serparating times
     #for i in days:
     #frame_t2_background.create_line(50, 0, 50, 20, fill="red", width=2)
+
+
+def update_spinners(registration, spn):
+
+    for key in registration:
+        course = key.split(" ")[0]
+        term = key.split(" ")[1]
+        num = registration[key]
+
+        spn_name = "spn_" + course.lower() + '_t' + str(term)
+        
+        spn_names = spn[0]
+        vars = spn[1]
+
+        vars[spn_names.index(spn_name)].set(str(num))
+       
