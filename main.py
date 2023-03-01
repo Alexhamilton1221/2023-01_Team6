@@ -104,7 +104,7 @@ def main():
    
     #Creates 23 StrVars and set values to zero for all Spinboxes
     vars = []
-    for j in range(0,23,1):
+    for j in range(0,26,1):
         var = StringVar(root,value=0)
         vars.append(var)
 
@@ -127,8 +127,8 @@ def main():
     pcom_spn_xvals=[0.28,0.53,0.78] 
     spn_noncore={'spn_pm_t1': 'spn_0', 'spn_pm_t2': 'spn_1', 'spn_pm_t3': 'spn_2', 'spn_ba_t1': 'spn_3', 'spn_ba_t2': 'spn_4', 
                        'spn_ba_t3': 'spn_5', 'spn_glm_t1': 'spn_6', 'spn_glm_t2': 'spn_7', 'spn_glm_t3': 'spn_8', 'spn_fs_t1': 'spn_9', 
-                       'spn_fs_t2': 'spn_10', 'spn_fs_t3': 'spn_11', 'spn_dxd_t1': 'spn_12', 'spn_dxd_t2': 'spn_13', 'spn_dxd_t3': 'spn_14'}
-                       #'spn_bk_t1': 'spn_15', 'spn_bk_t2': 'spn_16', 'spn_bk_t3': 'spn_17'}
+                       'spn_fs_t2': 'spn_10', 'spn_fs_t3': 'spn_11', 'spn_dxd_t1': 'spn_12', 'spn_dxd_t2': 'spn_13', 'spn_dxd_t3': 'spn_14',
+                       'spn_bk_t1': 'spn_15', 'spn_bk_t2': 'spn_16', 'spn_bk_t3': 'spn_17'}
     
     for j, spn in enumerate(spn_noncore):
         if j>=3 and j<6:
@@ -143,6 +143,12 @@ def main():
         elif j>=12 and j<15:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.58)
+        elif j>=15 and j<18:
+            try:
+                spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+                spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-15], rely=0.68)
+            except:
+                print("wahoo")
         else:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[-1], rely=0.18)

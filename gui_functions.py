@@ -8,6 +8,7 @@ from tkinter import messagebox
 import datetime
 import openpyxl
 from Database.classrooms import Classrooms
+from Database.classroom import Classroom
 
 #from datetime import datetime, timedelta
 
@@ -23,7 +24,7 @@ def import_excel(file_name,imp_type, spn=None):
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
-            registration = read_excel.get_registration(stud_file)
+            registration = get_registration(stud_file)
 
             update_spinners(registration, spn)
 
@@ -65,6 +66,8 @@ def form_schedule_screen(frame_t2_background):
      # Horizontal lines serparating times
     #for i in days:
     #frame_t2_background.create_line(50, 0, 50, 20, fill="red", width=2)
+
+
 
 # Updates spinners on main screen when excel file is imported
 # Takes list of registration numbers from get_registration() and a list containing the spinner names and the corresponding vars
