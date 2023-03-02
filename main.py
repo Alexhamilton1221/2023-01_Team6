@@ -234,7 +234,7 @@ def main():
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
-    display_week.place(relwidth=0.07, relheight=0.025, relx=0.4, rely=0.15)
+    display_week.place(relwidth=0.08, relheight=0.05, relx=0.4, rely=0.15)
     display_week.config(font=helv36)
 
     # Create labels for each day of the week
@@ -255,12 +255,15 @@ def main():
     # Create entry boxes for each class
     # To set colour use disabledbackground='yellow'
     entries = {}
+    colors = [myred,myblue, mygreen]
     for i, time in enumerate(times):
         for j, day in enumerate(days):
+            color=colors[i%3]
+
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25, font=roboto_18)
+            entry = tk.Entry(frame_t2_schedule, width=25, font=roboto_18, bg=color)
             entry.grid(row=i+1, column=j+1, sticky="nsew")
-            entry.config(state=DISABLED) #Make it so that nobody can type into class
+            #entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(i, j)] = entry
     
 
