@@ -36,7 +36,7 @@ def main():
     style.theme_create( "Tab_Style", parent="alt", settings={
         "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
         "TNotebook.Tab": {
-            "configure": {"text_color": (mytext),
+            "configure": {"text_color": (mytext), #TODO - Change tab text color
             "padding": [5, 1], "background": mydarkred },
             "map":       {"background": [("selected", '#3e3e42')],
                           "expand": [("selected", [4, 4, 4, 0])] } } } )
@@ -219,7 +219,7 @@ def main():
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t2_schedule = tk.Frame(schedule_tab, bd=5)
-    frame_t2_schedule.place(relx=0.65, rely=0.2, relwidth=0.6, relheight=0.7, anchor='n')
+    frame_t2_schedule.place(relx=0.5, rely=0.01, relwidth=0.85, relheight=1, anchor='n')
     
    
     #Create Dropdown for Classrooms
@@ -258,14 +258,15 @@ def main():
     colors = [myred,myblue, mygreen]
     for i, time in enumerate(times):
         for j, day in enumerate(days):
-            color=colors[i%3]
+            
 
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25, font=roboto_18, bg=color)
+            entry = tk.Entry(frame_t2_schedule, width=25,font=roboto_18, bg=myred)
             entry.grid(row=i+1, column=j+1, sticky="nsew")
-            #entry.config(state=DISABLED) #Make it so that nobody can type into class
+            entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(i, j)] = entry
-    
+
+            #TODO - Possible use frames to represent courses on top of planner
 
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
