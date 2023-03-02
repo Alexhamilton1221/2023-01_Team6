@@ -219,22 +219,29 @@ def main():
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t2_schedule = tk.Frame(schedule_tab, bd=5)
-    frame_t2_schedule.place(relx=0.5, rely=0.01, relwidth=0.85, relheight=1, anchor='n')
+    frame_t2_schedule.place(relx=0.5, rely=0.1, relwidth=0.85, relheight=0.85, anchor='n')
     
    
     #Create Dropdown for Classrooms
     #Using temp classrooms for now, find way to get them
     var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
     dispclass = OptionMenu(frame_t2_background, var_dispclass, "Classroom X", "Classroom Y", "Classroom Z") #Replace Default Values with Classrooms
-    dispclass.place(relx=0.85, rely=0.15, relwidth=0.075, relheight=0.025, anchor='n')
+  
+    dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
     dispclass.config(font=helv36)
+
+
+    classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
+    classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
+    var_dispclass.trace('w', gu.change_classroom(classroom_label, var_dispclass))
+
 
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
-    display_week.place(relwidth=0.08, relheight=0.05, relx=0.4, rely=0.15)
+    display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
     display_week.config(font=helv36)
 
     # Create labels for each day of the week
@@ -243,12 +250,9 @@ def main():
         tk.Label(frame_t2_schedule, text=day, font=roboto_18).grid(row=0, column=i+1)
 
     # Create labels for each class period
-    times =["6:00 am", "6:30 am", "7:00 am", "7:30 am", "8:00 am", "8:30 am",
-             "9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
-             "11:30 am",
-             "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
-             "3:00 pm", "3:30 pm",
-             "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm"]
+    times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
+             "11:30 am", "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
+             "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm"]
     for i, time in enumerate(times):
         tk.Label(frame_t2_schedule, text=time, font=roboto_18).grid(row=i+1, column=0)
 
@@ -256,18 +260,22 @@ def main():
     # To set colour use disabledbackground='yellow'
     entries = {}
     colors = [myred,myblue, mygreen]
-    for i, time in enumerate(times):
-        for j, day in enumerate(days):
+    for j, day in enumerate(days):
+        for i, time in enumerate(times):
             
 
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25,font=roboto_18, bg=myred)
+            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
             entry.grid(row=i+1, column=j+1, sticky="nsew")
             entry.config(state=DISABLED) #Make it so that nobody can type into class
-            entries[(i, j)] = entry
+            entries[(j, i)] = entry
 
             #TODO - Possible use frames to represent courses on top of planner
 
+    gu.create_schedule_block(entries, 10, [0,2], 3, "PCOM 0101")
+    gu.create_schedule_block(entries, 13, [0,2], 3, "BCOM 0201")
+    gu.create_schedule_block(entries, 8.5, [1,3], 5, "BA 0102")
+    gu.create_schedule_block(entries, 14, [1,3], 3, "DXD 0202")
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
     root.mainloop()  

@@ -152,3 +152,44 @@ def get_classrooms(filename):
     return room_list
 
 
+# Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
+def create_schedule_block(entries_dict, time, days, length, name):
+
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#d2ecff'}
+    color = ""
+    for key in colors:
+        if key in name:
+            color = colors[key]
+
+    y = time - 8
+
+    #Get y of starting
+    y = y // 0.5
+
+    for day in days:
+        for hour in range(int(length/0.5)):
+            entry = entries_dict[(day,y+hour)]
+            entry.config(disabledbackground = color)
+            entry.config(border=0)
+
+            display_time = time
+            if time > 12:
+                display_time = time-12
+            display_time = f"{display_time}  -  {display_time+length}"
+
+            if hour == int(length)-1:
+                entry.config(state=NORMAL)
+                entry.insert(0,name)
+                entry.config(state=DISABLED)
+
+            if hour == int(length):
+                entry.config(state=NORMAL)
+                entry.insert(0,display_time)
+                entry.config(state=DISABLED)
+
+
+
+def change_classroom(label, var):
+    data = var.get()
+    label.configure(text=str(data))
+   
