@@ -22,6 +22,14 @@ class Course:
         self.lectures.append(lecture)
         if self.hours_remaining <= 0:
             self.finished = True
+
+
+    def set_date_time(self, start_time, end_time):
+        # This function sets the times all lectures for this course
+        for lecture in self.lectures:
+            lecture.start_time = start_time
+            lecture.end_time = end_time
+
     def is_lab(self):
         return self.delivery == "Lab"
 
