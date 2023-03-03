@@ -1,3 +1,4 @@
+import re
 class Course:
     # This is the single instance of a course
     def __init__(self, name, total_hours, prerequisites, delivery = "Class", extra_req = ""):
@@ -46,3 +47,17 @@ class Course:
 
         return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.total_hours and self.delivery == other.delivery
 
+    def lecture_length(self):
+        length_of_lecture = self.extra_req
+        # Brian: not all stored lectures have a lecture length, not sure what to do when that happens
+        if length_of_lecture[0] == "H":
+            # checking if extra req has H
+            length = re.search('=(.+?)h', length_of_lecture)
+            #regex returns the chracters between the equal sign and the h
+            return float(length.group(1))
+        else:
+            return None
+
+    def number_of_lectures(self):
+        number_of_lectures = self.total_hours / self.lecture_length()
+        return number_of_lectures
