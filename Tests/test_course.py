@@ -8,7 +8,7 @@ class TestCourse(TestCase):
     def test_givenGoodLecture_addLecture_Addlecture(self):
         course = Course("CMPT101", 8, [])
         room = Classroom("11-101", 24)
-        lecture1 = Lecture(8, 10)
+        lecture1 = Lecture(1 ,8, 10)
 
         course.add_lecture(lecture1)
 
@@ -54,3 +54,17 @@ class TestCourse(TestCase):
         answer = course2.is_equal(course3)
 
         assert answer == True
+
+    def test_givenlecturetime_set_date_time_setTimesCorrectly(self):
+        lecture1 = Lecture(0, 0, 0)
+        lecture2 = Lecture(0, 0, 0)
+        course1 = Course("CMPT102", 8, [], "Lab")
+        lectures = [lecture1, lecture2]
+        course1.lectures = lectures
+
+        course1.set_lecture_time(8.50, 10)
+
+        assert lecture1.start_time == 8.50
+        assert lecture2.start_time == 8.50
+        assert lecture1.end_time == 10
+        assert lecture2.end_time == 10

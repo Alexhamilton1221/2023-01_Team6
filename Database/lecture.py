@@ -1,6 +1,8 @@
 
 class Lecture:
-    def __init__(self, start_time, end_time):
+    def __init__(self, day, start_time, end_time):
+        # The day of the lecture (in relation to the start of the term)
+        self.day = day
         # The Starting time of the lecture (double)
         self.start_time = start_time
         # The ending Time of the lecture (double)
