@@ -23,4 +23,4 @@ class StoredCourse:
         prerequisites = []
         for course in self.prerequisites:
             prerequisites.append(course.generate_course())
-        return Course(self.name, self.total_hours, prerequisites, self.delivery)
+        return Course(self.name, self.total_hours, prerequisites, self.delivery, self.extra_req)

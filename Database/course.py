@@ -1,6 +1,6 @@
 class Course:
     # This is the single instance of a course
-    def __init__(self, name, total_hours, prerequisites, delivery = "Class"):
+    def __init__(self, name, total_hours, prerequisites, delivery = "Class", extra_req = ""):
         # The name of the course (String)
         self.name = name
         # The total number of hours for this course (double)
@@ -13,6 +13,8 @@ class Course:
         self.delivery = delivery
         # Lectures the course has taken (array of lecture object)
         self.lectures = []
+        # extra requirements for this course
+        self.extra_req = extra_req
         # Whether the course has finished all lectures (boolean)
         self.finished = False
 
@@ -22,7 +24,6 @@ class Course:
         self.lectures.append(lecture)
         if self.hours_remaining <= 0:
             self.finished = True
-
 
     def set_lecture_time(self, start_time, end_time):
         # This function sets the times all lectures for this course
