@@ -68,3 +68,29 @@ class TestCourse(TestCase):
         assert lecture2.start_time == 8.50
         assert lecture1.end_time == 10
         assert lecture2.end_time == 10
+
+    def test_course_lecture_length(self):
+        course1 = Course("Fake101", 21, [], "Class", "H=1.5h")
+        answer1 = 1.5
+        #testing course lecture length as float
+
+        course2 = Course("Fake101", 21, [], "Class", "H=3h")
+        answer2 = 3
+        #testing course lectcure length as int
+
+
+        assert answer1 == course1.lecture_length()
+        assert answer2 == course2.lecture_length()
+
+    def test_return_lecture_total(self):
+        #testing to see correct number of lectures returned
+        #Stored course has 21 hours total and 3 hour lectures, answer should be 7
+        course1 = Course("Fake102", 21, [], "Class", "H=3h")
+        answer1 = 7
+
+        course2 = Course("Fake102", 21, [], "Class", "H=1.5h")
+        answer2 = 14
+        #testing number of lectures with decimal in lecture length
+
+        assert answer1 == course1.number_of_lectures()
+        assert answer2 == course2.number_of_lectures()
