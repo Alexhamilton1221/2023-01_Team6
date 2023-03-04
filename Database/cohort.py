@@ -35,7 +35,17 @@ class Cohort:
         self.add_to_stack(course_stack, self.courses)
         self.stack_coreq_mover(course_stack)
 
-        print(course_stack)
+        for course in course_stack:
+            extras = course.extra_req.split("|")
+            lecture_length = 1.5
+            for extra in extras:
+                if extra.startswith("H"):
+                    lecture_length = float(extra.split("=")[1])
+                elif extra.startswith("H"):
+
+                elif extra.startswith("COREC"):
+                    coreq = extra.split("=")[1]
+
 
     def add_to_stack(self, queue, courses):
         # This adds a list of courses to a cohort queue
@@ -52,6 +62,8 @@ class Cohort:
 
     def stack_coreq_mover(self, stack):
         # This function moves the corequsits next to each other in the queue and after both of their respective
+
+        # Noted issues, core rqusitques effectivly "cycle" until they reach the back of stack
         for course in stack:
             extras = course.extra_req.split("|")
             coreq = ""
@@ -61,8 +73,8 @@ class Cohort:
             if not coreq == "":
                 for c_course in stack:
                     if c_course.name == coreq:
-                        stack.remove(c_course)
-                        stack.insert(stack.index(course) - 1, c_course)
+                        stack.remove(course)
+                        stack.insert(stack.index(c_course), course)
 
 
 

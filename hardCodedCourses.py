@@ -17,32 +17,32 @@ def temp_create_courses():
     # PCOM TERM 3
     PCOM.add_course(StoredCourse("PCOM 0202", 33, 3, []))
     PCOM.add_course(StoredCourse("PCOM 0103", 35, 3, []))
-    PCOM.add_course(StoredCourse("PCOM 0109 Class Portion", 6, 3, [], "Class", "H=2h"))
-    PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab", "H=2h"))
+    PCOM.add_course(StoredCourse("PCOM 0109 Class Portion", 6, 3, [], "Class", "H=2"))
+    PCOM.add_course(StoredCourse("PCOM 0109 Lab Portion", 8, 3, [], "Lab", "H=2"))
 
     BCOM = Program("BCOM")
     # BCOM TERM 1
     BCOM.add_course(StoredCourse("PCOM 0203", 15, 1, []))
-    BCOM.add_course(StoredCourse("SUPR 0751", 7, 1, [], "Class", "H=2h"))
+    BCOM.add_course(StoredCourse("SUPR 0751", 7, 1, [], "Class", "H=2"))
     BCOM.add_course(StoredCourse("PCOM 0204", 35, 1, []))
     BCOM.add_course(StoredCourse("CMSK 0237", 12, 1, [], "Online"))
-    BCOM.add_course(StoredCourse("SUPR 0837", 7, 1, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("SUPR 0841", 7, 1, [], "Class", "H=2h"))
+    BCOM.add_course(StoredCourse("SUPR 0837", 7, 1, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("SUPR 0841", 7, 1, [], "Class", "H=2"))
 
     # BCOM TERM 2
-    BCOM.add_course(StoredCourse("SUPR 0821", 7, 2, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("SUPR 0822", 7, 2, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("SUPR 0718", 7, 2, [], "Class", "H=2h"))
+    BCOM.add_course(StoredCourse("SUPR 0821", 7, 2, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("SUPR 0822", 7, 2, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("SUPR 0718", 7, 2, [], "Class", "H=2"))
     BCOM.add_course(StoredCourse("SUPR 0836", 7, 2, [], "Online"))
-    BCOM.add_course(StoredCourse("AVDM 0199", 3, 2, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("PCOM 0106", 35, 2, [], "Class", "H=2h"))
+    BCOM.add_course(StoredCourse("AVDM 0199", 3, 2, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("PCOM 0106", 35, 2, [], "Class", "H=2"))
 
     # BCOM TERM 3
-    BCOM.add_course(StoredCourse("PCOM 0205", 30, 3, [], "Class", "H=3h"))
+    BCOM.add_course(StoredCourse("PCOM 0205", 30, 3, [], "Class", "H=3"))
     BCOM.add_course(StoredCourse("PCOM TBD", 21, 3, []))
-    BCOM.add_course(StoredCourse("PCOM 0207", 6, 3, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("SUPR 0863", 7, 3, [], "Class", "H=2h"))
-    BCOM.add_course(StoredCourse("AVDM 0206", 6, 3, [], "Class", "H=3h"))
+    BCOM.add_course(StoredCourse("PCOM 0207", 6, 3, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("SUPR 0863", 7, 3, [], "Class", "H=2"))
+    BCOM.add_course(StoredCourse("AVDM 0206", 6, 3, [], "Class", "H=3"))
     BCOM.add_course(StoredCourse("AVDM 0260", 6, 3, [], "Online"))
 
     # Project Management
@@ -58,7 +58,7 @@ def temp_create_courses():
     PM.add_course(StoredCourse("PRDV 0206", 14, 2, []))
     # Term 3
     PM.add_course(StoredCourse("PRDV 0207", 14, 3, []))
-    PM.add_course(StoredCourse("PCOM 0131", 39, 3, [], "Class", "H=3h"))
+    PM.add_course(StoredCourse("PCOM 0131", 39, 3, [], "Class", "H=3"))
 
     # Business Analysis
     BA = Program("BA")
@@ -73,7 +73,7 @@ def temp_create_courses():
     BA.add_course(StoredCourse("PCOM 0140", 35, 2, [], "Class", "T=half"))
     # Term 3
     BA.add_course(StoredCourse("PRDV 0646", 14, 3, []))
-    BA.add_course(StoredCourse("PCOM 0141", 39, 3, [], "Class", "H=3h"))
+    BA.add_course(StoredCourse("PCOM 0141", 39, 3, [], "Class", "H=3"))
 
     # Business Analysis
     GLM = Program("GLM")
@@ -88,34 +88,35 @@ def temp_create_courses():
     GLM.add_course(StoredCourse("SCMT 9902", 50, 2, [], "Virtual"))
     # Term 3
     GLM.add_course(StoredCourse("SCMT 0505", 21, 3, []))
-    GLM.add_course(StoredCourse("PCOM 0151", 39, 3, [], "Class", "H=3h"))
+    GLM.add_course(StoredCourse("PCOM 0151", 39, 3, [], "Class", "H=3"))
 
     # Full Stack Web
     FS = Program("FS")
     # Term 1
-    FS.add_course(StoredCourse("CMSK 0150", 16, 1, [], "Lab", "H=2h"))
-    CMSK151 = StoredCourse("CMSK 0151", 16, 1, [], "Lab", "H=2h")
+    FS.add_course(StoredCourse("CMSK 0150", 16, 1, [], "Lab", "H=2"))
+    CMSK151 = StoredCourse("CMSK 0151", 16, 1, [], "Lab", "H=2")
     FS.add_course(CMSK151)
-    CMSK152 = StoredCourse("CMSK 0152", 16, 1, [CMSK151], "Lab", "H=2h")
+    CMSK152 = StoredCourse("CMSK 0152", 16, 1, [CMSK151], "Lab", "H=2")
     FS.add_course(CMSK152)
-    CMSK157 = StoredCourse("CMSK 0157", 16, 1, [], "Lab", "H=2h|COREC=CMSK 0154")
+    CMSK157 = StoredCourse("CMSK 0157", 16, 1, [], "Lab", "H=2|COREC=CMSK 0154")
     FS.add_course(CMSK157)
-    CMSK154 = StoredCourse("CMSK 0154", 16, 1, [], "Lab", "H=2h|COREC=CMSK 0157")
+    CMSK154 = StoredCourse("CMSK 0154", 16, 1, [], "Lab", "H=2|COREC=CMSK 0157")
     FS.add_course(CMSK154)
 
     # Term 2
-    CMSK153 = StoredCourse("CMSK 0153", 18, 2, [], "Lab", "H=2h")
-    FS.add_course(CMSK153)
-    CMSK200 = StoredCourse("CMSK 0200", 16, 2, [], "Lab", "H=2h")
-    FS.add_course(CMSK200)
-    CMSK201 = StoredCourse("CMSK 0201", 18, 2, [CMSK200], "Lab", "H=2h")
-    FS.add_course(CMSK201)
-    CMSK202 = StoredCourse("CMSK 0202", 16, 2, [CMSK201], "Lab", "H=2h|COREC=CMSK 0203")
-    FS.add_course(CMSK202)
-    CMSK203 = StoredCourse("CMSK 0203", 18, 2, [], "Lab", "H=2h|COREC=CMSK 0202")
+    CMSK203 = StoredCourse("CMSK 0203", 18, 2, [], "Lab", "H=2|COREC=CMSK 0202")
     FS.add_course(CMSK203)
+    CMSK153 = StoredCourse("CMSK 0153", 18, 2, [], "Lab", "H=2")
+    FS.add_course(CMSK153)
+    CMSK200 = StoredCourse("CMSK 0200", 16, 2, [], "Lab", "H=2")
+    FS.add_course(CMSK200)
+    CMSK201 = StoredCourse("CMSK 0201", 18, 2, [CMSK200], "Lab", "H=2")
+    FS.add_course(CMSK201)
+    CMSK202 = StoredCourse("CMSK 0202", 16, 2, [CMSK201], "Lab", "H=2|COREC=CMSK 0203")
+    FS.add_course(CMSK202)
+
     # Term 3
-    FS.add_course(StoredCourse("PCOM 0160", 50, 3, [], "Lab", "H=3h"))
+    FS.add_course(StoredCourse("PCOM 0160", 50, 3, [], "Lab", "H=3"))
 
     # Digital Experience Design
     DXD = Program("DXD")
@@ -150,7 +151,7 @@ def temp_create_courses():
     BC.add_course(StoredCourse("ACCT 0211", 28, 2, [], "Lab"))
     # Term 3
     BC.add_course(StoredCourse("SCMT 0505", 21, 3, []))
-    BC.add_course(StoredCourse("PCOM 0151", 33, 3, [], "Class", "H=3h"))
+    BC.add_course(StoredCourse("PCOM 0151", 33, 3, [], "Class", "H=3"))
 
     return [PCOM, BCOM, PM, BA, GLM, FS, DXD, BC]
 
