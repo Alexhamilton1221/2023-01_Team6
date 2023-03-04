@@ -152,3 +152,39 @@ class TestCohort(TestCase):
             c1.courses[i].lectures = fakeLectures[i]
         c1.create_schedule()
         c1.generate_name()
+
+    def test_create_schedule_for_many_cohorts_show_good_schedule(self):
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        classrooms = Classrooms([Classroom("110-2", 30), Classroom("110-2L", 30, True)])
+        students = [["PCOM 1", 60]]
+        fakeLectures1 = [[], [], [], [], []]
+        fakeLectures2 = [[], [], [], [], []]
+        for i in range(0, 10):
+            fakeLectures1[0].append(Lecture(0, 0, 0))
+            fakeLectures2[0].append(Lecture(0, 0, 0))
+        for i in range(0, 10):
+            fakeLectures1[1].append(Lecture(0, 0, 0))
+            fakeLectures2[1].append(Lecture(0, 0, 0))
+        for i in range(0, 5):
+            fakeLectures1[2].append(Lecture(0, 0, 0))
+            fakeLectures2[2].append(Lecture(0, 0, 0))
+        for i in range(0, 3):
+            fakeLectures1[3].append(Lecture(0, 0, 0))
+            fakeLectures2[3].append(Lecture(0, 0, 0))
+        for i in range(0, 2):
+            fakeLectures1[4].append(Lecture(0, 0, 0))
+            fakeLectures2[4].append(Lecture(0, 0, 0))
+
+
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+
+
+        for i in range(0, 5):
+            cohorts.cohorts[0].courses[i].lectures = fakeLectures1[i]
+            cohorts.cohorts[1].courses[i].lectures = fakeLectures2[i]
+        cohorts.create_schedules()
+
+        print(cohorts.cohorts[0])
+
