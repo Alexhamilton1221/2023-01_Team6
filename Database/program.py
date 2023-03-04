@@ -29,6 +29,12 @@ class Program:
             # Checks if the course is within the designed specification, default is always true
             if specification(course):
                 courses.append(course.generate_course())
+
+                # This makes the prerequsite the actual same object
+                for pre in courses[len(courses) - 1].prerequisites:
+                    for matcher in courses:
+                        if matcher.is_equal(pre):
+                            courses[len(courses) - 1].prerequisites[courses[len(courses) - 1].prerequisites.index(pre)] = matcher
         return courses
 
     def is_core(self):

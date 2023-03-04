@@ -32,6 +32,14 @@ class Course:
             lecture.start_time = start_time
             lecture.end_time = end_time
 
+    def last_prereq_day(self):
+        # returns the day of the last prequsit for this course
+        max_day = 0
+        for course in self.prerequisites:
+            if course.lectures[len(course.lectures) - 1].day > max_day:
+                max_day = course.lectures[len(course.lectures) - 1].day
+        return max_day
+
     def is_lab(self):
         return self.delivery == "Lab"
 
@@ -42,10 +50,14 @@ class Course:
             return False
         prereqs = zip(self.prerequisites, other.prerequisites)
         for prereq in prereqs:
-            if prereq[0] != prereq[1]:
+            if not prereq[0].is_equal(prereq[1]):
                 return False
 
-        return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.total_hours and self.delivery == other.delivery
+        return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.hours_remaining and self.delivery == other.delivery
+
+
+    def __repr__(self):
+        return self.name
 
     def lecture_length(self):
         length_of_lecture = self.extra_req
@@ -61,3 +73,4 @@ class Course:
     def number_of_lectures(self):
         number_of_lectures = self.total_hours / self.lecture_length()
         return number_of_lectures
+

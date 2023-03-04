@@ -5,6 +5,7 @@ read_excel.py
 /__pycache__/
 /Test_Excel_Files/
 Database/__pycache__/classroom.cpython-39.pyc
+Database/__pycache__/classroom.cpython-310.pyc
 Database/__pycache__/course.cpython-39.pyc
 Database/__pycache__/program.cpython-39.pyc
 /TODO.txt

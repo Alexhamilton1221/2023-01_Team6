@@ -8,6 +8,7 @@ class Lecture:
         # The ending Time of the lecture (double)
         self.end_time = end_time
 
+
     def same_start_time(self, start_time):
         return self.start_time == start_time
 
@@ -17,7 +18,8 @@ class Lecture:
     def is_within(self, lecture):
         # Check if another lecture interferes with this timeslot
         if lecture.start_time < self.end_time and lecture.end_time > self.start_time:
-            return True
+            if self.day == lecture.day:
+                return True
         return False
 
     def length(self):
