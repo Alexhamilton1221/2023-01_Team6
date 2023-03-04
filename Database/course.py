@@ -41,10 +41,10 @@ class Course:
             return False
         prereqs = zip(self.prerequisites, other.prerequisites)
         for prereq in prereqs:
-            if prereq[0] != prereq[1]:
+            if not prereq[0].is_equal(prereq[1]):
                 return False
 
-        return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.total_hours and self.delivery == other.delivery
+        return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.hours_remaining and self.delivery == other.delivery
 
     def __repr__(self):
         return self.name
