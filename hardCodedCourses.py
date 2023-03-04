@@ -104,11 +104,11 @@ def temp_create_courses():
     FS.add_course(CMSK154)
 
     # Term 2
-    CMSK153 = StoredCourse("CMSK 0153", 18, 2, [CMSK151, CMSK152, CMSK157], "Lab", "H=2h")
+    CMSK153 = StoredCourse("CMSK 0153", 18, 2, [], "Lab", "H=2h")
     FS.add_course(CMSK153)
-    CMSK200 = StoredCourse("CMSK 0200", 16, 2, [CMSK154], "Lab", "H=2h")
+    CMSK200 = StoredCourse("CMSK 0200", 16, 2, [], "Lab", "H=2h")
     FS.add_course(CMSK200)
-    CMSK201 = StoredCourse("CMSK 0201", 18, 2, [CMSK154, CMSK200], "Lab", "H=2h")
+    CMSK201 = StoredCourse("CMSK 0201", 18, 2, [CMSK200], "Lab", "H=2h")
     FS.add_course(CMSK201)
     CMSK202 = StoredCourse("CMSK 0202", 16, 2, [CMSK201], "Lab", "H=2h|COREC=CMSK 203")
     FS.add_course(CMSK202)
@@ -129,7 +129,7 @@ def temp_create_courses():
     # Term 2
     DXD.add_course(StoredCourse("ADVM 0170", 18, 2, [], "Lab"))
     DXD.add_course(StoredCourse("ADVM 0138", 18, 2, [], "Lab"))
-    DXDI103 = StoredCourse("DXD 0103", 24, 2, [DXDI102], "Lab")
+    DXDI103 = StoredCourse("DXD 0103", 24, 2, [], "Lab")
     DXD.add_course(DXDI103)
     DXDI104 = StoredCourse("DXD 0104", 24, 2, [DXDI103], "Lab")
     DXD.add_course(DXDI104)

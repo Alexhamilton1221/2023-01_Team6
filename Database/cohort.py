@@ -17,6 +17,51 @@ class Cohort:
         # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
 
+    def create_schedule(self):
+        # This checks wether the course starts on the first day of the semester
+        if self.program.is_core():
+            starts_on = 1
+        else:
+            starts_on = 2
+
+        if self.program.name == "FS":
+            max_end_time = 20.50
+        else:
+            max_end_time = 16.50
+        max_start_time = 8.50
+
+        course_stack = []
+
+        self.add_to_stack(course_stack, self.courses)
+
+        print(course_stack)
+
+    def add_to_stack(self, queue, courses):
+        # This adds a list of courses to a cohort queue
+        for i in range(len(courses) - 1, -1, -1):
+            not_in = True
+            for q_course in queue:
+                if q_course.is_equal(courses[i]):
+                    not_in = False
+                    break
+            if not_in:
+                queue.insert(0, courses[i])
+                # adds the prerequisists
+                self.add_to_stack(queue, courses[i].prerequisites)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def set_room(self, room):
         # Sets the room of the cohort
         self.room = room

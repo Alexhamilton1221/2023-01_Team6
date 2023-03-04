@@ -46,3 +46,5 @@ class Course:
 
         return self.name == other.name and self.total_hours == other.total_hours and self.hours_remaining == other.total_hours and self.delivery == other.delivery
 
+    def __repr__(self):
+        return self.name
