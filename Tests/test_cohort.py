@@ -98,3 +98,30 @@ class TestCohort(TestCase):
             c1.courses[i].lectures = fakeLectures[i]
         c1.create_schedule()
         c1.generate_name()
+
+    def test_create_squdule_with_online_correct_show_squdule(self):
+
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["BCOM 3", 20]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+        fakeLectures = [[], [], [], [], [], []]
+        for i in range(0, 10):
+            fakeLectures[0].append(Lecture(0, 0, 0))
+        for i in range(0, 10):
+            fakeLectures[1].append(Lecture(0, 0, 0))
+        for i in range(0, 5):
+            fakeLectures[2].append(Lecture(0, 0, 0))
+        for i in range(0, 3):
+            fakeLectures[3].append(Lecture(0, 0, 0))
+        for i in range(0, 2):
+            fakeLectures[4].append(Lecture(0, 0, 0))
+        for i in range(0, 7):
+            fakeLectures[5].append(Lecture(0, 0, 0))
+        c1 = cohorts.cohorts[0]
+        for i in range(0, 6):
+            c1.courses[i].lectures = fakeLectures[i]
+        c1.create_schedule()
+        c1.generate_name()

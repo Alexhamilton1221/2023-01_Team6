@@ -20,7 +20,9 @@ class Cohort:
         self.lab = lab
 
     def create_schedule(self):
+        #
         # ONLINE, JUST CHECK FOR CONFLICKS WITH BOTH LAB AND CLASS
+        # COREQS
         # This checks wether the course starts on the first day of the semester
         if self.program.is_core():
             starts_on = 1
@@ -29,10 +31,14 @@ class Cohort:
 
         if self.program.name == "FS":
             max_end_time = 20.50
+            time_change_mod = -0.5
+            time_offset = 10.5
         else:
             max_end_time = 16.50
+            time_change_mod = 0.5
+            time_offset = 0
         max_start_time = 8.50
-        time_offset = 0
+
         course_stack = []
 
         self.add_to_stack(course_stack, self.courses)
@@ -44,7 +50,6 @@ class Cohort:
             extras = course.extra_req.split("|")
             lecture_length = 1.5
             day_min = 0
-
 
             if course.delivery == "Lab":
                 occupied_room = self.lab
@@ -62,22 +67,30 @@ class Cohort:
                     coreq = extra.split("=")[1]
 
             cur_start_time = max_start_time + time_offset
-            cur_end_time = lecture_length + cur_start_time
+            cur_end_time = lecture_length + max_start_time + time_offset
 
             class_count = len(course.lectures)
             start_day = starts_on
-            end_day = class_count*2 + start_day
+            end_day = class_count * 2 + start_day
             start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
             end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
-            while not occupied_room.check_if_lecture_fits(start_lecture) or not occupied_room.check_if_lecture_fits(end_lecture) or self.has_time_conflict(start_day, end_day, cur_start_time, cur_end_time):
+            while not occupied_room.check_if_lecture_fits(start_lecture) or not occupied_room.check_if_lecture_fits(
+                    end_lecture) \
+                    or self.has_time_conflict(start_day, end_day, cur_start_time, cur_end_time) \
+                    or cur_end_time > max_end_time \
+                    or (course.delivery == "Online"
+                        and (self.has_time_conflict(start_day, end_day, max_start_time, cur_end_time) and self.has_time_conflict(start_day, end_day, cur_start_time, max_end_time))):
+
+
                 # 48 is a temp value for the end of a term
                 if end_day <= 48:
                     start_day += 2
                     end_day += 2
                 else:
-                    start_day = starts_on
-                    end_day = class_count*2 + start_day
-                    time_offset += 0.5
+
+                    start_day = starts_on + course.last_prereq_day()
+                    end_day = class_count * 2 + start_day
+                    time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
 
@@ -90,11 +103,8 @@ class Cohort:
                 course.lectures[j].day = day
                 j += 1
 
-
-
             course_stack.remove(course)
             i = self.course_stack_update_index(course_stack, course, i)
-
 
     def course_stack_update_index(self, course_stack, course, i):
         # This is for setting the index in every loop of the course stack
@@ -116,11 +126,11 @@ class Cohort:
                 if not found_new_prerequisite:
                     i = course_stack.index(o_course)
 
-
         if not set_index:
             i = 0
 
         return i
+
     def add_to_stack(self, queue, courses):
         # This adds a list of courses to a cohort queue
         for i in range(len(courses) - 1, -1, -1):
@@ -160,8 +170,6 @@ class Cohort:
                 if lecture.is_within(start_lecture) or lecture.is_within(end_lecture):
                     return True
         return False
-
-
 
     def set_room(self, room):
         # Sets the room of the cohort

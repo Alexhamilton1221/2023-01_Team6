@@ -31,6 +31,14 @@ class Course:
             lecture.start_time = start_time
             lecture.end_time = end_time
 
+    def last_prereq_day(self):
+        # returns the day of the last prequsit for this course
+        max_day = 0
+        for course in self.prerequisites:
+            if course.lectures[len(course.lectures) - 1].day > max_day:
+                max_day = course.lectures[len(course.lectures) - 1].day
+        return max_day
+
     def is_lab(self):
         return self.delivery == "Lab"
 
