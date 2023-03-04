@@ -104,8 +104,7 @@ def temp_create_courses():
     FS.add_course(CMSK154)
 
     # Term 2
-    CMSK203 = StoredCourse("CMSK 0203", 18, 2, [], "Lab", "H=2|COREC=CMSK 0202")
-    FS.add_course(CMSK203)
+
     CMSK153 = StoredCourse("CMSK 0153", 18, 2, [], "Lab", "H=2")
     FS.add_course(CMSK153)
     CMSK200 = StoredCourse("CMSK 0200", 16, 2, [], "Lab", "H=2")
@@ -114,6 +113,8 @@ def temp_create_courses():
     FS.add_course(CMSK201)
     CMSK202 = StoredCourse("CMSK 0202", 16, 2, [CMSK201], "Lab", "H=2|COREC=CMSK 0203")
     FS.add_course(CMSK202)
+    CMSK203 = StoredCourse("CMSK 0203", 18, 2, [], "Lab", "H=2|COREC=CMSK 0202")
+    FS.add_course(CMSK203)
 
     # Term 3
     FS.add_course(StoredCourse("PCOM 0160", 50, 3, [], "Lab", "H=3"))

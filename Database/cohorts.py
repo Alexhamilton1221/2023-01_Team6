@@ -24,6 +24,10 @@ class Cohorts:
         # The cohorts of the database (array of cohort)
         self.cohorts = cohorts
 
+    def create_schedules(self):
+        for cohort in self.cohorts:
+            cohort.create_schedule()
+
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):
         # Goes through a list of cohorts, and adds the stored rooms within to classrooms
