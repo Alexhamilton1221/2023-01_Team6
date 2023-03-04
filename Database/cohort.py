@@ -20,13 +20,15 @@ class Cohort:
         self.lab = lab
 
     def create_schedule(self):
-        # COREQS
-        # This checks wether the course starts on the first day of the semester
+
+        # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
             starts_on = 1
         else:
             starts_on = 2
 
+        # Sets the fullstack courses to start in the evening and move towards the morning, while all others
+        # Start in the morning and move towards the evening
         if self.program.name == "FS":
             max_end_time = 20.50
             time_change_mod = -0.5
@@ -37,39 +39,46 @@ class Cohort:
             time_offset = 0
         max_start_time = 8.50
 
-        course_stack = []
 
+        course_stack = []
+        # This arranges the courses to make the scheduling make more sense, corequisites are moved next to each other,
+        # and courses that are not prerequisites to any course are assigned last
         self.add_to_stack(course_stack, self.courses)
         self.stack_coreq_mover(course_stack)
         self.not_prereq_lower_priority(course_stack)
 
         i = 0
+        # Keeps looping until all courses in the stack are gone
         while course_stack != []:
             course = course_stack[i]
-
             lecture_length = 1.5
-            course_lecture_legnth = lecture_length
+            course_lecture_length = lecture_length
             day_min = 0
             class_count = len(course.lectures)
 
+            # Chooses the room that the course is in
             if course.delivery == "Lab":
                 occupied_room = self.lab
-                unoccupied_room = self.room
             else:
                 occupied_room = self.room
-                unoccupied_room = self.lab
 
             unfinished_prereq = False
             corequsite = None
 
+            # This code checks for any additional specification that the course may have, such as course length
+            # that it has to start halfway through the term, or that it has a corequisite
             extras = course.extra_req.split("|")
             for extra in extras:
                 if extra.startswith("H"):
                     lecture_length = float(extra.split("=")[1])
                 elif extra.startswith("T"):
                     day_min = 24
+
                 elif extra.startswith("COREC"):
                     coreq = extra.split("=")[1]
+                    # This go through all the courses in the stack to find the corequisite, and if it find the
+                    # corequisite checks if any of the prerequisite of the corequisite have not been finished yet,
+                    # if so, does them first, else continuous with the corequisite
                     for o_course in course_stack:
                         if o_course.name == coreq:
                             corequsite = o_course
@@ -78,11 +87,14 @@ class Cohort:
                                     i = self.course_stack_update_index(course_stack, prec, i)
                                     unfinished_prereq = True
             coreq_lecture_length = 0
+            # loops again if the corequisite had an unfinished prerequisite
             if unfinished_prereq:
                 continue
             else:
+                # When a course has a corequsite, it effectivly treats both courses as one giant couse that takes the
+                # time for both courses, and it will pretend like it lasts for the longer of the two
                 if corequsite is not None:
-                    course_lecture_legnth = lecture_length
+                    course_lecture_length = lecture_length
                     coreq_lecture_length = 1.5
                     extras = course.extra_req.split("|")
                     for extra in extras:
@@ -91,7 +103,7 @@ class Cohort:
                         elif extra.startswith("T"):
                             day_min = 24
 
-                    lecture_length = course_lecture_legnth + coreq_lecture_length
+                    lecture_length = course_lecture_length + coreq_lecture_length
                     if len(corequsite.lectures) > class_count:
                         class_count = len(corequsite.lectures)
 
@@ -101,21 +113,25 @@ class Cohort:
                     if day_min < latest_prereq:
                         day_min = latest_prereq
 
-
-
-
+            # The start time of the lecture is the start time + the amount of time the lectures are shifted by
+            # The end is the same + the length of the lecture
             cur_start_time = max_start_time + time_offset
             cur_end_time = lecture_length + max_start_time + time_offset
 
+            # The start day is either the first or second day, + what ever courses prerequssits, so it never starts
+            # Too early
             start_day = starts_on + course.last_prereq_day()
             if start_day <= day_min:
                 start_day = day_min + starts_on
-
+            # courses go every other day
             end_day = class_count * 2 + start_day
+
+            # Creates test lectures to compare to the lectures already placed in the classes and labs
             start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
             end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
 
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
+            # might cause issues later
             while not occupied_room.check_if_lecture_fits(start_lecture) or not occupied_room.check_if_lecture_fits(
                     end_lecture) \
                     or self.has_time_conflict(start_day, end_day, cur_start_time, cur_end_time) \
@@ -124,12 +140,13 @@ class Cohort:
                         and (self.has_time_conflict(start_day, end_day, max_start_time, cur_end_time) and self.has_time_conflict(start_day, end_day, cur_start_time, max_end_time))):
 
 
-                # 48 is a temp value for the end of a term
+                # 48 is a temp value for the end of a term, to be replaced once more concise data, also needs to check
+                # for holidays
                 if end_day <= 48:
                     start_day += 2
                     end_day += 2
                 else:
-
+                    # If it can't fit a lecture by a time no where in the semester, will go to the next time slot 30 later (or before for full stack)
                     start_day = starts_on + course.last_prereq_day()
                     if start_day <= day_min:
                         start_day = day_min + starts_on
@@ -141,6 +158,7 @@ class Cohort:
                 start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
                 end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
 
+            # Removes the one course from the stack and sets the time,
             if corequsite is None:
                 course.set_lecture_time(cur_start_time, cur_end_time)
                 j = 0
@@ -150,7 +168,8 @@ class Cohort:
 
                 course_stack.remove(course)
             else:
-                course.set_lecture_time(cur_start_time, cur_start_time + course_lecture_legnth)
+                # Sets time for both courses if it has a corequsite
+                course.set_lecture_time(cur_start_time, cur_start_time + course_lecture_length)
                 end_day = len(course.lectures) * 2 + start_day
                 j = 0
                 for day in range(start_day, end_day, 2):
@@ -159,7 +178,7 @@ class Cohort:
 
                 course_stack.remove(course)
 
-                corequsite.set_lecture_time(cur_start_time + course_lecture_legnth, cur_start_time + course_lecture_legnth + coreq_lecture_length)
+                corequsite.set_lecture_time(cur_start_time + course_lecture_length, cur_start_time + course_lecture_length + coreq_lecture_length)
                 end_day = len(corequsite.lectures) * 2 + start_day
                 j = 0
                 for day in range(start_day, end_day, 2):
@@ -167,9 +186,7 @@ class Cohort:
                     j += 1
 
                 course_stack.remove(corequsite)
-
-
-
+            # This sets the next index of the loop.
             i = self.course_stack_update_index(course_stack, course, i)
 
     def course_stack_update_index(self, course_stack, course, i):
