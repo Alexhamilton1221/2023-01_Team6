@@ -33,6 +33,7 @@ class Cohort:
         course_stack = []
 
         self.add_to_stack(course_stack, self.courses)
+        self.stack_coreq_mover(course_stack)
 
         print(course_stack)
 
@@ -48,6 +49,22 @@ class Cohort:
                 queue.insert(0, courses[i])
                 # adds the prerequisists
                 self.add_to_stack(queue, courses[i].prerequisites)
+
+    def stack_coreq_mover(self, stack):
+        # This function moves the corequsits next to each other in the queue and after both of their respective
+        for course in stack:
+            extras = course.extra_req.split("|")
+            coreq = ""
+            for extra in extras:
+                if extra.startswith("COREC"):
+                    coreq = extra.split("=")[1]
+            if not coreq == "":
+                for c_course in stack:
+                    if c_course.name == coreq:
+                        stack.remove(c_course)
+                        stack.insert(stack.index(course) - 1, c_course)
+
+
 
 
 
