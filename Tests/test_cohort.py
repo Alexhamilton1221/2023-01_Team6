@@ -1,10 +1,14 @@
 from unittest import TestCase
 
 import hardCodedCourses
+from Database.classrooms import Classrooms
 from Database.cohort import Cohort
+from Database.cohorts import Cohorts
+from Database.lecture import Lecture
 from Database.program import Program
 from Database.classroom import Classroom
 from Database.programs import Programs
+from hardCodedClassrooms import temp_Classroom_add
 
 
 class TestCohort(TestCase):
@@ -35,7 +39,6 @@ class TestCohort(TestCase):
 
         assert c1.name == "BCOM0110"
 
-
     def test_givencohortwithcoureses_gethours_showhours(self):
         PCOM = hardCodedCourses.temp_create_courses()[0]
 
@@ -45,16 +48,53 @@ class TestCohort(TestCase):
 
         assert 70 == output
 
-    def test_create_squdule_correct_show_squdule(self):
-        PCOM = hardCodedCourses.temp_create_courses()[0]
-
-        c1 = Cohort(PCOM, 1, 1, 24, PCOM.get_instance_courses(lambda x: x.term == 1))
-        c1.create_schedule()
-
     def test_create_squdule_with_prequisits_correct_show_squdule(self):
+
         programs = Programs(hardCodedCourses.temp_create_courses())
-        FS = programs.get_program(lambda p: p.name == "FS")
-        c1 = Cohort(FS, 1, 1, 24, FS.get_instance_courses(lambda x: x.term == 2))
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["PCOM 1", 67]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+        fakeLectures = [[], [], [], [], []]
+        for i in range(0, 10):
+            fakeLectures[0].append(Lecture(0, 0, 0))
+        for i in range(0, 10):
+            fakeLectures[1].append(Lecture(0, 0, 0))
+        for i in range(0, 5):
+            fakeLectures[2].append(Lecture(0, 0, 0))
+        for i in range(0, 3):
+            fakeLectures[3].append(Lecture(0, 0, 0))
+        for i in range(0, 2):
+            fakeLectures[4].append(Lecture(0, 0, 0))
+        c1 = cohorts.cohorts[0]
+        for i in range(0, 5):
+            c1.courses[i].lectures = fakeLectures[i]
         c1.create_schedule()
+        c1.generate_name()
 
+    def test_create_squdule_with_fullstack_correct_show_squdule(self):
 
+        programs = Programs(hardCodedCourses.temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["FS 2", 20]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+        fakeLectures = [[], [], [], [], []]
+        for i in range(0, 10):
+            fakeLectures[0].append(Lecture(0, 0, 0))
+        for i in range(0, 10):
+            fakeLectures[1].append(Lecture(0, 0, 0))
+        for i in range(0, 5):
+            fakeLectures[2].append(Lecture(0, 0, 0))
+        for i in range(0, 3):
+            fakeLectures[3].append(Lecture(0, 0, 0))
+        for i in range(0, 2):
+            fakeLectures[4].append(Lecture(0, 0, 0))
+
+        c1 = cohorts.cohorts[0]
+        for i in range(0, 5):
+            c1.courses[i].lectures = fakeLectures[i]
+        c1.create_schedule()
+        c1.generate_name()

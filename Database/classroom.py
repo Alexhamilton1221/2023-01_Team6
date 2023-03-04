@@ -19,14 +19,17 @@ class Classroom:
         for cohort in self.cohorts:
             if self.is_lab:
                 for course in cohort.courses:
-                    if course.delivery == "Lab" and course.lectures[0].is_within(lecture):
-                        return False
+                    for l_lecture in course.lectures:
+                        if course.delivery == "Lab" and l_lecture.is_within(lecture):
+                            return False
             else:
                 for course in cohort.courses:
-                    if course.delivery == "Class" and course.lectures[0].is_within(lecture):
-                        return False
+                    for l_lecture in course.lectures:
+                        if course.delivery == "Class" and l_lecture.is_within(lecture):
+                            return False
 
         return True
+
 
     def add_cohort(self, cohort):
         self.cohorts.append(cohort)

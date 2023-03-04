@@ -17,8 +17,9 @@ class Lecture:
 
     def is_within(self, lecture):
         # Check if another lecture interferes with this timeslot
-        if self.day == lecture.day and lecture.start_time < self.end_time and lecture.end_time > self.start_time:
-            return True
+        if lecture.start_time < self.end_time and lecture.end_time > self.start_time:
+            if self.day == lecture.day:
+                return True
         return False
 
     def length(self):
