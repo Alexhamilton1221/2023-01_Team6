@@ -15,7 +15,6 @@ class TestStoredCourse(TestCase):
     def test_lecture_length(self):
         StoredCourse2 = StoredCourse("21", 21, 1, [],"Class","H=1.5h")
         answer = 1.5
-
         assert answer == StoredCourse2.lecture_length()
 
 
