@@ -1,3 +1,6 @@
+import math
+
+import hardcodedother
 from Database.lecture import Lecture
 
 
@@ -19,8 +22,12 @@ class Cohort:
         # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
 
-    def create_schedule(self):
 
+    def create_schedule(self, term):
+        # This creates the schedules for the cohorts of the term
+        # var term is the term of this semester fall, winter, or sprint
+        holidays = hardcodedother.get_holidays(term)
+        term_length = hardcodedother.get_term_length(term)
         # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
             starts_on = 1
@@ -72,8 +79,7 @@ class Cohort:
                 if extra.startswith("H"):
                     lecture_length = float(extra.split("=")[1])
                 elif extra.startswith("T"):
-                    day_min = 24
-
+                    day_min = math.ceil(term_length/2)
                 elif extra.startswith("COREC"):
                     coreq = extra.split("=")[1]
                     # This go through all the courses in the stack to find the corequisite, and if it find the
@@ -101,7 +107,7 @@ class Cohort:
                         if extra.startswith("H"):
                             coreq_lecture_length = float(extra.split("=")[1])
                         elif extra.startswith("T"):
-                            day_min = 24
+                            day_min = math.ceil(term_length/2)
 
                     lecture_length = course_lecture_length + coreq_lecture_length
                     if len(corequsite.lectures) > class_count:
@@ -125,6 +131,9 @@ class Cohort:
                 start_day = day_min + starts_on
             # courses go every other day
             end_day = class_count * 2 + start_day
+            for i in range(0, len(holidays)):
+                if start_day <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
+                    end_day += 2
 
             # Creates test lectures to compare to the lectures already placed in the classes and labs
             start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
@@ -142,15 +151,27 @@ class Cohort:
 
                 # 48 is a temp value for the end of a term, to be replaced once more concise data, also needs to check
                 # for holidays
-                if end_day <= 48:
+                if end_day <= term_length:
+                    if start_day in holidays:
+                        end_day -= 2
                     start_day += 2
+
                     end_day += 2
+                    old_end = end_day
+                    for i in range(0, len(holidays)):
+                        if old_end <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
+                            end_day += 2
+                    if end_day > term_length:
+                        continue
                 else:
                     # If it can't fit a lecture by a time no where in the semester, will go to the next time slot 30 later (or before for full stack)
                     start_day = starts_on + course.last_prereq_day()
                     if start_day <= day_min:
                         start_day = day_min + starts_on
                     end_day = class_count * 2 + start_day
+                    for i in range(0, len(holidays)):
+                        if start_day <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
+                            end_day += 2
                     time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
@@ -163,8 +184,9 @@ class Cohort:
                 course.set_lecture_time(cur_start_time, cur_end_time)
                 j = 0
                 for day in range(start_day, end_day, 2):
-                    course.lectures[j].day = day
-                    j += 1
+                    if day not in holidays:
+                        course.lectures[j].day = day
+                        j += 1
 
                 course_stack.remove(course)
             else:
@@ -173,8 +195,9 @@ class Cohort:
                 end_day = len(course.lectures) * 2 + start_day
                 j = 0
                 for day in range(start_day, end_day, 2):
-                    course.lectures[j].day = day
-                    j += 1
+                    if day not in holidays:
+                        course.lectures[j].day = day
+                        j += 1
 
                 course_stack.remove(course)
 
@@ -182,8 +205,9 @@ class Cohort:
                 end_day = len(corequsite.lectures) * 2 + start_day
                 j = 0
                 for day in range(start_day, end_day, 2):
-                    corequsite.lectures[j].day = day
-                    j += 1
+                    if day not in holidays:
+                        corequsite.lectures[j].day = day
+                        j += 1
 
                 course_stack.remove(corequsite)
             # This sets the next index of the loop.
