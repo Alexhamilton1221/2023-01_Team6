@@ -24,9 +24,9 @@ class Cohorts:
         # The cohorts of the database (array of cohort)
         self.cohorts = cohorts
 
-    def create_schedules(self):
+    def create_schedules(self, term):
         for cohort in self.cohorts:
-            cohort.create_schedule()
+            cohort.create_schedule(term)
 
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):

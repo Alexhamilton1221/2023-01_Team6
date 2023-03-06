@@ -70,7 +70,7 @@ class TestCohort(TestCase):
         c1 = cohorts.cohorts[0]
         for i in range(0, 5):
             c1.courses[i].lectures = fakeLectures[i]
-        c1.create_schedule()
+        c1.create_schedule(1)
         c1.generate_name()
 
     def test_create_squdule_with_fullstack_correct_show_squdule(self):
@@ -96,7 +96,7 @@ class TestCohort(TestCase):
         c1 = cohorts.cohorts[0]
         for i in range(0, 5):
             c1.courses[i].lectures = fakeLectures[i]
-        c1.create_schedule()
+        c1.create_schedule(1)
         c1.generate_name()
 
     def test_create_squdule_with_online_correct_show_squdule(self):
@@ -123,7 +123,7 @@ class TestCohort(TestCase):
         c1 = cohorts.cohorts[0]
         for i in range(0, 6):
             c1.courses[i].lectures = fakeLectures[i]
-        c1.create_schedule()
+        c1.create_schedule(1)
         c1.generate_name()
 
     def test_create_squdule_with_early_online_correct_show_squdule(self):
@@ -150,7 +150,7 @@ class TestCohort(TestCase):
         c1 = cohorts.cohorts[0]
         for i in range(0, 6):
             c1.courses[i].lectures = fakeLectures[i]
-        c1.create_schedule()
+        c1.create_schedule(1)
         c1.generate_name()
 
     def test_create_schedule_for_many_cohorts_show_good_schedule(self):
@@ -184,7 +184,7 @@ class TestCohort(TestCase):
         for i in range(0, 5):
             cohorts.cohorts[0].courses[i].lectures = fakeLectures1[i]
             cohorts.cohorts[1].courses[i].lectures = fakeLectures2[i]
-        cohorts.create_schedules()
+        cohorts.create_schedules(1)
 
         print(cohorts.cohorts[0])
 
