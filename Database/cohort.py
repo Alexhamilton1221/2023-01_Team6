@@ -1,3 +1,4 @@
+import hardcodedother
 from Database.lecture import Lecture
 
 
@@ -19,7 +20,11 @@ class Cohort:
         # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
 
-    def create_schedule(self):
+
+    def create_schedule(self, term):
+        # This creates the schedules for the cohorts of the term
+        # var term is the term of this semester fall, winter, or sprint
+        holidays = hardcodedother.get_holidays(term)
 
         # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
