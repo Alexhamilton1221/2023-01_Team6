@@ -199,11 +199,42 @@ def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD 
                 entry.insert(0,display_time)
                 entry.config(state=DISABLED)
 
-
-
+# Function for when a new term is selected from dropdown.
+# Takes the term chosen from dropdown and label lists and updates title labels
+def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
+    termlist=["Fall","Winter","Spring/Summer"]
+    term=var_chosenterm.get()
+    if term=="Fall":
+        for i in range(1, 4):
+            infolabelscore[i].configure(text=termlist[i-1])
+            infolabelsnoncore[i-1].configure(text=termlist[i-1])
+            
+    elif term=="Winter":
+        for i in range(1, 3):
+            infolabelscore[i].configure(text=termlist[i])
+            infolabelsnoncore[i-1].configure(text=termlist[i])
+        
+        infolabelscore[3].configure(text=termlist[0])
+        infolabelsnoncore[2].configure(text=termlist[0])
+   
+    else:
+        infolabelscore[1].configure(text=termlist[2])
+        infolabelsnoncore[0].configure(text=termlist[2])
+        
+        for i in range(3, 1,-1):
+                infolabelscore[i].configure(text=termlist[i-2])
+                infolabelsnoncore[i-1].configure(text=termlist[i-2])
+        
+# This function is called whenever a Spinbox is updated to print the new totals.
+def update_totals():
+    print("Update")     
+    
+    
 def change_classroom(label, var):
     data = var.get()
     label.configure(text=str(data))
+   
+   
    
 # #Get current Season for Term
 # def get_season():

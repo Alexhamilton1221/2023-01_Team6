@@ -100,12 +100,12 @@ def main():
 
     #Information Tab Labels for Core Courses
     info_label_core_names={"lbl0":"Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PCOM","lbl5":"BCOM"}
-    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.25,0.475]
-    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20]
+    info_label_core=[] ; info_label_core_x=[0.01,0.21,0.46,0.71,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.25,0.475]
+    info_label_rel_width=[0.2,0.20,0.20,0.20,0.20,0.20]
     for i in range(0,6,1):
         text=info_label_core_names[f"lbl{i}"]
         info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displaycore, text=f"{text}", font=roboto_18, text_color=mytext)
-        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
+        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.15, relx=info_label_core_x[i], rely=info_label_core_y[i])  
         info_label_core.append(info_label_core_names[f"lbl{i}"])
    
     #Creates 23 StrVars and set values to zero for all Spinboxes
@@ -160,11 +160,12 @@ def main():
 
         i+=1
    
-    # Place Term Header
+    # Place Term Header for Non Core Courses
+    info_label_noncore=[] ; info_label_noncore_x=[0.21,0.46,0.71]
     for i in range(3):
         term_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"Term {i+1}", font=roboto_18, text_color=mytext)
-        term_label.place(relwidth=0.1, relheight=0.1, relx=(0.25*(i+1)), rely=0.025)
-    
+        term_label.place(relwidth=0.2, relheight=0.1, relx=info_label_noncore_x[i], rely=0.025)
+        info_label_noncore.append(term_label)
 
     noncore_label_text = ["PM", "BA", "GLM", "FS", "DXD", "BK"]
     for i, label_text in enumerate(noncore_label_text):
@@ -220,8 +221,8 @@ def main():
     
     
     weeks=["Fall","Winter","Spring/Summer"]
-    var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
-    display_week=OptionMenu(frame_t1_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
+    var_chosenterm = StringVar(root) ; var_chosenterm.set("Choose a Term") 
+    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,info_label_noncore)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
@@ -258,7 +259,7 @@ def main():
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
     display_week.config(font=helv36)
 
-    # Create labels for each day of the week
+
     days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
     for i, day in enumerate(days):
         tk.Label(frame_t2_schedule, text=day, font=roboto_18).grid(row=0, column=i+1)
