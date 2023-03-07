@@ -26,6 +26,7 @@ class Cohorts:
 
     def create_schedules(self, term):
         for cohort in self.cohorts:
+            cohort.create_empty_lectures()
             cohort.create_schedule(term)
 
     @staticmethod

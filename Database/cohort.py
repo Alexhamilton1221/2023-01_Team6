@@ -26,6 +26,7 @@ class Cohort:
     def create_schedule(self, term):
         # This creates the schedules for the cohorts of the term
         # var term is the term of this semester fall, winter, or sprint
+
         holidays = hardcodedother.get_holidays(term)
         term_length = hardcodedother.get_term_length(term)
         # This checks whether the course starts on the first day of the semester or the second
@@ -212,6 +213,11 @@ class Cohort:
                 course_stack.remove(corequsite)
             # This sets the next index of the loop.
             i = self.course_stack_update_index(course_stack, course, i)
+
+    def create_empty_lectures(self):
+        # creates the empty lectures in the cohort
+        for course in self.courses:
+            course.create_empty_lectures()
 
     def course_stack_update_index(self, course_stack, course, i):
         # This is for setting the index in every loop of the course stack
