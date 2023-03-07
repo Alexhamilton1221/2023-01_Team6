@@ -265,7 +265,7 @@ def main():
             
 
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
+            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000', borderwidth=0)
             entry.grid(row=i+1, column=j+1, sticky="nsew")
             entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(j, i)] = entry

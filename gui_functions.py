@@ -170,7 +170,8 @@ def create_schedule_block(entries_dict, time, days, length, name):
         for hour in range(int(length/0.5)):
             entry = entries_dict[(day,y+hour)]
             entry.config(disabledbackground = color)
-            entry.config(border=0)
+            entry.config(borderwidth=0)
+            #entry.config()
 
             display_time = time
             if time > 12:
