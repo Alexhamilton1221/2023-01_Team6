@@ -36,7 +36,7 @@ def main():
     style.theme_create( "Tab_Style", parent="alt", settings={
         "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
         "TNotebook.Tab": {
-            "configure": {"text_color": (mytext), #TODO - Change tab text color
+            "configure": {"foreground": (mytext), #TODO - Change tab text color
             "padding": [5, 1], "background": mydarkred },
             "map":       {"background": [("selected", '#3e3e42')],
                           "expand": [("selected", [4, 4, 4, 0])] } } } )
@@ -45,7 +45,9 @@ def main():
     style.configure("TNotebook", background=myframebg)
     
     #Create Fonts
+    roboto_14=customtkinter.CTkFont(family='Roboto Medium', size=12)
     roboto_18=customtkinter.CTkFont(family='Roboto Medium', size=-18)
+    helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)
     helv36 = tkFont.Font(family='Helvetica', size=12, weight=tkFont.BOLD)
 
 
@@ -74,23 +76,23 @@ def main():
     
     #Plain Text Labels
     totals = customtkinter.CTkLabel(master=frame_t1_totals, text="Totals", font=roboto_18,text_color=mytext, )
-    totals.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=0.001)
+    totals.place(relwidth=0.3, relheight=0.05, relx=0.365, rely=0.001)
     
     #Labels that print Totals from inputed data using generate button
 
-    info_label_totals=[] ;  info_label_totals_y=[0.05,0.1,0.5,0.55,0.6,0.65,0.7]
-    for i in range(0,7,1):
-        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="test", font=roboto_18,text_color=mytext)
+    info_label_totals=[] ;  info_label_totals_y=[0.065,0.125,0.45,0.55,0.65,0.75,0.85,0.95]
+    for i in range(0,8,1):
+        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="", font=roboto_18,text_color=mytext)
         new_lbl.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=info_label_totals_y[i])  
         info_label_totals.append(new_lbl)
     
     
     #Labels for excel file names
-    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18,text_color=mytext)
-    student_list_name.place(relwidth=0.40, relheight=0.1, relx=0.025, rely=0.89)
+    student_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_14,text_color=mytext)
+    student_list_name.place(relwidth=0.40, relheight=0.1, relx=0.05, rely=0.89)
 
-    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_18, text_color=mytext)
-    resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.36, rely=0.89)
+    resouce_list_name = customtkinter.CTkLabel(master=frame_t1_background, text="", font=roboto_14, text_color=mytext)
+    resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.41, rely=0.89)
     
     
 
@@ -193,14 +195,14 @@ def main():
                                 command=lambda: gu.import_excel(resouce_list_name,2))
     #clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
     #btn_classroom_list.config(image=clsasroom_list_img)
-    btn_classroom_list.place(relx=0.35, rely=0.92,relwidth=0.11, relheight=0.035)
+    btn_classroom_list.place(relx=0.375, rely=0.92,relwidth=0.11, relheight=0.035)
     
     
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
                                    command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
     #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
     #btn_generate_schedule.config(image=generate_schedule_img)
-    btn_generate_schedule.place(relx=0.65, rely=0.92,relwidth=0.065, relheight=0.035)
+    btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
     
 
     
@@ -208,7 +210,20 @@ def main():
                                    command=lambda: gu.save_schedule())
     #download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
     #btn_download_schedule.config(image=download_schedule_img)
-    btn_download_schedule.place(relx=0.80, rely=0.92,relwidth=0.065, relheight=0.035)
+    btn_download_schedule.place(relx=0.90, rely=0.92,relwidth=0.065, relheight=0.035)
+    
+    
+    #Create Dropdown for Terms
+    #Using temporary values, need to calc date using datetime probably & predict future terms
+    # t1=gu.get_season()
+
+    
+    
+    weeks=["Fall","Winter","Spring/Summer"]
+    var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
+    display_week=OptionMenu(frame_t1_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
+    display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
+    display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
   
 ###################################################################################################

@@ -205,3 +205,20 @@ def change_classroom(label, var):
     data = var.get()
     label.configure(text=str(data))
    
+# #Get current Season for Term
+# def get_season():
+#     now = datetime.datetime.now()
+#     if now.month >= 9 and now.month <= 12:
+#         return "Fall"
+#     elif now.month >= 6 and now.month <= 8:
+    
+#     else:
+#         return "Winter"   
+#     # if now.month >= 3 and now.month <= 5:
+#     #     return "Spring"
+#     # elif now.month >= 6 and now.month <= 8:
+#     #     return "Summer"
+#     # elif now.month >= 9 and now.month <= 11:
+#     #     return "Fall"
+#     # else:
+#     #     return "Winter"   
