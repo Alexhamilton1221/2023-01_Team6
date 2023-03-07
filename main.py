@@ -130,7 +130,7 @@ def main():
     #Create Spinbox Objects for Non-Core Courses
     pcom_spn_xvals=[0.28,0.53,0.78] 
     spn_noncore={'spn_pm_t1': 'spn_0', 'spn_pm_t2': 'spn_1', 'spn_pm_t3': 'spn_2', 'spn_ba_t1': 'spn_3', 'spn_ba_t2': 'spn_4', 
-                       'spn_ba_t3': 'spn_5', 'spn_glm_t1': 'spn_6', 'spn_glm_t2': 'spn_7', 'spn_glm_t3': 'spn_8', 'spn_fs_t1': 'spn_9', 
+                       'spn_ba_t3': 'spn_5', 'spn_gl_t1': 'spn_6', 'spn_gl_t2': 'spn_7', 'spn_gl_t3': 'spn_8', 'spn_fs_t1': 'spn_9', 
                        'spn_fs_t2': 'spn_10', 'spn_fs_t3': 'spn_11', 'spn_dxd_t1': 'spn_12', 'spn_dxd_t2': 'spn_13', 'spn_dxd_t3': 'spn_14',
                        'spn_bk_t1': 'spn_15', 'spn_bk_t2': 'spn_16', 'spn_bk_t3': 'spn_17'}
     
@@ -226,14 +226,13 @@ def main():
     #Using temp classrooms for now, find way to get them
     var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
     dispclass = OptionMenu(frame_t2_background, var_dispclass, "Classroom X", "Classroom Y", "Classroom Z") #Replace Default Values with Classrooms
-  
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
     dispclass.config(font=helv36)
 
 
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
-    var_dispclass.trace('w', gu.change_classroom(classroom_label, var_dispclass))
+    #var_dispclass.trace('w', gu.change_classroom(classroom_label, var_dispclass))
 
 
     #Create Dropdown for Weeks
@@ -259,7 +258,6 @@ def main():
     # Create entry boxes for each class
     # To set colour use disabledbackground='yellow'
     entries = {}
-    colors = [myred,myblue, mygreen]
     for j, day in enumerate(days):
         for i, time in enumerate(times):
             

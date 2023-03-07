@@ -9,6 +9,28 @@ class Classroom:
         # Cohorts assigned to the Room (array of Cohorts)
         self.cohorts = []
 
+
+    def create_schedule(self):
+        # Goes through all cohorts to create each on schedule
+        print("TEMP")
+
+    def check_if_lecture_fits(self, lecture):
+        # Checks a lecture and returns true or false if it fits
+        for cohort in self.cohorts:
+            if self.is_lab:
+                for course in cohort.courses:
+                    for l_lecture in course.lectures:
+                        if course.delivery == "Lab" and l_lecture.is_within(lecture):
+                            return False
+            else:
+                for course in cohort.courses:
+                    for l_lecture in course.lectures:
+                        if course.delivery == "Class" and l_lecture.is_within(lecture):
+                            return False
+
+        return True
+
+
     def add_cohort(self, cohort):
         self.cohorts.append(cohort)
     def same_name(self, name):
@@ -27,8 +49,3 @@ class Classroom:
 
 
 
-
-
-
-x = Classroom("PC0102", 24)
-y = Classroom("Td0203", 24, True)

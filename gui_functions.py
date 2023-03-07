@@ -153,26 +153,38 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, time, days, length, name):
+def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
+    # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#d2ecff'}
     color = ""
+
+    # Find color key in given name
     for key in colors:
         if key in name:
             color = colors[key]
 
-    y = time - 8
+    # Schedule begins at 8 so remove those indexes
+    starting_hour = time - 8
 
-    #Get y of starting
-    y = y // 0.5
+    # Indexes in hour increments
+    starting_hour = starting_hour // 0.5
 
+    # For Each Coloumn
     for day in days:
+        #For each entry in range of Length in half hour increments
         for hour in range(int(length/0.5)):
-            entry = entries_dict[(day,y+hour)]
+
+            # Get entry object at [Day_index, (starting_hour + each hour in length)]
+            entry = entries_dict[(day,starting_hour+hour)]
+
+            #Set color to course specific color
             entry.config(disabledbackground = color)
             entry.config(borderwidth=0)
             #entry.config()
 
+            # Weird function to get course name and time printed in the middle of the block
+            # Feel free to redo, idek what i was thinking
             display_time = time
             if time > 12:
                 display_time = time-12

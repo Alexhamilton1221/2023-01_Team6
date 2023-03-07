@@ -24,6 +24,11 @@ class Cohorts:
         # The cohorts of the database (array of cohort)
         self.cohorts = cohorts
 
+    def create_schedules(self, term):
+        for cohort in self.cohorts:
+            cohort.create_empty_lectures()
+            cohort.create_schedule(term)
+
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):
         # Goes through a list of cohorts, and adds the stored rooms within to classrooms
@@ -166,7 +171,7 @@ class Cohorts:
         # CREATE COHORTS AND SET THEM DOWN THERE NOT DONE
         for i in range(capacity[2]):
             cohorts.append(Cohort(program, group[1], i + 1, capacity[1],
-                                  program.get_instance_courses(lambda course: course.term == i + 1)))
+                                  program.get_instance_courses(lambda course: course.term == group[1])))
         extra_students = len(cohorts) * capacity[1] - group[2]
         c_num = 0
         while extra_students > 0:
@@ -245,11 +250,19 @@ class Cohorts:
                 continue
             # Goes through full stack hours first
             if group[0] == "FS":
-                # DOES NOT WORK CURRENTLY - FIX
+
+                # NOTE: THIS IS A STOP GAP, SOME TIME MAY BE WASTED FROM THE LACK OF CROSSOVER
                 if lab_hours[room_num][4] + lab_hours[room_num][2 + not_core] >= hours_per_cohort:
+                    fitting_cohorts = math.floor(lab_hours[room_num][4] / hours_per_cohort)
+                    if fitting_cohorts > total_hours / hours_per_cohort:
+                        fitting_cohorts = int(total_hours / hours_per_cohort)
+
+                    for i in range(fitting_cohorts):
+                        cohorts[assigned_lab_index + i].lab = lab_hours[room_num][0]
                     # Removes all possibles hours from the classroom
-                    total_hours -= hours_per_cohort * lab_hours[room_num][4] / hours_per_cohort
-                    lab_hours[room_num][4] -= hours_per_cohort * math.floor(lab_hours[room_num][4] / hours_per_cohort)
+                    total_hours -= hours_per_cohort * fitting_cohorts
+                    lab_hours[room_num][4] -= hours_per_cohort * fitting_cohorts
+
 
             # Checks if room is not too small
             if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
