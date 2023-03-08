@@ -82,7 +82,7 @@ def main():
 
     info_label_totals=[] ;  info_label_totals_y=[0.065,0.125,0.45,0.55,0.65,0.75,0.85,0.95]
     for i in range(0,8,1):
-        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text="", font=roboto_18,text_color=mytext)
+        new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text=0, font=roboto_18,text_color=mytext)
         new_lbl.place(relwidth=0.2, relheight=0.05, relx=0.4, rely=info_label_totals_y[i])  
         info_label_totals.append(new_lbl)
     
@@ -117,17 +117,19 @@ def main():
     #Create Spinbox Objects for Core Courses
     core_spn_xvals=[0.28,0.53,0.78] 
     spn_core={"spn_pcom_t1": "spn_0","spn_pcom_t2" :"spn_1","spn_pcom_t3":"spn_2","spn_bcom_t1": "spn_3","spn_bcom_t2":"spn_4","spn_bcom_t3":"spn_5"}
-    spn_names = []
+    spn_names = [];    spn_core_obj=[]
+
     for i, spn in enumerate(spn_core):
         if i>=3:
-            spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,2,spn_core_obj))  
             spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i-3], rely=0.5)
         
         else:
-            spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,1,spn_core_obj))  
             spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i], rely=0.25)
 
         spn_names.append(spn)
+        spn_core_obj.append(spn_core[spn])
 
     #Create Spinbox Objects for Non-Core Courses
     pcom_spn_xvals=[0.28,0.53,0.78] 
@@ -135,28 +137,30 @@ def main():
                        'spn_ba_t3': 'spn_5', 'spn_gl_t1': 'spn_6', 'spn_gl_t2': 'spn_7', 'spn_gl_t3': 'spn_8', 'spn_fs_t1': 'spn_9', 
                        'spn_fs_t2': 'spn_10', 'spn_fs_t3': 'spn_11', 'spn_dxd_t1': 'spn_12', 'spn_dxd_t2': 'spn_13', 'spn_dxd_t3': 'spn_14',
                        'spn_bk_t1': 'spn_15', 'spn_bk_t2': 'spn_16', 'spn_bk_t3': 'spn_17'}
-    
+    spn_noncore_obj=[]
+    i+=1
     for j, spn in enumerate(spn_noncore):
         if j>=3 and j<6:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,4,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-3], rely=0.30)
         elif j>=6 and j<9:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,5,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-6], rely=0.45)
         elif j>=9 and j<12:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,6,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-9], rely=0.60)
         elif j>=12 and j<15:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,7,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-12], rely=0.75)
         elif j>=15 and j<18:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,8,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-15], rely=0.90)
         else:
-            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i])  
+            spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,3,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j], rely=0.15)
         
         spn_names.append(spn)
+        spn_noncore_obj.append(spn_noncore[spn])
 
         i+=1
    
@@ -187,7 +191,12 @@ def main():
          
     #Create Buttons 
     btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration",bg=myred, fg=mytext, 
-                              command=lambda: gu.import_excel(student_list_name,1, [spn_names, vars]))
+                              command=lambda: 
+    (gu.import_excel(student_list_name,1, [spn_names, vars]),gu.update_all_totals(spn_core,spn_noncore,info_label_totals,spn_core_obj+spn_noncore_obj)))
+    
+    
+    
+    
     #student_list_img = PhotoImage(file="Images\import_students.png") 
     #btn_student_list.config(image=student_list_img)
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
