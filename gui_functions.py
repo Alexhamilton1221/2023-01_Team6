@@ -175,9 +175,10 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture, name, cohort): 
 
-    # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
+    program = cohort.program.name
+
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
               'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '#00cdac', 'BK': '#6c88c4'}
     color = ''
@@ -192,11 +193,12 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
     # Schedule begins at 8 so remove those indexes
     starting_hour = lecture.start_time - 8
 
-    # Indexes in hour increments
-    starting_hour = starting_hour // 0.5
+    # Indexes in hlaf hour increments so double the starting hour
+    starting_index = starting_hour // 0.5
 
+    # Get day in terms of index of week, lectures start at 1, indexs at 0 so -1
     day = (lecture.day % 4)-1
-
+    # If wrapped around, 
     if day == -1:
         day = 3
 
@@ -204,13 +206,46 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
 
     print(name, lecture.start_time, lecture.day, length)
 
+    # Init display variable
     display_time = lecture.start_time
+    display_time_end = lecture.end_time
+    start_pm = False; end_pm = False
+
+    # If time is greater than 12, keep in 12hr format
+    if display_time > 12:
+        display_time -= 12
+        start_pm = True
+    if display_time_end > 12:
+        display_time_end -= 12
+        end_pm = True
+
+    # If start or end time is a half hour,  
+    if display_time.is_integer():
+        display_time = f"{int(display_time)}:00"
+    else:
+        display_time = f"{int(display_time)}:30"
+
+    if start_pm:
+        display_time += "pm"
+    else:
+        display_time += "am"
+
+    if display_time_end.is_integer():
+        display_time_end = f"{int(display_time_end)}:00"
+    else:
+        display_time_end = f"{int(display_time_end)}:30"
+
+    if end_pm:
+        display_time_end += "pm"
+    else:
+        display_time_end += "am"
+
 
     #For each entry in range of Length in half hour increments
     for hour in range(int(length/0.5)):
 
         # Get entry object at [Day_index, (starting_hour + each hour in length)]
-        entry = entries_dict[(day, starting_hour+hour)]
+        entry = entries_dict[(day, starting_index+hour)]
 
         #Set color to course specific color
         entry.config(disabledbackground = color)
@@ -223,12 +258,12 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
         
         if hour == int(length)-1:
             entry.config(state=NORMAL)
-            entry.insert(0,name)
+            entry.insert(0, name + ' - ' + cohort.name)
             entry.config(state=DISABLED)
 
         if hour == int(length):
             entry.config(state=NORMAL)
-            entry.insert(0,display_time)
+            entry.insert(0,f"{display_time} - {display_time_end}")
             entry.config(state=DISABLED)
 
 

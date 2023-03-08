@@ -41,26 +41,41 @@ def test_given_cohorts_make_schedules_for_all():
 
 test_given_cohorts_make_schedules_for_all()
 
+# Runs when either week or class is updated on schedule tab
+# Clears the entries and iterates through global list of classroom objects
+# If the room matches the one selected, iterate through all courses assigned to that room
+# For each lecture, if it is within the week selected create a schedule block for it
 def update_schedule(*args):
+    # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
     global classroom_label, classroom_list, entries, var_display_week
+    # Clear schedule for new blocks
     gu.clear_schedule(entries)
-    #print(args)
+    # New selection from dropdown, can be a week or a classroom
     data = args[0]
+
+    # Get current week from global dropdown variable
     week = int(var_display_week.get()[-1])
-    #print(week)
+    
+    # If the classroom dropdown has changed, not the week
     if 'Week' not in data:
+        #Change label to reflect new choice
         classroom_label.configure(text=str(data))
 
+    #For each room in global list of classroom objects
     for room in classroom_list:
+        #If room matches selected
         if room.name == classroom_label.cget('text'):
             for cohort in room.cohorts:
                 for course in cohort.courses:
+                    # For each lecture for each course assigned to this room
                     for lecture in course.lectures:
+                        # If lecture day within range of selected week
                         if (lecture.day-1) - ((week-1)*4) in range(4):
+                            # Make sure course delivery and room match, create blocks
                             if course.delivery == 'Class' and room.is_lab == False:
-                                gu.create_schedule_block(entries, lecture, course.name, cohort.program.name)
+                                gu.create_schedule_block(entries, lecture, course.name, cohort)
                             elif course.delivery == 'Lab' and room.is_lab == True:
-                                gu.create_schedule_block(entries, lecture, course.name, cohort.program.name)
+                                gu.create_schedule_block(entries, lecture, course.name, cohort)
 def main():
     #Setup Window
     root = tk.Tk()
