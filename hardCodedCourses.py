@@ -76,7 +76,7 @@ def temp_create_courses():
     BA.add_course(StoredCourse("PCOM 0141", 39, 3, [], "Class", "H=3"))
 
     # Business Analysis
-    GLM = Program("GLM")
+    GLM = Program("GL")
     # Term 1
     GLM.add_course(StoredCourse("SCMT 0501", 21, 1, []))
     GLM.add_course(StoredCourse("SCMT 0502", 21, 1, []))
@@ -141,7 +141,7 @@ def temp_create_courses():
     DXD.add_course(StoredCourse("DXDI 9901", 45, 3, [], "Lab"))
 
     # Bookkeeping Certificate
-    BC = Program("BC")
+    BC = Program("BK")
     # Term 1
     BC.add_course(StoredCourse("ACCT 0201", 18, 1, []))
     BC.add_course(StoredCourse("ACCT 0202", 12, 1, []))

@@ -9,7 +9,14 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
+
 import random
+from Database.cohorts import Cohorts
+from Database.programs import Programs
+from hardCodedClassrooms import temp_Classroom_add
+from hardCodedCourses import temp_create_courses
+
+
 
 
 #from datetime import datetime, timedelta
@@ -30,6 +37,19 @@ def import_excel(file_name,imp_type, spn=None):
 
             update_spinners(registration, spn)
 
+            # TEMP FUNCTION TO RUN ON EXECUTE
+            # Assumes term is spring
+            reg_list = []
+            #for key in registration.keys():
+            #    if registration.get(key) > 0:
+            #        reg_list.append([key, registration.get(key)])
+
+            #cohorts = Cohorts()
+            #programs = Programs(temp_create_courses())
+            #classrooms = Classrooms(temp_Classroom_add())
+            #cohorts.create_cohorts(classrooms, programs, reg_list)
+            #cohorts.create_schedules(1)
+            #cohorts.cohorts[0]
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
         
@@ -159,7 +179,7 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
-              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '00cdac', 'BK': '6c88c4'}
+              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '#00cdac', 'BK': '#6c88c4'}
     color = ''
     for key in colors.keys():
         if program in key:
@@ -176,7 +196,7 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    day = (lecture.day % 4)
+    day = lecture.day % 4
 
     length =  lecture.end_time - lecture.start_time
 
@@ -210,6 +230,173 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
             entry.config(state=DISABLED)
 
 
+# Function for when a new term is selected from dropdown.
+# Takes the term chosen from dropdown and label lists and updates title labels
+def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
+    termlist=["Fall","Winter","Spring/Summer"]
+    term=var_chosenterm.get()
+    if term=="Fall":
+        for i in range(1, 4):
+            infolabelscore[i].configure(text=termlist[i-1])
+            infolabelsnoncore[i-1].configure(text=termlist[i-1])
+            
+    elif term=="Winter":
+        for i in range(1, 3):
+            infolabelscore[i].configure(text=termlist[i])
+            infolabelsnoncore[i-1].configure(text=termlist[i])
+        
+        infolabelscore[3].configure(text=termlist[0])
+        infolabelsnoncore[2].configure(text=termlist[0])
+   
+    else:
+        infolabelscore[1].configure(text=termlist[2])
+        infolabelsnoncore[0].configure(text=termlist[2])
+        
+        for i in range(3, 1,-1):
+                infolabelscore[i].configure(text=termlist[i-2])
+                infolabelsnoncore[i-1].configure(text=termlist[i-2])
+        
+# This function is called whenever a Spinbox is updated to print the new totals.
+def update_totals(spinners,total_labels,row_num,spinner_object):
+
+    all_programs=['pcom','bcom','pm','ba','gl','fs','dxd','bk']
+    sum=0
+    if row_num==1:
+        substring = 'pcom'
+    elif row_num==2:
+        substring = 'bcom'
+    elif row_num==3:
+        substring = 'pm'
+    elif row_num==4:
+        substring = 'ba'    
+    elif row_num==5:
+        substring = 'gl'    
+    elif row_num==6:
+        substring = 'fs'    
+    elif row_num==7:
+        substring = 'dxd'    
+    elif row_num==8:
+        substring = 'bk'    
+    
+    for spn in spinner_object: #Error Checking
+        #print('test',int(spn.get()))
+        if int(spn.get())>100:
+            messagebox.showerror("Error", "You entered too many Students. \nA maximum of 100 students is permitted.")
+            spn.set(0)
+            indices = [i for i, s in enumerate(spinners) if substring in s]
+            total_labels[row_num-1].configure(text=0)
+            for i in indices:
+                text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
+                #print(type(sum))
+                sum+=text
+                #print(sum)
+            total_labels[row_num-1].configure(text=sum)            
+            return
+    
+    indices = [i for i, s in enumerate(spinners) if substring in s]
+      
+    total_labels[row_num-1].configure(text=0)
+
+    for i in indices:
+        text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
+            
+        total_labels[row_num-1].configure(text=text)
+
+# This function is called when somebody types in a value. Need to check all spinboxes.
+def update_all_totals(spn_core,spn_noncore,total_labels,spinner_object):
+    #programs=['pcom','bcom','pm','ba','gl','fs','dxd','bk']
+    core_programs=['pcom','bcom']; non_core_programs=['pm','ba','gl','fs','dxd','bk']
+    row_num=1
+    
+    
+    
+    for core_substring in core_programs:
+        
+        core_indices = [i for i, s in enumerate(spn_core) if core_substring in s]
+        
+        #print(core_indices)
+
+        total_labels[row_num-1].configure(text=0)
+        for i in core_indices:
+            text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
+                
+            total_labels[row_num-1].configure(text=text)
+        #print(row_num)
+        row_num+=1
+
+
+
+        
+    #print("break")
+
+    #row_num=1
+    for non_core_substring in non_core_programs:
+        #print(non_core_substring)
+
+        non_core_indices = [j for j, k in enumerate(spn_noncore) if non_core_substring in k]
+        
+        for i in range(len(non_core_indices)): #Deal with new list by adding 6
+            non_core_indices[i] += 6
+        
+        #print(non_core_indices)
+
+        total_labels[row_num-1].configure(text=0)
+
+        for j in non_core_indices:
+            text=int(spinner_object[j].get())+total_labels[row_num-1].cget("text")
+                
+            total_labels[row_num-1].configure(text=text)
+        
+        #print(row_num)
+        row_num+=1
+    
+    # full_spn=spn_core.update(spn_noncore)
+    # print('HERE',type(spn_core))
+    # print(spn_core)
+    # print(spn_noncore)
+
+    # print('HERE',type(full_spn))
+    # for substring in programs:
+    
+    #     indices = [i for i, s in enumerate(full_spn) if substring in s]
+      
+    #     total_labels[row_num-1].configure(text=0)
+
+    #     for i in indices:
+    #         text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
+            
+    #         total_labels[row_num-1].configure(text=text)
+
+        
+def change_classroom(label, var):
+    data = var.get()
+    label.configure(text=str(data))
+   
+   
+   
+# #Get current Season for Term
+# def get_season():
+#     now = datetime.datetime.now()
+#     if now.month >= 9 and now.month <= 12:
+#         return "Fall"
+#     elif now.month >= 6 and now.month <= 8:
+    
+#     else:
+#         return "Winter"   
+#     # if now.month >= 3 and now.month <= 5:
+#     #     return "Spring"
+#     # elif now.month >= 6 and now.month <= 8:
+#     #     return "Summer"
+#     # elif now.month >= 9 and now.month <= 11:
+#     #     return "Fall"
+#     # else:
+#     #     return "Winter"   
+# def on_enter(event):
+#     event.widget.config(bg="#3e3e42")
+
+# def on_leave(event):
+#     event.widget.config(bg="#252526")
+
 
 def clear_schedule(entries):
     for index in entries:
@@ -218,11 +405,3 @@ def clear_schedule(entries):
         entries[index].config(disabledbackground = '#ffffff')
         entries[index].config(state=DISABLED)
 
-
-def print_schedule(classrooms):
-
-    #for room in classrooms:
-    for cohort in classrooms.classrooms[2].cohorts:
-        for course in cohort.courses:
-            for lecture in course.lectures:
-                print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)

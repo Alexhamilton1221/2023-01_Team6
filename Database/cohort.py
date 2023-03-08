@@ -31,9 +31,9 @@ class Cohort:
         term_length = hardcodedother.get_term_length(term)
         # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
-            starts_on = 1
+            starts_on = 3
         else:
-            starts_on = 2
+            starts_on = 4
 
         # Sets the fullstack courses to start in the evening and move towards the morning, while all others
         # Start in the morning and move towards the evening
