@@ -24,6 +24,7 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
+# TEMP - runs test to create schedule based of dummy data
 def test_given_cohorts_make_schedules_for_all():
     global classroom_list
     programs = Programs(temp_create_courses())
@@ -56,11 +57,13 @@ def update_schedule(*args):
             for cohort in room.cohorts:
                 for course in cohort.courses:
                     for lecture in course.lectures:
-                        if lecture.day - week*4 in range(4):
-                            gu.create_schedule_block(entries, lecture, course.name)
+                        if lecture.day - ((week-1)*4) in range(4):
 
+                            if (course.delivery == 'Class') and not room.is_lab:
+                                gu.create_schedule_block(entries, lecture, course.name)
+                            elif (course.delivery == 'Lab') and room.is_lab:
+                                gu.create_schedule_block(entries, lecture, course.name)
 
-    return False
 
 def main():
     #Setup Window

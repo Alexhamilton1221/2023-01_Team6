@@ -155,15 +155,12 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, lecture, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture, name): 
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
     r = lambda: random.randint(0,255)
     color = '#%02X%02X%02X' % (r(),r(),r())
-
-    # Find color key in given name
-    
 
     # Schedule begins at 8 so remove those indexes
     starting_hour = lecture.start_time - 8
