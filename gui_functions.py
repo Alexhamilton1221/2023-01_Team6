@@ -9,7 +9,6 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
-import re
 #from datetime import datetime, timedelta
 
 def import_excel(file_name,imp_type, spn=None):
@@ -228,6 +227,12 @@ def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
 # This function is called whenever a Spinbox is updated to print the new totals.
 def update_totals(spinners,total_labels,row_num,spinner_object):
 
+    for spn in spinner_object: #Error Checking
+        #print('test',int(spn.get()))
+        if int(spn.get())>100:
+            messagebox.showerror("Error", "You entered too many Students. \nA maximum of 100 students is permitted.")
+            spn.set(0)
+            return
     if row_num==1:
         substring = 'pcom'
     elif row_num==2:
@@ -255,11 +260,14 @@ def update_totals(spinners,total_labels,row_num,spinner_object):
             
         total_labels[row_num-1].configure(text=text)
 
-
+# This function is called when somebody types in a value. Need to check all spinboxes.
 def update_all_totals(spn_core,spn_noncore,total_labels,spinner_object):
     #programs=['pcom','bcom','pm','ba','gl','fs','dxd','bk']
     core_programs=['pcom','bcom']; non_core_programs=['pm','ba','gl','fs','dxd','bk']
     row_num=1
+    
+    
+    
     for core_substring in core_programs:
         
         core_indices = [i for i, s in enumerate(spn_core) if core_substring in s]
@@ -338,3 +346,8 @@ def change_classroom(label, var):
 #     #     return "Fall"
 #     # else:
 #     #     return "Winter"   
+# def on_enter(event):
+#     event.widget.config(bg="#3e3e42")
+
+# def on_leave(event):
+#     event.widget.config(bg="#252526")

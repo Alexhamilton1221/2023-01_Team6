@@ -24,7 +24,7 @@ def main():
     myblue="#ADD8E6"
     mytext="#FFFFFF"
     myframebg = "#252526"
-    
+    mygrey="#3e3e42"
     #Settup Tab Control & Tabs
     tabControl = ttk.Notebook(root)
     information_tab = ttk.Frame(tabControl)
@@ -48,7 +48,7 @@ def main():
     roboto_14=customtkinter.CTkFont(family='Roboto Medium', size=12)
     roboto_18=customtkinter.CTkFont(family='Roboto Medium', size=-18)
     helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)
-    helv36 = tkFont.Font(family='Helvetica', size=12, weight=tkFont.BOLD)
+    #helv40 = tkFont.Font(family='Helvetica', size=12, weight=tkFont.BOLD)
 
 
     #Create All Tabs
@@ -60,7 +60,7 @@ def main():
     #Information Tab
 
     #Information Tab Frames
-    frame_t1_background = tk.Frame(information_tab, bg="#3e3e42", bd=5)
+    frame_t1_background = tk.Frame(information_tab, bg=mygrey, bd=5)
     frame_t1_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
     
     frame_t1_displaycore = tk.Frame(information_tab, bd=5, bg=myframebg)
@@ -123,10 +123,12 @@ def main():
         if i>=3:
             spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,2,spn_core_obj))  
             spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i-3], rely=0.5)
+            spn_core[spn].bind("<Return>", lambda event: gu.update_totals(spn_core,info_label_totals,2,spn_core_obj))
         
         else:
             spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,1,spn_core_obj))  
             spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i], rely=0.25)
+            spn_core[spn].bind("<Return>", lambda event: gu.update_totals(spn_core,info_label_totals,1,spn_core_obj))
 
         spn_names.append(spn)
         spn_core_obj.append(spn_core[spn])
@@ -143,21 +145,33 @@ def main():
         if j>=3 and j<6:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,4,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-3], rely=0.30)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,4,spn_noncore_obj))
+
         elif j>=6 and j<9:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,5,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-6], rely=0.45)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,5,spn_noncore_obj))
+
         elif j>=9 and j<12:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,6,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-9], rely=0.60)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,6,spn_noncore_obj))
+
         elif j>=12 and j<15:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,7,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-12], rely=0.75)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,7,spn_noncore_obj))
+
         elif j>=15 and j<18:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,8,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-15], rely=0.90)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,8,spn_noncore_obj))
+
         else:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,3,spn_noncore_obj))  
             spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j], rely=0.15)
+            spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,3,spn_noncore_obj))
+
         
         spn_names.append(spn)
         spn_noncore_obj.append(spn_noncore[spn])
@@ -234,7 +248,9 @@ def main():
     display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,info_label_noncore)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
-    
+    # display_week.bind("<Leave>", gu.on_leave)
+    # display_week.bind("<Enter>", gu.on_enter)
+
   
 ###################################################################################################
     #Schedule Tab    
@@ -252,7 +268,7 @@ def main():
     var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
     dispclass = OptionMenu(frame_t2_background, var_dispclass, "Classroom X", "Classroom Y", "Classroom Z") #Replace Default Values with Classrooms
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
-    dispclass.config(font=helv36)
+    dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
 
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
@@ -266,7 +282,7 @@ def main():
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
-    display_week.config(font=helv36)
+    display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
 
     days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
