@@ -11,6 +11,11 @@ from Database.classrooms import Classrooms
 from Database.classroom import Classroom
 
 import random
+from Database.cohorts import Cohorts
+from Database.programs import Programs
+from hardCodedClassrooms import temp_Classroom_add
+from hardCodedCourses import temp_create_courses
+
 
 
 
@@ -32,6 +37,19 @@ def import_excel(file_name,imp_type, spn=None):
 
             update_spinners(registration, spn)
 
+            # TEMP FUNCTION TO RUN ON EXECUTE
+            # Assumes term is spring
+            reg_list = []
+            #for key in registration.keys():
+            #    if registration.get(key) > 0:
+            #        reg_list.append([key, registration.get(key)])
+
+            #cohorts = Cohorts()
+            #programs = Programs(temp_create_courses())
+            #classrooms = Classrooms(temp_Classroom_add())
+            #cohorts.create_cohorts(classrooms, programs, reg_list)
+            #cohorts.create_schedules(1)
+            #cohorts.cohorts[0]
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
         
