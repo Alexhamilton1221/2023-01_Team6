@@ -227,12 +227,8 @@ def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
 # This function is called whenever a Spinbox is updated to print the new totals.
 def update_totals(spinners,total_labels,row_num,spinner_object):
 
-    for spn in spinner_object: #Error Checking
-        #print('test',int(spn.get()))
-        if int(spn.get())>100:
-            messagebox.showerror("Error", "You entered too many Students. \nA maximum of 100 students is permitted.")
-            spn.set(0)
-            return
+    all_programs=['pcom','bcom','pm','ba','gl','fs','dxd','bk']
+    sum=0
     if row_num==1:
         substring = 'pcom'
     elif row_num==2:
@@ -250,6 +246,20 @@ def update_totals(spinners,total_labels,row_num,spinner_object):
     elif row_num==8:
         substring = 'bk'    
     
+    for spn in spinner_object: #Error Checking
+        #print('test',int(spn.get()))
+        if int(spn.get())>100:
+            messagebox.showerror("Error", "You entered too many Students. \nA maximum of 100 students is permitted.")
+            spn.set(0)
+            indices = [i for i, s in enumerate(spinners) if substring in s]
+            total_labels[row_num-1].configure(text=0)
+            for i in indices:
+                text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
+                #print(type(sum))
+                sum+=text
+                #print(sum)
+            total_labels[row_num-1].configure(text=sum)            
+            return
     
     indices = [i for i, s in enumerate(spinners) if substring in s]
       
@@ -279,10 +289,10 @@ def update_all_totals(spn_core,spn_noncore,total_labels,spinner_object):
             text=int(spinner_object[i].get())+total_labels[row_num-1].cget("text")
                 
             total_labels[row_num-1].configure(text=text)
-        print(row_num)
+        #print(row_num)
         row_num+=1
 
-    print("break")
+    #print("break")
 
     #row_num=1
     for non_core_substring in non_core_programs:
@@ -302,7 +312,7 @@ def update_all_totals(spn_core,spn_noncore,total_labels,spinner_object):
                 
             total_labels[row_num-1].configure(text=text)
         
-        print(row_num)
+        #print(row_num)
         row_num+=1
     
     # full_spn=spn_core.update(spn_noncore)
