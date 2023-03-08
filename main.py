@@ -38,25 +38,36 @@ def test_given_cohorts_make_schedules_for_all():
     cohorts.create_schedules(2)
     return(classrooms)
 
-test_given_cohorts_make_schedules_for_all()
+
 
 
 def update_schedule(*args):
-    global classroom_label, classroom_list, entries
+    global classroom_label, classroom_list, entries, var_display_week
     gu.clear_schedule(entries)
-    print(args)
     data = args[0]
-    week = 1
-    if 'week' in data:
-        week = int(data[-1])
+    
+    week = int(var_display_week.get()[-1])
+
+    if 'Week' in data:
+        pass
+        print(week)
     else:
         classroom_label.configure(text=str(data))
 
+
+    #For each room
     for room in classroom_list:
-        if room.name == str(data):
+        #If room is currently selected
+        if room.name == classroom_label.cget("text"):
+            # For each cohort assigned to that room
             for cohort in room.cohorts:
+                print(cohort.program)
+               # For each course for that cohort
                 for course in cohort.courses:
+                    #For each lecture in that course
                     for lecture in course.lectures:
+                        print(lecture.day)
+                       # If lecture day in within week selected
                         if lecture.day - ((week-1)*4) in range(4):
 
                             if (course.delivery == 'Class') and not room.is_lab:
@@ -344,6 +355,7 @@ def main():
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
+    global var_display_week
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=update_schedule ) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
