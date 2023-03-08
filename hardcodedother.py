@@ -2,15 +2,16 @@
 
 def get_term_length(term):
     # Gets the length of a term (INCLUDING HOLIDAYS)
+    # Shifted by 2 to accomodate starting on a wendsday
     if term == 1:
         # TEMP
-        return 48
+        return 54
     # Winter
     elif term == 2:
-        return 52
+        return 54
     # Sprint
     else:
-        return 50
+        return 54
 def get_holidays(term):
     # Returns a list of the days holidays are on for each respective term
     # Fall
