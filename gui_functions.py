@@ -9,6 +9,11 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
+
+import random
+
+
+
 #from datetime import datetime, timedelta
 
 def import_excel(file_name,imp_type, spn=None):
@@ -152,51 +157,51 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture, name): 
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
-    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#d2ecff'}
-    color = ""
-
-    # Find color key in given name
-    for key in colors:
-        if key in name:
-            color = colors[key]
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
+    r = lambda: random.randint(0,255)
+    color = '#%02X%02X%02X' % (r(),r(),r())
 
     # Schedule begins at 8 so remove those indexes
-    starting_hour = time - 8
+    starting_hour = lecture.start_time - 8
 
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    # For Each Coloumn
-    for day in days:
-        #For each entry in range of Length in half hour increments
-        for hour in range(int(length/0.5)):
+    day = lecture.day % 4
 
-            # Get entry object at [Day_index, (starting_hour + each hour in length)]
-            entry = entries_dict[(day,starting_hour+hour)]
+    length =  lecture.end_time - lecture.start_time
 
-            #Set color to course specific color
-            entry.config(disabledbackground = color)
-            entry.config(border=0)
+    print(name, lecture.start_time, lecture.day, length)
 
-            # Weird function to get course name and time printed in the middle of the block
-            # Feel free to redo, idek what i was thinking
-            display_time = time
-            if time > 12:
-                display_time = time-12
-            display_time = f"{display_time}  -  {display_time+length}"
+    display_time = lecture.start_time
 
-            if hour == int(length)-1:
-                entry.config(state=NORMAL)
-                entry.insert(0,name)
-                entry.config(state=DISABLED)
+    #For each entry in range of Length in half hour increments
+    for hour in range(int(length/0.5)):
 
-            if hour == int(length):
-                entry.config(state=NORMAL)
-                entry.insert(0,display_time)
-                entry.config(state=DISABLED)
+        # Get entry object at [Day_index, (starting_hour + each hour in length)]
+        entry = entries_dict[(day, starting_hour+hour)]
+
+        #Set color to course specific color
+        entry.config(disabledbackground = color)
+        #entry.config(borderwidth=0)
+        #entry.config()
+
+        # Weird function to get course name and time printed in the middle of the block
+        # Feel free to redo, idek what i was thinking
+        
+        
+        if hour == int(length)-1:
+            entry.config(state=NORMAL)
+            entry.insert(0,name)
+            entry.config(state=DISABLED)
+
+        if hour == int(length):
+            entry.config(state=NORMAL)
+            entry.insert(0,display_time)
+            entry.config(state=DISABLED)
 
 # Function for when a new term is selected from dropdown.
 # Takes the term chosen from dropdown and label lists and updates title labels
@@ -292,6 +297,9 @@ def update_all_totals(spn_core,spn_noncore,total_labels,spinner_object):
         #print(row_num)
         row_num+=1
 
+
+
+        
     #print("break")
 
     #row_num=1
@@ -361,3 +369,12 @@ def change_classroom(label, var):
 
 # def on_leave(event):
 #     event.widget.config(bg="#252526")
+
+
+def clear_schedule(entries):
+    for index in entries:
+        entries[index].config(state=NORMAL)
+        entries[index].delete(0, END)
+        entries[index].config(disabledbackground = '#ffffff')
+        entries[index].config(state=DISABLED)
+
