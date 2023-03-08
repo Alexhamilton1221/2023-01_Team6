@@ -155,14 +155,19 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, lecture, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
-    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
-    r = lambda: random.randint(0,255)
-    color = '#%02X%02X%02X' % (r(),r(),r())
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
+              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '00cdac', 'BK': '6c88c4'}
+    color = ''
+    for key in colors.keys():
+        if program in key:
+            color = colors[key]
+    if len(color) == 0:
+        r = lambda: random.randint(0,255)
+        color = '#%02X%02X%02X' % (r(),r(),r())
 
-    # Find color key in given name
     
 
     # Schedule begins at 8 so remove those indexes
@@ -212,3 +217,12 @@ def clear_schedule(entries):
         entries[index].delete(0, END)
         entries[index].config(disabledbackground = '#ffffff')
         entries[index].config(state=DISABLED)
+
+
+def print_schedule(classrooms):
+
+    #for room in classrooms:
+    for cohort in classrooms.classrooms[2].cohorts:
+        for course in cohort.courses:
+            for lecture in course.lectures:
+                print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
