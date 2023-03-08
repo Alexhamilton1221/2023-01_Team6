@@ -35,7 +35,7 @@ def test_given_cohorts_make_schedules_for_all():
     cohorts.create_cohorts(classrooms, programs, students)
 
     cohorts.create_schedules(2)
-    gu.print_schedule(classrooms)
+    #gu.print_schedule(classrooms)
     return(classrooms)
 
 test_given_cohorts_make_schedules_for_all()

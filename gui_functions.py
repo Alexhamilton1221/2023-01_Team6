@@ -176,7 +176,7 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    day = lecture.day % 4
+    day = (lecture.day % 4)
 
     length =  lecture.end_time - lecture.start_time
 
