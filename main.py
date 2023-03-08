@@ -44,12 +44,11 @@ test_given_cohorts_make_schedules_for_all()
 def update_schedule(*args):
     global classroom_label, classroom_list, entries, var_display_week
     gu.clear_schedule(entries)
-    print(args)
+    #print(args)
     data = args[0]
     week = int(var_display_week.get()[-1])
-    print(week)
+    #print(week)
     if 'Week' not in data:
-        
         classroom_label.configure(text=str(data))
 
     for room in classroom_list:
