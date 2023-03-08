@@ -6,19 +6,57 @@ import customtkinter
 import gui_functions as gu
 from tkinter import font
 import tkinter.font as tkFont
+import hardCodedClassrooms as cl
+from Database.programs import Programs
+from Database.cohorts import NearLimit
+from Database.cohorts import OverLimit
+from Database.programs import Programs
+from hardCodedCourses import temp_create_courses
+from Database.classrooms import Classrooms
+from Database.classroom import Classroom
+from hardCodedClassrooms import temp_Classroom_add
+from Database.cohorts import Cohorts
+from Database.cohort import Cohort
+
 
 #Global variables for 2 excel paths
 stud_file=''
 res_file=''
 
 
+def test_given_cohorts_make_schedules_for_all():
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(temp_Classroom_add())
+    students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
+                ["BC 1", 36]]
 
-def change_classroom(*args):
-    global classroom_label
-    data = StringVar(name=args[0]).get()
-    print(data)
+    cohorts = Cohorts()
+    cohorts.create_cohorts(classrooms, programs, students)
+
+    cohorts.create_schedules(2)
+    return(classrooms)
+
+for classroom in test_given_cohorts_make_schedules_for_all().classrooms:
+    for cohort in classroom.cohorts:
+        for course in cohort.courses:
+            for lecture in course.lectures:
+                print(lecture.day, lecture.start_time)
+
+def update_schedule(*args):
+    global classroom_label, classroom_list, entries
+    print(args)
+    data = args[0]
     classroom_label.configure(text=str(data))
-    return True
+    week = 1
+    for room in classroom_list:
+        if room.name == str(data):
+            for cohort in room.cohorts:
+                for lecture in cohort.lectures:
+                    if lecture.day - week*4 in range(4):
+                        gu.create_schedule_block(lecture)
+
+
+    return False
 
 def main():
     #Setup Window
@@ -38,6 +76,9 @@ def main():
     tabControl = ttk.Notebook(root)
     information_tab = ttk.Frame(tabControl)
     schedule_tab = ttk.Frame(tabControl)
+
+    global classroom_list
+    classroom_list = cl.temp_Classroom_add()
 
 
     #Create Style for Tab_Bar
@@ -233,23 +274,30 @@ def main():
    
     #Create Dropdown for Classrooms
     #Using temp classrooms for now, find way to get them
-    var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
-    class_texts = ["Classroom X", "Classroom Y", "Classroom Z"]
-    dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_texts) #Replace Default Values with Classrooms
+    class_names = []
+    for room in classroom_list:
+        class_names.append(room.name)
+    
+    var_dispclass = StringVar(root)
+    var_dispclass.set(class_names[0]) 
+    #var_dispclass.trace_variable('w', update_schedule)
+
+    
+    dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_names, command=update_schedule) #Replace Default Values with Classrooms
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
     dispclass.config(font=helv36)
 
     global classroom_label
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
-    var_dispclass.trace('w', change_classroom)
-
-
+  
+    gu.form_schedule_screen(frame_t2_background)
+    
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
-    display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=lambda x: gu.form_schedule_screen(frame_t2_background)) #Replace Default Values with Classrooms
+    display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=update_schedule ) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
     display_week.config(font=helv36)
 
@@ -267,6 +315,7 @@ def main():
 
     # Create entry boxes for each class
     # To set colour use disabledbackground='yellow'
+    global entries
     entries = {}
     for j, day in enumerate(days):
         for i, time in enumerate(times):
@@ -280,10 +329,7 @@ def main():
 
             #TODO - Possible use frames to represent courses on top of planner
 
-    gu.create_schedule_block(entries, 10, [0,2], 3, "PCOM 0101")
-    gu.create_schedule_block(entries, 13, [0,2], 3, "BCOM 0201")
-    gu.create_schedule_block(entries, 8.5, [1,3], 5, "BA 0102")
-    gu.create_schedule_block(entries, 14, [1,3], 3, "DXD 0202")
+    
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
     root.mainloop()  

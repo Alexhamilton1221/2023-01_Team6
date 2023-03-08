@@ -153,7 +153,7 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
@@ -165,40 +165,40 @@ def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD 
             color = colors[key]
 
     # Schedule begins at 8 so remove those indexes
-    starting_hour = time - 8
+    starting_hour = lecture.start_time - 8
 
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    # For Each Coloumn
-    for day in days:
-        #For each entry in range of Length in half hour increments
-        for hour in range(int(length/0.5)):
+    day = lecture.day
 
-            # Get entry object at [Day_index, (starting_hour + each hour in length)]
-            entry = entries_dict[(day,starting_hour+hour)]
+    length = lecture.start_time - lecture.end_time
 
-            #Set color to course specific color
-            entry.config(disabledbackground = color)
-            entry.config(borderwidth=0)
-            #entry.config()
 
-            # Weird function to get course name and time printed in the middle of the block
-            # Feel free to redo, idek what i was thinking
-            display_time = time
-            if int(time) > 12:
-                display_time = time-12
-            display_time = f"{display_time}  -  {display_time+length}"
+    #For each entry in range of Length in half hour increments
+    for hour in range(int(length/0.5)):
 
-            if hour == int(length)-1:
-                entry.config(state=NORMAL)
-                entry.insert(0,name)
-                entry.config(state=DISABLED)
+        # Get entry object at [Day_index, (starting_hour + each hour in length)]
+        entry = entries_dict[(day,starting_hour+hour)]
 
-            if hour == int(length):
-                entry.config(state=NORMAL)
-                entry.insert(0,display_time)
-                entry.config(state=DISABLED)
+        #Set color to course specific color
+        entry.config(disabledbackground = color)
+        entry.config(borderwidth=0)
+        #entry.config()
+
+        # Weird function to get course name and time printed in the middle of the block
+        # Feel free to redo, idek what i was thinking
+        
+        
+        if hour == int(length)-1:
+            entry.config(state=NORMAL)
+            entry.insert(0,name)
+            entry.config(state=DISABLED)
+
+        if hour == int(length):
+            entry.config(state=NORMAL)
+            #entry.insert(0,display_time)
+            entry.config(state=DISABLED)
 
 
 
