@@ -175,12 +175,19 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, lecture, name): 
+def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
-    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
-    r = lambda: random.randint(0,255)
-    color = '#%02X%02X%02X' % (r(),r(),r())
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
+              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '#00cdac', 'BK': '#6c88c4'}
+    color = ''
+    for key in colors.keys():
+        if program in key:
+            color = colors[key]
+    if len(color) == 0:
+        r = lambda: random.randint(0,255)
+        color = '#%02X%02X%02X' % (r(),r(),r())
+
 
     # Schedule begins at 8 so remove those indexes
     starting_hour = lecture.start_time - 8
@@ -188,7 +195,10 @@ def create_schedule_block(entries_dict, lecture, name):
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    day = lecture.day % 4
+    day = (lecture.day % 4)-1
+
+    if day == -1:
+        day = 3
 
     length =  lecture.end_time - lecture.start_time
 
@@ -220,6 +230,7 @@ def create_schedule_block(entries_dict, lecture, name):
             entry.config(state=NORMAL)
             entry.insert(0,display_time)
             entry.config(state=DISABLED)
+
 
 # Function for when a new term is selected from dropdown.
 # Takes the term chosen from dropdown and label lists and updates title labels
@@ -396,3 +407,11 @@ def clear_schedule(entries):
         entries[index].config(disabledbackground = '#ffffff')
         entries[index].config(state=DISABLED)
 
+#prints total schedule for a room
+def print_schedule(classrooms):
+    #for room in classrooms:
+    for cohort in classrooms.classrooms[2].cohorts:
+        for course in cohort.courses:
+            for lecture in course.lectures:
+                if lecture.day < 12:
+                    print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)

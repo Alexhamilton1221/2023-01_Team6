@@ -34,37 +34,33 @@ def test_given_cohorts_make_schedules_for_all():
 
     cohorts = Cohorts()
     cohorts.create_cohorts(classrooms, programs, students)
-
     cohorts.create_schedules(2)
+    gu.print_schedule(classrooms)
+
     return(classrooms)
 
 test_given_cohorts_make_schedules_for_all()
 
-
 def update_schedule(*args):
-    global classroom_label, classroom_list, entries
+    global classroom_label, classroom_list, entries, var_display_week
     gu.clear_schedule(entries)
-    print(args)
+    #print(args)
     data = args[0]
-    week = 1
-    if 'week' in data:
-        week = int(data[-1])
-    else:
+    week = int(var_display_week.get()[-1])
+    #print(week)
+    if 'Week' not in data:
         classroom_label.configure(text=str(data))
 
     for room in classroom_list:
-        if room.name == str(data):
+        if room.name == classroom_label.cget('text'):
             for cohort in room.cohorts:
                 for course in cohort.courses:
                     for lecture in course.lectures:
-                        if lecture.day - ((week-1)*4) in range(4):
-
-                            if (course.delivery == 'Class') and not room.is_lab:
-                                gu.create_schedule_block(entries, lecture, course.name)
-                            elif (course.delivery == 'Lab') and room.is_lab:
-                                gu.create_schedule_block(entries, lecture, course.name)
-
-
+                        if (lecture.day-1) - ((week-1)*4) in range(4):
+                            if course.delivery == 'Class' and room.is_lab == False:
+                                gu.create_schedule_block(entries, lecture, course.name, cohort.program.name)
+                            elif course.delivery == 'Lab' and room.is_lab == True:
+                                gu.create_schedule_block(entries, lecture, course.name, cohort.program.name)
 def main():
     #Setup Window
     root = tk.Tk()
@@ -344,6 +340,7 @@ def main():
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
     weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
+    global var_display_week
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=update_schedule ) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
