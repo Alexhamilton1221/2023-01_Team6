@@ -188,7 +188,6 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
         r = lambda: random.randint(0,255)
         color = '#%02X%02X%02X' % (r(),r(),r())
 
-    
 
     # Schedule begins at 8 so remove those indexes
     starting_hour = lecture.start_time - 8
@@ -196,7 +195,10 @@ def create_schedule_block(entries_dict, lecture, name, program): #TODO SHOULD TA
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    day = lecture.day % 4
+    day = (lecture.day % 4)-1
+
+    if day == -1:
+        day = 3
 
     length =  lecture.end_time - lecture.start_time
 
@@ -405,3 +407,11 @@ def clear_schedule(entries):
         entries[index].config(disabledbackground = '#ffffff')
         entries[index].config(state=DISABLED)
 
+#prints total schedule for a room
+def print_schedule(classrooms):
+    #for room in classrooms:
+    for cohort in classrooms.classrooms[2].cohorts:
+        for course in cohort.courses:
+            for lecture in course.lectures:
+                if lecture.day < 12:
+                    print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
