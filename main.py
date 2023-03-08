@@ -11,6 +11,15 @@ import tkinter.font as tkFont
 stud_file=''
 res_file=''
 
+
+
+def change_classroom(*args):
+    global classroom_label
+    data = StringVar(name=args[0]).get()
+    print(data)
+    classroom_label.configure(text=str(data))
+    return True
+
 def main():
     #Setup Window
     root = tk.Tk()
@@ -225,14 +234,15 @@ def main():
     #Create Dropdown for Classrooms
     #Using temp classrooms for now, find way to get them
     var_dispclass = StringVar(root) ; var_dispclass.set("Classroom X") 
-    dispclass = OptionMenu(frame_t2_background, var_dispclass, "Classroom X", "Classroom Y", "Classroom Z") #Replace Default Values with Classrooms
+    class_texts = ["Classroom X", "Classroom Y", "Classroom Z"]
+    dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_texts) #Replace Default Values with Classrooms
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
     dispclass.config(font=helv36)
 
-
+    global classroom_label
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
-    #var_dispclass.trace('w', gu.change_classroom(classroom_label, var_dispclass))
+    var_dispclass.trace('w', change_classroom)
 
 
     #Create Dropdown for Weeks
@@ -263,7 +273,7 @@ def main():
             
 
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000', borderwidth=0)
+            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
             entry.grid(row=i+1, column=j+1, sticky="nsew")
             entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(j, i)] = entry
@@ -279,3 +289,5 @@ def main():
     root.mainloop()  
 
 main()
+
+   

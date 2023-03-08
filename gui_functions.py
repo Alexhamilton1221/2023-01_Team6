@@ -156,7 +156,7 @@ def get_classrooms(filename):
 def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
-    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#d2ecff'}
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
     color = ""
 
     # Find color key in given name
@@ -186,7 +186,7 @@ def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD 
             # Weird function to get course name and time printed in the middle of the block
             # Feel free to redo, idek what i was thinking
             display_time = time
-            if time > 12:
+            if int(time) > 12:
                 display_time = time-12
             display_time = f"{display_time}  -  {display_time+length}"
 
@@ -202,7 +202,3 @@ def create_schedule_block(entries_dict, time, days, length, name): #TODO SHOULD 
 
 
 
-def change_classroom(label, var):
-    data = var.get()
-    label.configure(text=str(data))
-   
