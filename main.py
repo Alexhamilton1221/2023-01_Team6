@@ -22,11 +22,12 @@ from Database.cohort import Cohort
 #Global variables for 2 excel paths
 stud_file=''
 res_file=''
-
+classroom_list = cl.temp_Classroom_add()
 
 def test_given_cohorts_make_schedules_for_all():
+    global classroom_list
     programs = Programs(temp_create_courses())
-    classrooms = Classrooms(temp_Classroom_add())
+    classrooms = Classrooms(classroom_list)
     students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
                 ["BC 1", 36]]
 
@@ -36,24 +37,27 @@ def test_given_cohorts_make_schedules_for_all():
     cohorts.create_schedules(2)
     return(classrooms)
 
-for classroom in test_given_cohorts_make_schedules_for_all().classrooms:
-    for cohort in classroom.cohorts:
-        for course in cohort.courses:
-            for lecture in course.lectures:
-                print(lecture.day, lecture.start_time)
+test_given_cohorts_make_schedules_for_all()
+
 
 def update_schedule(*args):
     global classroom_label, classroom_list, entries
+    gu.clear_schedule(entries)
     print(args)
     data = args[0]
-    classroom_label.configure(text=str(data))
     week = 1
+    if 'week' in data:
+        week = int(data[-1])
+    else:
+        classroom_label.configure(text=str(data))
+
     for room in classroom_list:
         if room.name == str(data):
             for cohort in room.cohorts:
-                for lecture in cohort.lectures:
-                    if lecture.day - week*4 in range(4):
-                        gu.create_schedule_block(lecture)
+                for course in cohort.courses:
+                    for lecture in course.lectures:
+                        if lecture.day - week*4 in range(4):
+                            gu.create_schedule_block(entries, lecture, course.name)
 
 
     return False
@@ -78,7 +82,7 @@ def main():
     schedule_tab = ttk.Frame(tabControl)
 
     global classroom_list
-    classroom_list = cl.temp_Classroom_add()
+    
 
 
     #Create Style for Tab_Bar

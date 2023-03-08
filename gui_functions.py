@@ -9,6 +9,8 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
+import random
+
 
 #from datetime import datetime, timedelta
 
@@ -153,16 +155,15 @@ def get_classrooms(filename):
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
-def create_schedule_block(entries_dict, lecture): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
+def create_schedule_block(entries_dict, lecture, name): #TODO SHOULD TAKE INDIVIDUAL LECTURES NOT PROGRAMS
 
     # Hard coded colors for each course TODO - ADD COLOR FOR EVERY COURSE *NOT* PROGRAM
     colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3'}
-    color = ""
+    r = lambda: random.randint(0,255)
+    color = '#%02X%02X%02X' % (r(),r(),r())
 
     # Find color key in given name
-    for key in colors:
-        if key in name:
-            color = colors[key]
+    
 
     # Schedule begins at 8 so remove those indexes
     starting_hour = lecture.start_time - 8
@@ -170,20 +171,23 @@ def create_schedule_block(entries_dict, lecture): #TODO SHOULD TAKE INDIVIDUAL L
     # Indexes in hour increments
     starting_hour = starting_hour // 0.5
 
-    day = lecture.day
+    day = lecture.day % 4
 
-    length = lecture.start_time - lecture.end_time
+    length =  lecture.end_time - lecture.start_time
 
+    print(name, lecture.start_time, lecture.day, length)
+
+    display_time = lecture.start_time
 
     #For each entry in range of Length in half hour increments
     for hour in range(int(length/0.5)):
 
         # Get entry object at [Day_index, (starting_hour + each hour in length)]
-        entry = entries_dict[(day,starting_hour+hour)]
+        entry = entries_dict[(day, starting_hour+hour)]
 
         #Set color to course specific color
         entry.config(disabledbackground = color)
-        entry.config(borderwidth=0)
+        #entry.config(borderwidth=0)
         #entry.config()
 
         # Weird function to get course name and time printed in the middle of the block
@@ -197,8 +201,14 @@ def create_schedule_block(entries_dict, lecture): #TODO SHOULD TAKE INDIVIDUAL L
 
         if hour == int(length):
             entry.config(state=NORMAL)
-            #entry.insert(0,display_time)
+            entry.insert(0,display_time)
             entry.config(state=DISABLED)
 
 
 
+def clear_schedule(entries):
+    for index in entries:
+        entries[index].config(state=NORMAL)
+        entries[index].delete(0, END)
+        entries[index].config(disabledbackground = '#ffffff')
+        entries[index].config(state=DISABLED)
