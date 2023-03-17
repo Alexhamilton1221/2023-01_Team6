@@ -322,7 +322,7 @@ class Cohort:
     def generate_name(self):
         # Checks if there are over 10 cohorts in one program (extremely unlikely) to make the name correct
         if self.number < 10:
-            self.name = self.program.name + "0" + str(self.term) + "0" + str(self.number)
+            self.name = self.program.name + str(self.term) + str(self.number)
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
@@ -355,3 +355,6 @@ class Cohort:
 
     def same_count(self, count):
         return self.count == count
+
+    def __str__(self):
+        return self.name

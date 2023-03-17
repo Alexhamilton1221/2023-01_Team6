@@ -16,3 +16,11 @@ class Student:
         self.program = program
         # The program cohort of the student
         self.program_cohort = program_cohort
+
+    def __repr__(self) -> str:
+        return "Id: " + str(self.id) + "\nName: " + self.name  + "\nCore: "\
+            + str(self.core) + "\n\tCohort: " + str(self.core_cohort)+ "\nProgram: "\
+            + str(self.program) + "\n\tCohort: " + str(self.program_cohort)
+
+
+
