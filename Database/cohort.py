@@ -216,6 +216,16 @@ class Cohort:
             # This sets the next index of the loop.
             i = self.course_stack_update_index(course_stack, course, i)
 
+    def add_students(self, students):
+        # Adds a list of students to the cohort if they fit
+        while len(students) != 0 and len(self.students) < self.count:
+            self.students.append(students[0])
+            if self.program.is_core():
+                students[0].core_cohort = self
+            else:
+                students[0].program_cohort = self
+            students.remove(0)
+
     def create_empty_lectures(self):
         # creates the empty lectures in the cohort
         for course in self.courses:
