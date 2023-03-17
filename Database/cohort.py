@@ -21,6 +21,8 @@ class Cohort:
         self.room = room
         # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
+        # The students in the cohort
+        self.students = []
 
 
     def create_schedule(self, term):
