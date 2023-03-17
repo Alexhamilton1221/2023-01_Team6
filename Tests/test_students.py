@@ -25,3 +25,15 @@ class TestStudent(TestCase):
         students.add_to_cohorts(programs, cohorts)
         for student in students.students:
             print(student)
+
+    def test_create_student_count_get_counts(self):
+        programs = Programs(temp_create_courses())
+        PCOM = programs.get_program(lambda program: program.name == "PCOM")
+        FS = programs.get_program(lambda program: program.name == "FS")
+
+        student1 = Student(1111032, "Jeffy lindshaw", 1, PCOM, None, FS, None)
+        student2 = Student(1111033, "Barry lindshaw", 1, PCOM, None, FS, None)
+        student3 = Student(1111034, "Steve Stevenson", 1, PCOM, None, FS, None)
+        students = Students([student1, student2, student3])
+        student_count = students.get_counts(programs)
+        print(student_count)
