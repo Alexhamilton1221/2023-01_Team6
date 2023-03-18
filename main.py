@@ -26,7 +26,7 @@ classroom_list = cl.temp_Classroom_add()
 
 # TEMP - runs test to create schedule based of dummy data
 def test_given_cohorts_make_schedules_for_all():
-    global classroom_list
+    global classroom_list,classrooms
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
@@ -94,6 +94,7 @@ def main():
     tabControl = ttk.Notebook(root)
     information_tab = ttk.Frame(tabControl)
     schedule_tab = ttk.Frame(tabControl)
+    cohort_tab = ttk.Frame(tabControl)
 
     global classroom_list
     
@@ -122,6 +123,7 @@ def main():
     #Create All Tabs
     tabControl.add(information_tab, text ='Information')
     tabControl.add(schedule_tab, text ='Schedule')
+    tabControl.add(cohort_tab, text ='Cohorts')
 
 
 ###################################################################################################
@@ -343,7 +345,7 @@ def main():
 
     
     dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_names, command=update_schedule) #Replace Default Values with Classrooms
-    dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
+    dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
     global classroom_label
@@ -379,8 +381,6 @@ def main():
     entries = {}
     for j, day in enumerate(days):
         for i, time in enumerate(times):
-            
-
             #In here check for timeslots that classroom is using
             entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
             entry.grid(row=i+1, column=j+1, sticky="nsew")
@@ -389,6 +389,39 @@ def main():
 
             #TODO - Possible use frames to represent courses on top of planner
 
+###################################################################################################
+    #Cohort Tab    
+    
+    #Cohort Tab Frames
+    frame_t3_background = tk.Frame(cohort_tab, bg=myframebg, bd=5)
+    frame_t3_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
+
+    frame_t3_schedule = tk.Frame(cohort_tab, bd=5,bg=mygrey)
+    frame_t3_schedule.place(relx=0.5, rely=0.1, relwidth=0.85, relheight=0.85, anchor='n')
+    
+    #Set initial value to Dropdown
+    var_dispclass_cohort = StringVar(root)
+    var_dispclass_cohort.set(class_names[0]) 
+    
+    #Create text diplay for cohorts
+    display_cohorts = tk.Text(frame_t3_schedule,state='normal',font=("Helvetica", 12))
+    display_cohorts.place(relwidth=1,relheight=1,rely=0)
+    
+    #Create Class Dropdown
+    dispclass_2 = OptionMenu(frame_t3_background, var_dispclass_cohort, *class_names, #Replace Default Values with Classrooms
+    command=lambda x: gu.print_cohorts(classrooms,var_dispclass_cohort.get(),display_cohorts)) 
+    dispclass_2.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
+    dispclass_2.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    
+    #Create Button for cohort
+    #find_cohorts = Button(frame_t3_schedule,borderwidth=0, width=350, height=52, text="Display Cohorts",bg=myred,fg=mytext,
+    #command=lambda x: gu.print_cohorts(classrooms,var_dispclass_cohort.get(),display_cohorts))
+    #find_cohorts.place(relx=0.45, rely=0.96,relwidth=0.11, relheight=0.035)
+    
+    
+    
+    
+    
     
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")

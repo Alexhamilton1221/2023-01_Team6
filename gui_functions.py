@@ -450,3 +450,24 @@ def print_schedule(classrooms):
             for lecture in course.lectures:
                 if lecture.day < 12:
                     print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                    
+                    
+def print_cohorts(classrooms,cohort_name,text_field):
+    #print('###################################################################################################')
+    #print('###################################################################################################')
+    #print('TEST',cohort_name)
+    #Testing Print
+    text_field.configure(state='normal')
+
+    text_field.delete("1.0", "end") #Clear Text Field
+    for i,x in enumerate(classrooms.classrooms):
+        for cohort in classrooms.classrooms[3].cohorts:
+            for course in cohort.courses:
+                if classrooms.classrooms[i].name==cohort_name:
+                    for lecture in course.lectures:
+                        print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        #For testing include classroom name but remove later
+                        text_field.insert(tk.END,classrooms.classrooms[i].name+'  -  '+course.name+' - Days: '+str(lecture.day)+
+                        '      Start Time: '+str(lecture.start_time) +'      Delivery Type: '+ course.delivery+'\n')
+                        
+    text_field.configure(state='disabled')
