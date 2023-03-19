@@ -139,7 +139,7 @@ class Cohort:
                     end_day += 2
 
 
-            if course.name == "CMSK 0233":
+            if course.name == "PCOM 0103":
                 print("HERE")
 
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
@@ -177,6 +177,14 @@ class Cohort:
                     time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
+                    if cur_end_time > max_end_time or cur_start_time < max_start_time:
+                        if self.program.name == "FS":
+                            time_offset = 10.5
+                        else:
+                            time_offset = 0
+
+                        cur_start_time = max_start_time + time_offset
+                        cur_end_time = lecture_length + max_start_time + time_offset
 
             # Removes the one course from the stack and sets the time,
             if corequsite is None:

@@ -43,7 +43,7 @@ class Classroom:
 
             else:
                 for course in cohort.courses:
-                    if course.delivery == "Lab":
+                    if course.delivery == "Class":
                         start_lecture = course.lectures[0]
                         end_lecture = course.lectures[len(course.lectures) - 1]
                         for day in range(start_day, end_day + 1, 2):
