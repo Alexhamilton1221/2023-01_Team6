@@ -21,6 +21,8 @@ class Cohort:
         self.room = room
         # The Lab of the cohort (if applicable) (classroom object)
         self.lab = lab
+        # The students in the cohort
+        self.students = []
 
 
     def create_schedule(self, term):
@@ -136,14 +138,13 @@ class Cohort:
                 if start_day <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
                     end_day += 2
 
-            # Creates test lectures to compare to the lectures already placed in the classes and labs
-            start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
-            end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
+
+            if course.name == "PCOM 0103":
+                print("HERE")
 
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
             # might cause issues later
-            while not occupied_room.check_if_lecture_fits(start_lecture) or not occupied_room.check_if_lecture_fits(
-                    end_lecture) \
+            while not occupied_room.check_if_lecture_fits(start_day, end_day, cur_start_time, cur_end_time) \
                     or self.has_time_conflict(start_day, end_day, cur_start_time, cur_end_time) \
                     or cur_end_time > max_end_time \
                     or (course.delivery == "Online"
@@ -176,9 +177,14 @@ class Cohort:
                     time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
+                    if cur_end_time > max_end_time or cur_start_time < max_start_time:
+                        if self.program.name == "FS":
+                            time_offset = 10.5
+                        else:
+                            time_offset = 0
 
-                start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
-                end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
+                        cur_start_time = max_start_time + time_offset
+                        cur_end_time = lecture_length + max_start_time + time_offset
 
             # Removes the one course from the stack and sets the time,
             if corequsite is None:
@@ -213,6 +219,17 @@ class Cohort:
                 course_stack.remove(corequsite)
             # This sets the next index of the loop.
             i = self.course_stack_update_index(course_stack, course, i)
+
+    def add_students(self, students):
+        # Adds a list of students to the cohort if they fit
+        while len(students) != 0 and len(self.students) < self.count:
+            student = students.pop(0)
+            self.students.append(student)
+            if self.program.is_core():
+                student.core_cohort = self
+            else:
+                student.program_cohort = self
+
 
     def create_empty_lectures(self):
         # creates the empty lectures in the cohort
@@ -310,7 +327,7 @@ class Cohort:
     def generate_name(self):
         # Checks if there are over 10 cohorts in one program (extremely unlikely) to make the name correct
         if self.number < 10:
-            self.name = self.program.name + "0" + str(self.term) + "0" + str(self.number)
+            self.name = self.program.name + str(self.term) + str(self.number)
         else:
             self.name = self.program.name + "0" + str(self.term) + str(self.number)
 
@@ -343,3 +360,6 @@ class Cohort:
 
     def same_count(self, count):
         return self.count == count
+
+    def __str__(self):
+        return self.name

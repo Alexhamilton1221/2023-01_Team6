@@ -24,7 +24,45 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
+# TEMP - runs test to create schedule based of dummy data
+def test_given_cohorts_make_schedules_for_all():
+    global classroom_list
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(classroom_list)
+    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
+                ["BK 1", 36]]
 
+    cohorts = Cohorts()
+    cohorts.create_cohorts(classrooms, programs, students, 2)
+    cohorts.create_schedules(2)
+    gu.print_schedule(classrooms)
+
+    for room in classrooms.get_rooms():
+        room.check_for_conflict()
+
+    return(classrooms)
+
+test_given_cohorts_make_schedules_for_all()
+
+# Runs when either week or class is updated on schedule tab
+# Clears the entries and iterates through global list of classroom objects
+# If the room matches the one selected, iterate through all courses assigned to that room
+# For each lecture, if it is within the week selected create a schedule block for it
+def update_schedule(*args):
+    # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
+    global classroom_label, classroom_list, entries, var_display_week
+    # Clear schedule for new blocks
+    gu.clear_schedule(entries)
+    # New selection from dropdown, can be a week or a classroom
+    data = args[0]
+
+    # Get current week from global dropdown variable
+    week = int(var_display_week.get()[-1])
+    
+    # If the classroom dropdown has changed, not the week
+    if 'Week' not in data:
+        #Change label to reflect new choice
+        classroom_label.configure(text=str(data))
 
 def main():
     #Setup Window
