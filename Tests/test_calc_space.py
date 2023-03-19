@@ -20,7 +20,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False, 2)
 
         assert (room1, 122) == spare_rooms[0]
 
@@ -34,7 +34,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False, 2)
 
         assert (room1, 122) == spare_rooms[0]
         assert (room2, 192) == spare_rooms[1]
@@ -49,7 +49,7 @@ class Test(TestCase):
         cohort2 = Cohort(PCOM, 1, 2, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort1, cohort2])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False, 2)
 
         assert [] == spare_rooms
 
@@ -62,7 +62,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False, 2)
         students = calc_space.calc_extra_students(spare_rooms[0][1], 70, spare_rooms[0][0].size)
 
         # There is room for 30 more students
@@ -78,7 +78,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, False, 2)
         students = calc_space.calc_extra_students(spare_rooms[0][1], 70, spare_rooms[0][0].size)
 
         # There is room for 30 more students
@@ -94,7 +94,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 30, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, True)
+        spare_rooms = calc_space.calc_cohort_hours(rooms, cohorts, True, True, 2)
         students = calc_space.calc_extra_students(spare_rooms[0][1], 70, spare_rooms[0][0].size)
 
         # There is room for 60 more students
@@ -110,7 +110,7 @@ class Test(TestCase):
         cohort = Cohort(PCOM, 1, 1, 20, PCOM.get_instance_courses(lambda x: x.term == 1))
         cohorts = Cohorts([cohort])
 
-        spare_space = calc_space.calc_cohort_capacity(rooms, cohorts)
+        spare_space = calc_space.calc_cohort_capacity(rooms, cohorts, 2)
 
         assert (cohort, 9) == spare_space[0]
 
@@ -125,8 +125,8 @@ class Test(TestCase):
         # This creates the program for the tes
         programs = Programs(hardCodedCourses.temp_create_courses())
         PCOM = programs.get_program(lambda x: x.name == "PCOM")
-        BC = programs.get_program(lambda x: x.name == "BC")
-        GLM = programs.get_program(lambda x: x.name == "GLM")
+        BC = programs.get_program(lambda x: x.name == "BK")
+        GLM = programs.get_program(lambda x: x.name == "GL")
 
         # This creates the cohorts of the test
         # Core
@@ -144,13 +144,13 @@ class Test(TestCase):
         for cohort in cohorts.cohorts:
             cohort.generate_name()
 
-        space_core_class_space = calc_space.calc_cohort_hours(rooms, cohorts, core=True, lab=False)
-        space_core_lab_space = calc_space.calc_cohort_hours(rooms, cohorts, core=True, lab=True)
+        space_core_class_space = calc_space.calc_cohort_hours(rooms, cohorts, core=True, lab=False, cur_semester=2)
+        space_core_lab_space = calc_space.calc_cohort_hours(rooms, cohorts, core=True, lab=True, cur_semester=2)
 
-        space_program_class_space = calc_space.calc_cohort_hours(rooms, cohorts, core=False, lab=False)
-        space_program_lab_space = calc_space.calc_cohort_hours(rooms, cohorts, core=False, lab=True)
+        space_program_class_space = calc_space.calc_cohort_hours(rooms, cohorts, core=False, lab=False, cur_semester=2)
+        space_program_lab_space = calc_space.calc_cohort_hours(rooms, cohorts, core=False, lab=True, cur_semester=2)
 
-        extra_cohort_room = calc_space.calc_cohort_capacity(rooms, cohorts)
+        extra_cohort_room = calc_space.calc_cohort_capacity(rooms, cohorts, 2)
         assert [(PCOMC1, 2), (BC1, 2), (GLM1, 8)] == extra_cohort_room
 
     def test_givenClassroomsandCohorts_CalcprogramRoom_ShowCapacity(self):
@@ -165,7 +165,7 @@ class Test(TestCase):
         programs = Programs(hardCodedCourses.temp_create_courses())
         PCOM = programs.get_program(lambda x: x.name == "PCOM")
         BC = programs.get_program(lambda x: x.name == "BC")
-        GLM = programs.get_program(lambda x: x.name == "GLM")
+        GLM = programs.get_program(lambda x: x.name == "GL")
 
         # This creates the cohorts of the test
         # Core
@@ -184,5 +184,5 @@ class Test(TestCase):
         for cohort in cohorts.cohorts:
             cohort.generate_name()
 
-        calc_space.calc_program_room(programs, rooms, cohorts)
+        calc_space.calc_program_room(programs, rooms, cohorts, 2)
 
