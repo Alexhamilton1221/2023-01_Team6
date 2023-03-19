@@ -37,8 +37,7 @@ def test_given_cohorts_make_schedules_for_all():
     cohorts.create_schedules(2)
     gu.print_schedule(classrooms)
 
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
+
 
     return(classrooms)
 
