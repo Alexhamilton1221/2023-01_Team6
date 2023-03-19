@@ -258,7 +258,7 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
         
         if hour == int(length)-1:
             entry.config(state=NORMAL)
-            entry.insert(0, name + ' - ' + cohort.name)
+            entry.insert(0, cohort.name + ' - ' + name)
             entry.config(state=DISABLED)
 
         if hour == int(length):
