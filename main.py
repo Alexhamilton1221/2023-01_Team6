@@ -24,63 +24,13 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
-# TEMP - runs test to create schedule based of dummy data
-def test_given_cohorts_make_schedules_for_all():
-    global classroom_list
-    programs = Programs(temp_create_courses())
-    classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
-                ["BK 1", 36]]
 
-    cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students)
-    cohorts.create_schedules(2)
-    gu.print_schedule(classrooms)
 
-    return(classrooms)
-
-test_given_cohorts_make_schedules_for_all()
-
-# Runs when either week or class is updated on schedule tab
-# Clears the entries and iterates through global list of classroom objects
-# If the room matches the one selected, iterate through all courses assigned to that room
-# For each lecture, if it is within the week selected create a schedule block for it
-def update_schedule(*args):
-    # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
-    global classroom_label, classroom_list, entries, var_display_week
-    # Clear schedule for new blocks
-    gu.clear_schedule(entries)
-    # New selection from dropdown, can be a week or a classroom
-    data = args[0]
-
-    # Get current week from global dropdown variable
-    week = int(var_display_week.get()[-1])
-    
-    # If the classroom dropdown has changed, not the week
-    if 'Week' not in data:
-        #Change label to reflect new choice
-        classroom_label.configure(text=str(data))
-
-    #For each room in global list of classroom objects
-    for room in classroom_list:
-        #If room matches selected
-        if room.name == classroom_label.cget('text'):
-            for cohort in room.cohorts:
-                for course in cohort.courses:
-                    # For each lecture for each course assigned to this room
-                    for lecture in course.lectures:
-                        # If lecture day within range of selected week
-                        if (lecture.day-1) - ((week-1)*4) in range(4):
-                            # Make sure course delivery and room match, create blocks
-                            if course.delivery == 'Class' and room.is_lab == False:
-                                gu.create_schedule_block(entries, lecture, course.name, cohort)
-                            elif course.delivery == 'Lab' and room.is_lab == True:
-                                gu.create_schedule_block(entries, lecture, course.name, cohort)
 def main():
     #Setup Window
     root = tk.Tk()
     root.title('Scheduler')
-    root.geometry("1280x720")
+    root.geometry("1920x1080")
 
     #custom colours
     mygreen = "#d2ffd2"
@@ -104,7 +54,7 @@ def main():
     style.theme_create( "Tab_Style", parent="alt", settings={
         "TNotebook": {"configure": {"tabmargins": [2, 5, 2, 0] } },
         "TNotebook.Tab": {
-            "configure": {"foreground": (mytext), #TODO - Change tab text color
+            "configure": {"foreground": (mytext), 
             "padding": [5, 1], "background": mydarkred },
             "map":       {"background": [("selected", '#3e3e42')],
                           "expand": [("selected", [4, 4, 4, 0])] } } } )
@@ -190,12 +140,12 @@ def main():
     for i, spn in enumerate(spn_core):
         if i>=3:
             spn_core[spn] =ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,2,spn_core_obj))  
-            spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i-3], rely=0.5)
+            spn_core[spn].place(relwidth=0.05, relheight=0.14, relx=core_spn_xvals[i-3], rely=0.5)
             spn_core[spn].bind("<Return>", lambda event: gu.update_totals(spn_core,info_label_totals,2,spn_core_obj))
         
         else:
             spn_core[spn]=ttk.Spinbox(frame_t1_displaycore,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_core,info_label_totals,1,spn_core_obj))  
-            spn_core[spn].place(relwidth=0.05, relheight=0.21, relx=core_spn_xvals[i], rely=0.25)
+            spn_core[spn].place(relwidth=0.05, relheight=0.14, relx=core_spn_xvals[i], rely=0.25)
             spn_core[spn].bind("<Return>", lambda event: gu.update_totals(spn_core,info_label_totals,1,spn_core_obj))
 
         spn_names.append(spn)
@@ -212,32 +162,32 @@ def main():
     for j, spn in enumerate(spn_noncore):
         if j>=3 and j<6:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,4,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-3], rely=0.30)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-3], rely=0.30)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,4,spn_noncore_obj))
 
         elif j>=6 and j<9:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,5,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-6], rely=0.45)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-6], rely=0.45)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,5,spn_noncore_obj))
 
         elif j>=9 and j<12:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,6,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-9], rely=0.60)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-9], rely=0.60)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,6,spn_noncore_obj))
 
         elif j>=12 and j<15:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,7,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-12], rely=0.75)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-12], rely=0.75)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,7,spn_noncore_obj))
 
         elif j>=15 and j<18:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,8,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j-15], rely=0.90)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j-15], rely=0.90)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,8,spn_noncore_obj))
 
         else:
             spn_noncore[spn]=ttk.Spinbox(frame_t1_displayrest,from_=0,to=100,wrap=True,textvariable=vars[i],command=lambda : gu.update_totals(spn_noncore,info_label_totals,3,spn_noncore_obj))  
-            spn_noncore[spn].place(relwidth=0.05, relheight=0.08, relx=pcom_spn_xvals[j], rely=0.15)
+            spn_noncore[spn].place(relwidth=0.05, relheight=0.05, relx=pcom_spn_xvals[j], rely=0.15)
             spn_noncore[spn].bind("<Return>", lambda event: gu.update_totals(spn_noncore,info_label_totals,3,spn_noncore_obj))
 
         
@@ -328,7 +278,10 @@ def main():
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t2_schedule = tk.Frame(schedule_tab, bd=5)
-    frame_t2_schedule.place(relx=0.5, rely=0.1, relwidth=0.85, relheight=0.85, anchor='n')
+    frame_t2_schedule.place(relx=0.58, rely=0.1, relwidth=0.75, relheight=0.75, anchor='n')
+
+    frame_t2_filters = tk.Frame(schedule_tab, bd=5)
+    frame_t2_filters.place(relx=.1, rely = .1, relwidth=.15, relheight=.75, anchor='n' )
     
    
     #Create Dropdown for Classrooms
@@ -358,7 +311,7 @@ def main():
     global var_display_week
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=update_schedule ) #Replace Default Values with Classrooms
-    display_week.place(relwidth=0.08, relheight=0.05, relx=0.2, rely=0.03)
+    display_week.place(relwidth=0.08, relheight=0.05, relx=0.203, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
 
@@ -369,7 +322,8 @@ def main():
     # Create labels for each class period
     times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
              "11:30 am", "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
-             "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm"]
+             "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", 
+             "6:30 pm", "7:00 pm", "7:30 pm", "8:00 pm", "8:30 pm"]
     for i, time in enumerate(times):
         tk.Label(frame_t2_schedule, text=time, font=roboto_18).grid(row=i+1, column=0)
 
@@ -382,17 +336,110 @@ def main():
             
 
             #In here check for timeslots that classroom is using
-            entry = tk.Entry(frame_t2_schedule, width=25,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
+            entry = tk.Entry(frame_t2_schedule, width=33,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
             entry.grid(row=i+1, column=j+1, sticky="nsew")
             entry.config(state=DISABLED) #Make it so that nobody can type into class
             entries[(j, i)] = entry
 
-            #TODO - Possible use frames to represent courses on top of planner
 
-    
+    programs = ['PCOM', 'BCOM', 'etc.']
+    var_program_filter = StringVar(root)
+    var_program_filter.set(programs[0])
+    program_filter = OptionMenu(frame_t2_filters, var_program_filter, *programs )
+    #program_filter.place(relwidth=.7, relx=.5, rely=.05, relheight= .05, anchor='n')
+    program_filter.configure(state=DISABLED)
+
+
+    var_program_filter_check = IntVar(root)
+    program_filter_check = tk.Checkbutton(frame_t2_filters, text='Filter By Program',variable=var_program_filter_check, font=(roboto_14),
+                                           onvalue=1,offvalue=0, command = lambda e=program_filter, v=var_program_filter_check: update_program_filter(e,v))
+    program_filter_check.pack(side= TOP, anchor='nw')
+    program_filter.pack(side= TOP, anchor='nw', fill='x')
+
+
+
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
     root.mainloop()  
+
+
+
+
+
+
+
+# TEMP - runs test to create schedule based of dummy data
+def test_given_cohorts_make_schedules_for_all():
+    global classroom_list
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(classroom_list)
+    students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
+                ["BK 1", 36]]
+
+    cohorts = Cohorts()
+    cohorts.create_cohorts(classrooms, programs, students)
+    cohorts.create_schedules(2)
+    gu.print_schedule(classrooms)
+
+    return(classrooms)
+
+test_given_cohorts_make_schedules_for_all()
+
+# Runs when either week or class dropdown is updated on schedule tab
+# Clears the entries and iterates through global list of classroom objects
+# Iterate through all courses assigned to the room selected in the dropdown
+# For each lecture, if it is within the week selected create a schedule block for it
+def update_schedule(*args):
+    # Refrences class selected, list of classroom objects, the schedule grid, and the seleced week
+    global classroom_label, classroom_list, entries, var_display_week
+    # Clear schedule for new blocks
+    gu.clear_schedule(entries)
+    # Text selected from updated dropdown, either week or classroom
+    data = args[0]
+
+    # Get current week from global dropdown variable
+    week = int(var_display_week.get()[-1])
+    
+    # If the classroom dropdown has changed, not the week
+    if 'Week' not in data:
+        # Change label to reflect new choice
+        classroom_label.configure(text=str(data))
+
+    #For each room in global list of classroom objects
+    for room in classroom_list:
+        #If room matches selected
+        if room.name != classroom_label.cget('text'):
+            continue
+
+        for cohort in room.cohorts:
+
+            for course in cohort.courses:
+
+                # For each lecture for each course assigned to this room
+                for lecture in course.lectures:
+
+                    # If lecture day within range of selected week
+                    if (lecture.day-1) - ((week-1)*4) in range(4):
+                        # If  course delivery and room type match, create blocks
+                        if course.delivery == 'Class' and room.is_lab == False:
+                            gu.create_schedule_block(entries, lecture, course.name, cohort)
+                        elif course.delivery == 'Lab' and room.is_lab == True:
+                            gu.create_schedule_block(entries, lecture, course.name, cohort)
+
+
+
+def update_program_filter(menu, var):
+    print(var.get())
+    if var.get() == 0:
+        menu.configure(state=DISABLED)
+    else:
+        menu.configure(state=NORMAL)
+
+
+
+
+
+
 
 main()
 
