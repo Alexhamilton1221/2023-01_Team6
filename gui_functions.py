@@ -35,6 +35,9 @@ def import_excel(file_name,imp_type, spn=None):
             stud_file=os.path.abspath(file.name)
             registration = get_registration(stud_file)
 
+            if registration == None:
+                raise Exception
+
             update_spinners(registration, spn)
 
             # TEMP FUNCTION TO RUN ON EXECUTE
@@ -54,7 +57,7 @@ def import_excel(file_name,imp_type, spn=None):
             res_file=os.path.abspath(file.name)
         
    except Exception as e:
-        messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
+        messagebox.showwarning("Warning", "Failed to open file. " + str(e))
 
 
 #This function forms the schedule. It takes the 2 names of each excel file
@@ -130,6 +133,10 @@ def get_registration(filename):
     
     # Init return object
     registration = {}
+
+    # Check file format
+
+    
 
     # For each row in the excel file, skipping the header
     for row in sheet.iter_rows(min_row=2):
