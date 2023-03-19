@@ -138,14 +138,13 @@ class Cohort:
                 if start_day <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
                     end_day += 2
 
-            # Creates test lectures to compare to the lectures already placed in the classes and labs
-            start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
-            end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
+
+            if course.name == "CMSK 0233":
+                print("HERE")
 
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
             # might cause issues later
-            while not occupied_room.check_if_lecture_fits(start_lecture) or not occupied_room.check_if_lecture_fits(
-                    end_lecture) \
+            while not occupied_room.check_if_lecture_fits(start_day, end_day, cur_start_time, cur_end_time) \
                     or self.has_time_conflict(start_day, end_day, cur_start_time, cur_end_time) \
                     or cur_end_time > max_end_time \
                     or (course.delivery == "Online"
@@ -178,9 +177,6 @@ class Cohort:
                     time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
-
-                start_lecture = Lecture(start_day, cur_start_time, cur_end_time)
-                end_lecture = Lecture(end_day, cur_start_time, cur_end_time)
 
             # Removes the one course from the stack and sets the time,
             if corequsite is None:

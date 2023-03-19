@@ -1,5 +1,6 @@
 import math
 
+import hardcodedother
 from Database.classrooms import Classrooms
 
 
@@ -17,21 +18,40 @@ class NotEnoughRoomsException(Exception):
     pass
 
 
-def get_hours():
+def get_hours(is_core, cur_semester):
     # This is the amount of hours for coures per classroom (for either core or program, but not together)
+
+    if is_core:
+        offset = 0
+    else:
+        offset = 1
+
     hours_per_day = 8
-    days = 24
+    days = 27
+    holidays = hardcodedother.get_holidays(cur_semester)
+    for day in holidays:
+        if day % 2 == offset:
+            days -= 1
     return hours_per_day * days
 
 
-def get_FullStack_hours():
+def get_FullStack_hours(cur_semester):
     # This is the amount of hours for fullstack courestack
+    offset = 1
+
     hours_per_day = 3.5
-    days = 24
+    days = 27
+
+    holidays = hardcodedother.get_holidays(cur_semester)
+    for day in holidays:
+        if day % 2 == offset:
+            days -= 1
+
+
     return hours_per_day * days  # NOTE GET NUMBER OF HOURS TO CHECK CLASSES, ONCE GOTTEN CHECK FOR OVER TO SEE CAPACITY
 
 
-def calc_cohort_hours(classrooms, cohorts, core, lab):
+def calc_cohort_hours(classrooms, cohorts, core, lab, cur_semester):
     # Cohorts, the cohort database class (not array)
     # Classrooms, the classrooms database class (not array)
 
@@ -57,7 +77,7 @@ def calc_cohort_hours(classrooms, cohorts, core, lab):
             if cohorts_by_size[c_num].count > rooms_by_size[r_num].size:
                 print("Warning: Core Courses are over capacity, not enough classrooms of sufficient size")
                 raise RoomsTooSmallException
-            hours_left = get_hours()
+            hours_left = get_hours(core, cur_semester)
 
             while cohorts_by_size[c_num].get_hours(lambda x: x.is_lab() == lab) < hours_left:
                 if cohorts_by_size[c_num].program.name == "FS":
@@ -75,7 +95,7 @@ def calc_cohort_hours(classrooms, cohorts, core, lab):
                         rooms_with_space = []
                     r_num += 1
                     while r_num < len(rooms_by_size):
-                        rooms_with_space.append((rooms_by_size[r_num], get_hours()))
+                        rooms_with_space.append((rooms_by_size[r_num], get_hours(core, cur_semester)))
                         r_num += 1
 
                     return rooms_with_space
@@ -94,7 +114,7 @@ def calc_cohort_hours(classrooms, cohorts, core, lab):
         #     remainingHours += cohorts_by_size[c_num].size
 
 
-def calc_cohort_capacity(classrooms, cohorts):
+def calc_cohort_capacity(classrooms, cohorts, cur_semester):
     # This calculates the number of extra students each cohort can take, assumging that only cohorts of the
     # First term can get new students
 
@@ -113,8 +133,8 @@ def calc_cohort_capacity(classrooms, cohorts):
         c_num = 0
         cl_num = 0
         lab_num = 0
-        class_hours_left = get_hours()
-        lab_hours_left = get_hours()
+        class_hours_left = get_hours(core, cur_semester)
+        lab_hours_left = get_hours(core, cur_semester)
 
         # Loops for every cohort available
         while c_num < len(cohorts_by_size):
@@ -122,7 +142,7 @@ def calc_cohort_capacity(classrooms, cohorts):
             # For each lab while finding one, (this should only be one)
             while lab_num < len(labs_by_size):
                 if cohorts_by_size[c_num].program.name == "FS":
-                    lab_hours_left += get_FullStack_hours()
+                    lab_hours_left += get_FullStack_hours(cur_semester)
 
                 # Removes the hours if it has enough, else, goes to the next lab
                 if cohorts_by_size[c_num].get_hours(lambda x: x.is_lab() == True) < lab_hours_left:
@@ -130,7 +150,7 @@ def calc_cohort_capacity(classrooms, cohorts):
                     break
                 else:
                     lab_num += 1
-                    lab_hours_left = get_hours()
+                    lab_hours_left = get_hours(core, cur_semester)
 
             # For each class while finding one, (this should only be one)
             while cl_num < len(classes_by_size):
@@ -141,7 +161,7 @@ def calc_cohort_capacity(classrooms, cohorts):
                     break
                 else:
                     cl_num += 1
-                    class_hours_left = get_hours()
+                    class_hours_left = get_hours(core, cur_semester)
 
             # Only adds if it is the first term, as you can't add new students to old cohorts ()
             if cohorts_by_size[c_num].term == 1:
@@ -170,19 +190,19 @@ def calc_extra_students(spare_hours, length, room_size):
     return room_size * number_of_classes
 
 
-def calc_program_room(programs, classrooms, cohorts):
+def calc_program_room(programs, classrooms, cohorts, cur_semester):
     # This calculates the amount of students each program can take, and the excess classroom room
     try:
         spare_hours = []
         for core in [True, False]:
             for lab in [False, True]:
-                spare_hours.append(calc_cohort_hours(classrooms, cohorts, core, lab))
+                spare_hours.append(calc_cohort_hours(classrooms, cohorts, core, lab, cur_semester))
     except:
         # This is a temp exception until a more thorough system of finding out the overcapacity is made
         raise ValueError
 
     # This is the room that the currently made cohorts can take, assuming only Term one classes can make cohorts
-    cohort_room = calc_cohort_capacity(classrooms, cohorts)
+    cohort_room = calc_cohort_capacity(classrooms, cohorts, cur_semester)
     for program in programs.programs:
         student_count = 0
         for cohort in cohort_room:
