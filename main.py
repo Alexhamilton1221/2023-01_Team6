@@ -29,7 +29,7 @@ def test_given_cohorts_make_schedules_for_all():
     global classroom_list
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
+    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 50],
                 ["BK 1", 36]]
 
     cohorts = Cohorts()
