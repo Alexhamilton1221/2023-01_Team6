@@ -21,6 +21,10 @@ from hardCodedCourses import temp_create_courses
 
 #from datetime import datetime, timedelta
 
+#This is for Calendar Creation
+global lbl_x,lbl_y
+lbl_x=50; lbl_y=20
+
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
    try:
@@ -34,9 +38,6 @@ def import_excel(file_name,imp_type, spn=None):
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
             registration = get_registration(stud_file)
-
-            if registration == None:
-                raise Exception
 
             update_spinners(registration, spn)
 
@@ -57,7 +58,7 @@ def import_excel(file_name,imp_type, spn=None):
             res_file=os.path.abspath(file.name)
         
    except Exception as e:
-        messagebox.showwarning("Warning", "Failed to open file. " + str(e))
+        messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
 
 
 #This function forms the schedule. It takes the 2 names of each excel file
@@ -133,10 +134,6 @@ def get_registration(filename):
     
     # Init return object
     registration = {}
-
-    # Check file format
-
-    
 
     # For each row in the excel file, skipping the header
     for row in sheet.iter_rows(min_row=2):
@@ -457,3 +454,174 @@ def print_schedule(classrooms):
             for lecture in course.lectures:
                 if lecture.day < 12:
                     print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                    
+                    
+def print_cohorts(classrooms,cohort_name,text_field):
+    #print('###################################################################################################')
+    #print('###################################################################################################')
+    #print('TEST',cohort_name)
+    #Testing Print
+    text_field.configure(state='normal')
+
+    text_field.delete("1.0", "end") #Clear Text Field
+    for i,x in enumerate(classrooms.classrooms):
+        for cohort in classrooms.classrooms[3].cohorts:
+            for course in cohort.courses:
+                if classrooms.classrooms[i].name==cohort_name:
+                    for lecture in course.lectures:
+                        #Fixing Indentation
+                        if lecture.day<10:
+                            days_spacing="   -"
+                        elif lecture.day<99:
+                            days_spacing=" -"
+                        else:
+                            days_spacing="-"
+
+                        #Init display variable
+                        display_time = lecture.start_time
+                        display_time_end = lecture.end_time
+                        start_pm = False; end_pm = False
+
+                        # If time is greater than 12, keep in 12hr format
+                        if display_time > 12:
+                            display_time -= 12
+                            start_pm = True
+                        if display_time_end > 12:
+                            display_time_end -= 12
+                            end_pm = True
+
+                        # If start or end time is a half hour,  
+                        if display_time.is_integer():
+                            display_time = f"{int(display_time)}:00"
+                        else:
+                            display_time = f"{int(display_time)}:30"
+
+                        if start_pm:
+                            display_time += "pm"
+                        else:
+                            display_time += "am"
+
+                        if display_time_end.is_integer():
+                            display_time_end = f"{int(display_time_end)}:00"
+                        else:
+                            display_time_end = f"{int(display_time_end)}:30"
+
+                        if end_pm:
+                            display_time_end += "pm"
+                        else:
+                            display_time_end += "am"
+
+                        
+                        #print("TESTING",len(display_time))    
+                        if len(display_time)==6:
+                            #print("HERE"+ display_time)
+                            display_time=f"0{display_time} "
+                        
+                        #print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        #For testing include classroom name but remove later
+                        text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
+                        '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
+                        
+    text_field.configure(state='disabled')
+
+
+
+        
+class ScrollableFrame(tk.Frame):
+    def __init__(self, parent,array_rect,array_lbl):
+        tk.Frame.__init__(self, parent)
+    #Create Array for all Rectangles
+        self.array_rect=array_rect
+        self.array_lbl=array_lbl
+
+        
+        # Create a vertical scrollbar
+        scrollbar = ttk.Scrollbar(self, orient='vertical')
+        scrollbar.pack(side='right', fill='y')
+
+        # Create a canvas to contain the widgets
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=canvas.yview)
+
+        # Set the canvas to expand to fill the entire frame
+        self.canvas = canvas
+        canvas.bind('<Configure>', self._configure_canvas)
+
+        # Create a frame to hold the widgets
+        self.inner_frame = tk.Frame(canvas)
+        self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+        # Hide the canvas
+        canvas.configure(borderwidth=0, highlightthickness=0)
+        
+        
+        
+    def _configure_canvas(self, event):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def update_viewport(self):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+     
+    def setup_grid(self):
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                x1 = col * rect_size
+                y1 = row * rect_size
+                x2 = x1 + rect_size
+                y2 = y1 + rect_size
+                rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                self.array_rect.append(rect)
+
+    def clear_grid(self):
+        text_items = self.canvas.find_all()
+        for item in text_items:
+            if self.canvas.type(item) == "text":
+                self.canvas.delete(item)
+
+
+    def formrect(self,sorted_list,i):
+        #print(sorted_list)
+        count=0
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                count+=1
+                pad_y=0
+                if count==i:
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+
+                    #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                    for j in sorted_list:
+                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                        self.array_lbl.append(text)
+                        pad_y+=15
+
+        #print(self.array_lbl)
+
+
+
+
+        # area_x = -490
+        # area_y = 0
+        
+        # padding_y=20
+
+        
+        # for j in sorted_list:
+        #     current=self.array_rect[i]
+        #     print('test',current)
+        #     text_x = area_x+185*current
+        #     text_y = (area_y*current)+padding_y
+        #     text = self.canvas.create_text(text_x,text_y,text=j)
+        #     print(j)
+            
+        #     padding_y+=15
+
+            
+            #lbl_y+=15
+
+        # lbl_x+=100
+        #lbl_y+=20
