@@ -406,22 +406,6 @@ def main():
 
 
 
-# TEMP - runs test to create schedule based of dummy data
-def test_given_cohorts_make_schedules_for_all():
-    global classroom_list
-    programs = Programs(temp_create_courses())
-    classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
-                ["BK 1", 36]]
-
-    cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students)
-    cohorts.create_schedules(2)
-    gu.print_schedule(classrooms)
-
-    return(classrooms)
-
-test_given_cohorts_make_schedules_for_all()
 
 # Runs when either week or class dropdown is updated on schedule tab
 # Clears the entries and iterates through global list of classroom objects
