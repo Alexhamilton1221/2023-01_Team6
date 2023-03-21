@@ -21,6 +21,10 @@ from hardCodedCourses import temp_create_courses
 
 #from datetime import datetime, timedelta
 
+#This is for Calendar Creation
+global lbl_x,lbl_y
+lbl_x=50; lbl_y=20
+
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
    try:
@@ -467,17 +471,13 @@ def print_cohorts(classrooms,cohort_name,text_field):
                     for lecture in course.lectures:
                         #Fixing Indentation
                         if lecture.day<10:
-                            print('TEN')
                             days_spacing="   -"
                         elif lecture.day<99:
                             days_spacing=" -"
                         else:
                             days_spacing="-"
-                            
-                       
-                        
-                        #Deal with time display
-                                                 # Init display variable
+
+                        #Init display variable
                         display_time = lecture.start_time
                         display_time_end = lecture.end_time
                         start_pm = False; end_pm = False
@@ -512,14 +512,115 @@ def print_cohorts(classrooms,cohort_name,text_field):
                             display_time_end += "am"
 
                         
-                        print("TESTING",len(display_time))    
+                        #print("TESTING",len(display_time))    
                         if len(display_time)==6:
-                            print("BROKE"+ display_time)
+                            #print("HERE"+ display_time)
                             display_time=f"0{display_time} "
                         
-                        print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        #print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
                         #For testing include classroom name but remove later
-                        text_field.insert(tk.END,course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
+                        text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
                         '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
                         
     text_field.configure(state='disabled')
+
+
+
+        
+class ScrollableFrame(tk.Frame):
+    def __init__(self, parent,array_rect,array_lbl):
+        tk.Frame.__init__(self, parent)
+    #Create Array for all Rectangles
+        self.array_rect=array_rect
+        self.array_lbl=array_lbl
+
+        
+        # Create a vertical scrollbar
+        scrollbar = ttk.Scrollbar(self, orient='vertical')
+        scrollbar.pack(side='right', fill='y')
+
+        # Create a canvas to contain the widgets
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=canvas.yview)
+
+        # Set the canvas to expand to fill the entire frame
+        self.canvas = canvas
+        canvas.bind('<Configure>', self._configure_canvas)
+
+        # Create a frame to hold the widgets
+        self.inner_frame = tk.Frame(canvas)
+        self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+        # Hide the canvas
+        canvas.configure(borderwidth=0, highlightthickness=0)
+        
+        
+        
+    def _configure_canvas(self, event):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def update_viewport(self):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+     
+    def setup_grid(self):
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                x1 = col * rect_size
+                y1 = row * rect_size
+                x2 = x1 + rect_size
+                y2 = y1 + rect_size
+                rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                self.array_rect.append(rect)
+
+        
+    def formrect(self,sorted_list,i):
+        print(sorted_list)
+        count=0
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                count+=1
+                pad_y=0
+                if count==i:
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+
+                    #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                    for j in sorted_list:
+                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                        self.array_lbl.append(text)
+                        pad_y+=15
+
+        print(self.array_lbl)
+
+
+
+
+
+
+        # area_x = -490
+        # area_y = 0
+        
+        # padding_y=20
+
+        
+        # for j in sorted_list:
+        #     current=self.array_rect[i]
+        #     print('test',current)
+        #     text_x = area_x+185*current
+        #     text_y = (area_y*current)+padding_y
+        #     text = self.canvas.create_text(text_x,text_y,text=j)
+        #     print(j)
+            
+        #     padding_y+=15
+
+            
+            #lbl_y+=15
+
+        # lbl_x+=100
+        #lbl_y+=20
+
+
+    
