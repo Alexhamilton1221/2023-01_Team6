@@ -17,9 +17,6 @@ from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
 #from datetime import datetime, timedelta
 
-#This is for Calendar Creation
-global lbl_x,lbl_y
-lbl_x=50; lbl_y=20
 
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
@@ -523,28 +520,30 @@ def print_cohorts(classrooms,cohort_name,text_field):
 class ScrollableFrame(tk.Frame):
     def __init__(self, parent,array_rect,array_lbl):
         tk.Frame.__init__(self, parent)
-        #Create Array for all Rectangles
+        # Create Array for all Rectangles
+        # When rectangles are saved to array, they are saved by an ID number
+        # Must reference them using methods.
         self.array_rect=array_rect
         self.array_lbl=array_lbl
         
-        #Create a vertical scrollbar
+        # Create a vertical scrollbar
         scrollbar = ttk.Scrollbar(self, orient='vertical')
         scrollbar.pack(side='right', fill='y')
 
-        #Create a canvas to contain the widgets
+        # Create a canvas to contain the widgets
         canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=canvas.yview)
 
-        #Set the canvas to expand to fill the entire frame
+        # Set the canvas to expand to fill the entire frame
         self.canvas = canvas
         canvas.bind('<Configure>', self._configure_canvas)
 
-        #Create a frame to hold the widgets
+        # Create a frame to hold the widgets
         self.inner_frame = tk.Frame(canvas)
         self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
 
-        #Hide the canvas
+        # Hide the canvas
         canvas.configure(borderwidth=0, highlightthickness=0)
             
         
@@ -553,18 +552,28 @@ class ScrollableFrame(tk.Frame):
 
     def update_viewport(self):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
-     
+    
+    def calendar_entry_clicked(self,event):
+        # Note that index 1 is the window itself so have to -1 to get rect.
+        index=event.widget.find_closest(event.x, event.y)[0]
+        print(f"Rectangle {index-1} clicked!")
+    
     def setup_grid(self):
         rect_size = 180
         for row in range(9):
             for col in range(7):
+                
                 x1 = col * rect_size
                 y1 = row * rect_size
                 x2 = x1 + rect_size
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
-                self.array_rect.append(rect)
+                #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
+                self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
 
+                self.array_rect.append(rect)
+        print(self.array_rect)
+        
     def clear_grid(self):
         text_items = self.canvas.find_all()
         for item in text_items:
@@ -572,20 +581,37 @@ class ScrollableFrame(tk.Frame):
                 self.canvas.delete(item)
 
 
-    def formrect(self,sorted_list,i):
-        #print(sorted_list)
+    def calendar_day_entry(self,sorted_list,i):
         count=0
         rect_size = 180
+                
+        # Font for Calendar Creation
+        my_font = ("Arial", 24) 
+        # For rectangle use in loops if needed
+        #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+
         for row in range(9):
             for col in range(7):
                 count+=1
                 pad_y=0
-                if count==i:
+                
+                # Default Case: Print all Lectures
+                if count==i and len(sorted_list)<8:
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
-                    #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
                     for j in sorted_list:
                         text = self.canvas.create_text(x1,y1+pad_y,text=j)
                         self.array_lbl.append(text)
                         pad_y+=15
+                
+                # Second Case: Print 8 lectures and add ...
+                elif count==i: 
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+
+                    for j in sorted_list[:8]:
+                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                        self.array_lbl.append(text)
+                        pad_y+=15
+                    text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)

@@ -103,9 +103,11 @@ def update_calendar(*args):
                                     #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
                                     day_lectures.append([i,course.name,cohort.name])
 
+        #Sort the list based on starting hours
         sorted_list = sorted(day_lectures, key=lambda x: x[0])
 
-        cal_frame.formrect(sorted_list,i)
+        #Make a calendar entry for the day
+        cal_frame.calendar_day_entry(sorted_list,i)
  
 def main(): 
     
@@ -400,22 +402,22 @@ def main():
 ###################################################################################################
     #Cohort Tab    
     
-    #Cohort Tab Frames
+    # Cohort Tab Frames
     frame_t3_background = tk.Frame(cohort_tab, bg=myframebg, bd=5)
     frame_t3_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t3_schedule = tk.Frame(cohort_tab, bd=5,bg=mygrey)
     frame_t3_schedule.place(relx=0.5, rely=0.1, relwidth=0.85, relheight=0.85, anchor='n')
     
-    #Set initial value to Dropdown
+    # Set initial value to Dropdown
     var_dispclass_cohort = StringVar(root)
     var_dispclass_cohort.set(class_names[0]) 
     
-    #Create text diplay for cohorts
+    # Create text diplay for cohorts
     display_cohorts = tk.Text(frame_t3_schedule,state='normal',font=("Helvetica", 12))
     display_cohorts.place(relwidth=1,relheight=1,rely=0)
     
-    #Create Class Dropdown
+    # Create Class Dropdown
     dispclass_2 = OptionMenu(frame_t3_background, var_dispclass_cohort, *class_names, #Replace Default Values with Classrooms
     command=lambda x: gu.print_cohorts(classrooms,var_dispclass_cohort.get(),display_cohorts)) 
     dispclass_2.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
