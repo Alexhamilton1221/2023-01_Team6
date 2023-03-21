@@ -81,11 +81,12 @@ def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
     global classroom_label, classroom_list, entries, var_display_week
 
-    global lbl_x,lbl_y
-    lbl_x,lbl_y=10,10
+    # global lbl_x,lbl_y
+    # lbl_x,lbl_y=10,10
     
-    
-    
+    #First Clear Grid
+    cal_frame.clear_grid()
+
     
     
     #For each room in global list of classroom objects
@@ -490,6 +491,7 @@ def main():
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
     #Setup Grid for Calendar
+
     cal_frame.setup_grid()
     
     # define the size of the rectangles
@@ -514,6 +516,11 @@ def main():
         
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
+    
+    #Make it so that window cannot change size/shape
+    root.attributes('-fullscreen', False)
+    root.resizable(False, False)
+    
     root.mainloop()  
 
 main()

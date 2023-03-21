@@ -574,9 +574,15 @@ class ScrollableFrame(tk.Frame):
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
                 self.array_rect.append(rect)
 
-        
+    def clear_grid(self):
+        text_items = self.canvas.find_all()
+        for item in text_items:
+            if self.canvas.type(item) == "text":
+                self.canvas.delete(item)
+
+
     def formrect(self,sorted_list,i):
-        print(sorted_list)
+        #print(sorted_list)
         count=0
         rect_size = 180
         for row in range(9):
@@ -593,9 +599,7 @@ class ScrollableFrame(tk.Frame):
                         self.array_lbl.append(text)
                         pad_y+=15
 
-        print(self.array_lbl)
-
-
+        #print(self.array_lbl)
 
 
 
