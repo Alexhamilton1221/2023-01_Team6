@@ -38,7 +38,7 @@ class TestCohorts(TestCase):
     def test_create_cohort__create_corhgorts_assignReasableCohorts(self):
         programs = Programs(temp_create_courses())
         classrooms = Classrooms(temp_Classroom_add())
-        students = [["PCOM 1", 67], ["PCOM 2", 45],["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50], ["BC 1", 36]]
+        students = [["PCOM 1", 67], ["PCOM 2", 45],["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50], ["BK 1", 36]]
 
         cohorts = Cohorts()
         cohorts.create_cohorts(classrooms, programs, students)
@@ -67,8 +67,20 @@ class TestCohorts(TestCase):
     def test_given_cohorts_make_schedules_for_all(self):
         programs = Programs(temp_create_courses())
         classrooms = Classrooms(temp_Classroom_add())
-        students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
-                    ["BC 1", 36]]
+        students = [["PCOM 1", 67], ["PCOM 3", 45], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
+                    ["BK 1", 36]]
+
+        cohorts = Cohorts()
+        cohorts.create_cohorts(classrooms, programs, students)
+
+        cohorts.create_schedules(2)
+        print(cohorts)
+
+    def test_given_cohorts_make_schedules_for_all_large(self):
+        programs = Programs(temp_create_courses())
+        classrooms = Classrooms(temp_Classroom_add())
+        students = [["PCOM 1", 67], ["PCOM 3", 63], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
+                    ["BK 1", 36], ["FS 1", 90]]
 
         cohorts = Cohorts()
         cohorts.create_cohorts(classrooms, programs, students)

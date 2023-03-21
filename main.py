@@ -29,13 +29,16 @@ def test_given_cohorts_make_schedules_for_all():
     global classroom_list,classrooms
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 67], ["PCOM 2", 45], ["PCOM 3", 28], ["BA 1", 46], ["BA 3", 30], ["DXD 2", 50],
+    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
                 ["BK 1", 36]]
 
     cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students)
+    cohorts.create_cohorts(classrooms, programs, students, 2)
     cohorts.create_schedules(2)
     gu.print_schedule(classrooms)
+
+    for room in classrooms.get_rooms():
+        room.check_for_conflict()
 
     return(classrooms)
 
