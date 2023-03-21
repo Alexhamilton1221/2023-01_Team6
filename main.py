@@ -26,7 +26,7 @@ classroom_list = cl.temp_Classroom_add()
 
 # TEMP - runs test to create schedule based of dummy data
 def test_given_cohorts_make_schedules_for_all():
-    global classroom_list
+    global classroom_list,classrooms
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
@@ -64,7 +64,66 @@ def update_schedule(*args):
         #Change label to reflect new choice
         classroom_label.configure(text=str(data))
 
-def main():
+    #For each room in global list of classroom objects
+    for room in classroom_list:
+        #If room matches selected
+        if room.name == classroom_label.cget('text'):
+            for cohort in room.cohorts:
+                for course in cohort.courses:
+                    # For each lecture for each course assigned to this room
+                    for lecture in course.lectures:
+                        # If lecture day within range of selected week
+                        if (lecture.day-1) - ((week-1)*4) in range(4):
+                            # Make sure course delivery and room match, create blocks
+                            if course.delivery == 'Class' and room.is_lab == False:
+                                gu.create_schedule_block(entries, lecture, course.name, cohort)
+                            elif course.delivery == 'Lab' and room.is_lab == True:
+                                gu.create_schedule_block(entries, lecture, course.name, cohort)
+
+def update_calendar(*args):
+    # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
+    global classroom_label, classroom_list, entries, var_display_week
+
+    # global lbl_x,lbl_y
+    # lbl_x,lbl_y=10,10
+    
+    #First Clear Grid
+    cal_frame.clear_grid()
+
+    
+    
+    #For each room in global list of classroom objects
+    for i in range (0,100,1):
+        day_lectures=[]
+
+        for room in classroom_list:
+                #If room matches selected
+            if room.name == var_dispclass_calendar.get():
+                for cohort in room.cohorts:
+                    for course in cohort.courses:
+                            # For each lecture for each course assigned to this room
+                        for lecture in course.lectures:
+                                if lecture.day==i:
+                                    #print(room.name ,' | ', course.name,cohort.name,lecture.day,"|",lecture.start_time,"|",lecture.end_time)
+                                    #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
+                                    day_lectures.append([i,course.name,cohort.name])
+
+        sorted_list = sorted(day_lectures, key=lambda x: x[0])
+
+        cal_frame.formrect(sorted_list,i)
+        
+        # for j in sorted_list:
+        #     text = tk.Label(frame_t4_calendar,text=j)
+        #     text.place(x=lbl_x,y=lbl_y)
+        #     lbl_y+=10
+        #     print(j)
+        # #lbl_x+=20
+        # lbl_y+=20
+
+
+
+
+def main(): 
     #Setup Window
     root = tk.Tk()
     root.title('Scheduler')
@@ -82,6 +141,8 @@ def main():
     tabControl = ttk.Notebook(root)
     information_tab = ttk.Frame(tabControl)
     schedule_tab = ttk.Frame(tabControl)
+    cohort_tab = ttk.Frame(tabControl)
+    calendar_tab = ttk.Frame(tabControl)
 
     global classroom_list
     
@@ -110,6 +171,8 @@ def main():
     #Create All Tabs
     tabControl.add(information_tab, text ='Information')
     tabControl.add(schedule_tab, text ='Schedule')
+    tabControl.add(cohort_tab, text ='Cohorts')
+    tabControl.add(calendar_tab, text ='Calendar')
 
 
 ###################################################################################################
@@ -309,7 +372,8 @@ def main():
 
   
 ###################################################################################################
-    #Schedule Tab    
+    #Schedule Tab     #TODO - Remake with Canvas and Frames so that scrollbar can be added to have all times
+   
 
     #Schedule Tab Frames
     frame_t2_background = tk.Frame(schedule_tab, bg=myframebg, bd=5)
@@ -321,7 +385,7 @@ def main():
     frame_t2_filters = tk.Frame(schedule_tab, bd=5)
     frame_t2_filters.place(relx=.1, rely = .1, relwidth=.15, relheight=.75, anchor='n' )
     
-   
+    
     #Create Dropdown for Classrooms
     #Using temp classrooms for now, find way to get them
     class_names = []
@@ -334,7 +398,7 @@ def main():
 
     
     dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_names, command=update_schedule) #Replace Default Values with Classrooms
-    dispclass.place(relx=0.85, rely=0.03, relwidth=0.12, relheight=0.05, anchor='n')
+    dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
     global classroom_label
@@ -360,8 +424,7 @@ def main():
     # Create labels for each class period
     times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
              "11:30 am", "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
-             "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", 
-             "6:30 pm", "7:00 pm", "7:30 pm", "8:00 pm", "8:30 pm"]
+             "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm"]
     for i, time in enumerate(times):
         tk.Label(frame_t2_schedule, text=time, font=roboto_18).grid(row=i+1, column=0)
 
@@ -371,8 +434,6 @@ def main():
     entries = {}
     for j, day in enumerate(days):
         for i, time in enumerate(times):
-            
-
             #In here check for timeslots that classroom is using
             entry = tk.Entry(frame_t2_schedule, width=33,font=(roboto_18), justify='center', fg='black', disabledforeground='#000000')
             entry.grid(row=i+1, column=j+1, sticky="nsew")
@@ -395,9 +456,14 @@ def main():
     program_filter.pack(side= TOP, anchor='nw', fill='x')
 
 
-
+    
     #Screen Setup
     tabControl.pack(expand = 1, fill ="both")
+    
+    #Make it so that window cannot change size/shape
+    root.attributes('-fullscreen', False)
+    root.resizable(False, False)
+    
     root.mainloop()  
 
 
