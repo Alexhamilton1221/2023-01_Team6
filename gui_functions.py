@@ -15,10 +15,6 @@ from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
-
-
-
-
 #from datetime import datetime, timedelta
 
 #This is for Calendar Creation
@@ -523,39 +519,34 @@ def print_cohorts(classrooms,cohort_name,text_field):
                         '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
                         
     text_field.configure(state='disabled')
-
-
-
         
 class ScrollableFrame(tk.Frame):
     def __init__(self, parent,array_rect,array_lbl):
         tk.Frame.__init__(self, parent)
-    #Create Array for all Rectangles
+        #Create Array for all Rectangles
         self.array_rect=array_rect
         self.array_lbl=array_lbl
-
         
-        # Create a vertical scrollbar
+        #Create a vertical scrollbar
         scrollbar = ttk.Scrollbar(self, orient='vertical')
         scrollbar.pack(side='right', fill='y')
 
-        # Create a canvas to contain the widgets
+        #Create a canvas to contain the widgets
         canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=canvas.yview)
 
-        # Set the canvas to expand to fill the entire frame
+        #Set the canvas to expand to fill the entire frame
         self.canvas = canvas
         canvas.bind('<Configure>', self._configure_canvas)
 
-        # Create a frame to hold the widgets
+        #Create a frame to hold the widgets
         self.inner_frame = tk.Frame(canvas)
         self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
 
-        # Hide the canvas
+        #Hide the canvas
         canvas.configure(borderwidth=0, highlightthickness=0)
-        
-        
+            
         
     def _configure_canvas(self, event):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
@@ -598,33 +589,3 @@ class ScrollableFrame(tk.Frame):
                         text = self.canvas.create_text(x1,y1+pad_y,text=j)
                         self.array_lbl.append(text)
                         pad_y+=15
-
-        #print(self.array_lbl)
-
-
-
-
-        # area_x = -490
-        # area_y = 0
-        
-        # padding_y=20
-
-        
-        # for j in sorted_list:
-        #     current=self.array_rect[i]
-        #     print('test',current)
-        #     text_x = area_x+185*current
-        #     text_y = (area_y*current)+padding_y
-        #     text = self.canvas.create_text(text_x,text_y,text=j)
-        #     print(j)
-            
-        #     padding_y+=15
-
-            
-            #lbl_y+=15
-
-        # lbl_x+=100
-        #lbl_y+=20
-
-
-    

@@ -445,9 +445,8 @@ def main():
     cal_frame.setup_grid()
     
     
+
     
-    
-      
     #For testing Scrollbar  
     # for i in range(50):
     #     label = tk.Label(cal_frame.inner_frame, text=f'Label {i}')
