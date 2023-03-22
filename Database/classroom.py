@@ -12,6 +12,9 @@ class Classroom:
         # Cohorts assigned to the Room (array of Cohorts)
         self.cohorts = []
 
+    def __repr__(self):
+        return self.name
+
     def check_if_lecture_fits(self, start_day, end_day, start_time, end_time):
         # Checks if a lecuture fits in the classroom
         # for cohort in self.cohorts:

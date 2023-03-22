@@ -9,12 +9,14 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
-
+from Database.students import Students
+from Database.student import Student
 import random
 from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
+#import main as m
 
 
 
@@ -31,8 +33,8 @@ def import_excel(file_name,imp_type, spn=None):
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
        f_name = os.path.basename(file.name)
 
-       if file:
-           file_name.configure(text=f_name)
+       #if file:
+           #file_name.configure(text=f_name)
 
        #Checks flag variable to update correct path
        if imp_type==1:
@@ -56,6 +58,7 @@ def import_excel(file_name,imp_type, spn=None):
             #cohorts.cohorts[0]
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
+            return get_classrooms(file.name)
         
    except Exception as e:
         messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
@@ -132,20 +135,56 @@ def get_registration(filename):
         #Error opening file, return None
         return None
     
-    # Init return object
+    student_list = Students()
     registration = {}
 
-    # For each row in the excel file, skipping the header
-    for row in sheet.iter_rows(min_row=2):
-        if row[0].value == None:
-            continue
+    # Check format for registration file
+    if sheet['a1'].value == 'Id':
+        # Student Format
+        
 
-        #Index of values unsure - template not uploaded yet
-        course = row[1].value 
-        term = row[0].value 
-        num = row[2].value
+        for row in sheet.iter_rows(min_row=2):
+            new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
+                                  core=row[3].value, program=row[4].value)
+            
 
-        registration[course + " " + str(term)] = int(num)
+            student_list.students.append(new_student)
+
+        # Sum core and noncore registration numbers
+        for student in student_list.students:
+            core_key = str(student.core) + ' ' + str(student.term)
+            noncore_key = str(student.program) + ' ' + str(student.term)
+
+            if core_key in registration.keys():
+                registration[core_key] += 1
+            else:
+                registration[core_key] = 1
+
+            if noncore_key in registration.keys():
+                registration[noncore_key] += 1
+            else:
+                registration[noncore_key] = 1
+
+
+        print(registration)
+    #Else, jsut registration numbers
+    else:
+
+        # For each row in the excel file, skipping the header
+        for row in sheet.iter_rows(min_row=2):
+            if row[0].value == None:
+                continue
+
+            course = row[1].value 
+            term = row[0].value 
+            num = row[2].value
+
+            new_student = Student()
+
+            registration[course + " " + str(term)] = int(num)
+
+
+
 
 
     return registration
@@ -158,7 +197,7 @@ Returns a Classrooms object containing a list of Classroom objects for each clas
 def get_classrooms(filename):
 
     #Init excel work sheet
-    ws = openpyxl.load_workbook(filename).worksheets[4]
+    ws = openpyxl.load_workbook(filename).worksheets[-1]
 
     #Object to hold each Classroom
     room_list = Classrooms()
@@ -175,6 +214,7 @@ def get_classrooms(filename):
         room_list.add_classroom(new_classroom)
 
     #Return entire list
+    
     return room_list
 
 
