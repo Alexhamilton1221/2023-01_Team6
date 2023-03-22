@@ -102,7 +102,7 @@ def update_calendar(*args):
                                     #print(room.name ,' | ', course.name,cohort.name,lecture.day,"|",lecture.start_time,"|",lecture.end_time)
                                     #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
                                     day_lectures.append([i,course.name,cohort.name])
-
+    
         #Sort the list based on starting hours
         sorted_list = sorted(day_lectures, key=lambda x: x[0])
 
@@ -432,7 +432,7 @@ def main():
     frame_t4_topbar = tk.Frame(calendar_tab, bg=myframebg, bd=5)
     frame_t4_topbar.place(relx=0.5, rely=0, relwidth=1, relheight=0.1, anchor='n')
     
-    cal_frame = gu.ScrollableFrame(calendar_tab,all_rectangles,all_labels)
+    cal_frame = gu.Calendar(calendar_tab,all_rectangles,all_labels)
     cal_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
  
     #Create Var for Class Dropdown

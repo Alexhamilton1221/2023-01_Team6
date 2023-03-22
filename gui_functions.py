@@ -17,6 +17,10 @@ from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
 #from datetime import datetime, timedelta
 
+# Global Vars for preventing multiple windows opening
+new_window_open = False
+new_window = None
+
 
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
@@ -517,7 +521,7 @@ def print_cohorts(classrooms,cohort_name,text_field):
                         
     text_field.configure(state='disabled')
         
-class ScrollableFrame(tk.Frame):
+class Calendar(tk.Frame):
     def __init__(self, parent,array_rect,array_lbl):
         tk.Frame.__init__(self, parent)
         # Create Array for all Rectangles
@@ -525,7 +529,7 @@ class ScrollableFrame(tk.Frame):
         # Must reference them using methods.
         self.array_rect=array_rect
         self.array_lbl=array_lbl
-        
+
         # Create a vertical scrollbar
         scrollbar = ttk.Scrollbar(self, orient='vertical')
         scrollbar.pack(side='right', fill='y')
@@ -553,26 +557,72 @@ class ScrollableFrame(tk.Frame):
     def update_viewport(self):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
     
-    def calendar_entry_clicked(self,event):
-        # Note that index 1 is the window itself so have to -1 to get rect.
-        index=event.widget.find_closest(event.x, event.y)[0]
-        print(f"Rectangle {index-1} clicked!")
+    def close_new_window(self):
+        global new_window_open
+        # Set the new window flag to False and destroy the window
+        new_window_open = False
+        new_window.destroy()
+        
+    
+    def clean_array(self):
+        self.semester_lectures = [subarr for subarr in self.semester_lectures if subarr]
+
+    
+    def calendar_entry_clicked(self,event,row,col):
+        global new_window_open, new_window
+        #Number of columns
+        num_of_columns=7
+        #index=event.widget.find_closest(event.x, event.y)[0]
+        index=  row *num_of_columns  + col
+
+        
+        #print("Square at row {}, column {} was clicked.".format(row, col))   
+        print(f"Rectangle {index} clicked!")
+
+        # Create New Window Displaying Class Info
+        # TODO Make the title the appropriate date
+        if not new_window_open:
+            new_window = tk.Toplevel(self.canvas)
+            new_window.title("Date") 
+            new_window.geometry("640x360")
+        
+            #Call Class to construct Canvas
+            entry_frame = Day(new_window)
+            entry_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
+            
+           
+             
+            #Screen Settings
+            
+            # Make it so that window cannot change size/shape
+            new_window.attributes('-fullscreen', False)
+            new_window.resizable(False, False)
+
+            #Call function to close window to prevent multiple open windows
+            new_window_open = True
+            new_window.protocol("WM_DELETE_WINDOW", self.close_new_window)
+
+    
     
     def setup_grid(self):
         rect_size = 180
+        count=0
         for row in range(9):
             for col in range(7):
-                
                 x1 = col * rect_size
                 y1 = row * rect_size
                 x2 = x1 + rect_size
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col))
+
                 #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
-                self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
+                #self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
 
                 self.array_rect.append(rect)
-        print(self.array_rect)
+                count+=1
+
+        #print(self.array_rect)
         
     def clear_grid(self):
         text_items = self.canvas.find_all()
@@ -582,13 +632,10 @@ class ScrollableFrame(tk.Frame):
 
 
     def calendar_day_entry(self,sorted_list,i):
-        count=0
-        rect_size = 180
+        count=0; rect_size = 180
                 
         # Font for Calendar Creation
         my_font = ("Arial", 24) 
-        # For rectangle use in loops if needed
-        #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
 
         for row in range(9):
             for col in range(7):
@@ -615,3 +662,38 @@ class ScrollableFrame(tk.Frame):
                         self.array_lbl.append(text)
                         pad_y+=15
                     text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)
+        #self.semester_lectures.append(sorted_list)
+        
+        
+
+
+class Day(tk.Frame):
+    def __init__(self, parent,):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a vertical scrollbar
+        scrollbar = ttk.Scrollbar(self, orient='vertical')
+        scrollbar.pack(side='right', fill='y')
+
+        # Create a canvas to contain the widgets
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=canvas.yview)
+
+        # Set the canvas to expand to fill the entire frame
+        self.canvas = canvas
+        canvas.bind('<Configure>', self._configure_canvas)
+
+        # Create a frame to hold the widgets
+        self.inner_frame = tk.Frame(canvas)
+        self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+        # Hide the canvas
+        canvas.configure(borderwidth=0, highlightthickness=0)
+            
+        
+    def _configure_canvas(self, event):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def update_viewport(self):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
