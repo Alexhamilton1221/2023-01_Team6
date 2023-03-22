@@ -295,18 +295,7 @@ def main():
         course_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=label_text, font=roboto_18, text_color=mytext)   
         course_label.place(relwidth=0.2, relheight=0.1, relx=0.01, rely= (0.15+(0.15*(i))))
        
-        '''
-    #Information Tab Labels for Non Core Courses
-    info_label_core_names={":"PM","lbl5":"BA","lbl6":"GLM","lbl7":"FS","lbl8":"DXD"}
-    info_label_core=[] ; info_label_core_x=[0.01,0.25,0.50,0.75,0.01,0.01,0.01,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.15,0.25,0.35,0.45,0.55]
-    info_label_rel_width=[0.2,0.10,0.10,0.10,0.20,0.20,0.20,0.20,0.20]
-    for i in range(0,9,1):
-        text=info_label_core_names[f"lbl{i}"]
-        info_label_core_names[f"lbl{i}"] = customtkinter.CTkLabel(master=frame_t1_displayrest, text=f"{text}", font=roboto_18, text_color=mytext)
-        info_label_core_names[f"lbl{i}"].place(relwidth=info_label_rel_width[i], relheight=0.1, relx=info_label_core_x[i], rely=info_label_core_y[i])  
-        info_label_core.append(info_label_core_names[f"lbl{i}"])
-        
-'''
+
          
     #Create Buttons 
     btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration",bg=myred, fg=mytext, 
@@ -378,11 +367,12 @@ def main():
     for room in classroom_list:
         class_names.append(room.name)
     
+    global var_dispclass
+
     var_dispclass = StringVar(root)
     var_dispclass.set(class_names[0]) 
     #var_dispclass.trace_variable('w', update_schedule)
 
-    
     dispclass = OptionMenu(frame_t2_background, var_dispclass, *class_names, command=update_schedule) #Replace Default Values with Classrooms
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
@@ -431,10 +421,11 @@ def main():
             entries[(j, i)] = entry
 
 
-    programs = ['PCOM', 'BCOM', 'etc.']
+    programs = ['PCOM', 'BCOM', 'PM', 'BA', 'GLM', 'FS', 'DXD', 'BK']
+    global var_program_filter, var_program_filter_check
     var_program_filter = StringVar(root)
     var_program_filter.set(programs[0])
-    program_filter = OptionMenu(frame_t2_filters, var_program_filter, *programs )
+    program_filter = OptionMenu(frame_t2_filters, var_program_filter, *programs, command=update_schedule )
     #program_filter.place(relwidth=.7, relx=.5, rely=.05, relheight= .05, anchor='n')
     program_filter.configure(state=DISABLED)
 
@@ -547,7 +538,7 @@ def main():
 # For each lecture, if it is within the week selected create a schedule block for it
 def update_schedule(*args):
     # Refrences class selected, list of classroom objects, the schedule grid, and the seleced week
-    global classroom_label, classroom_list, entries, var_display_week
+    global classroom_label, classroom_list, entries, var_display_week, var_program_filter, var_program_filter_check, dispclass
     # Clear schedule for new blocks
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
@@ -559,7 +550,7 @@ def update_schedule(*args):
     # If the classroom dropdown has changed, not the week
     if 'Week' not in data:
         # Change label to reflect new choice
-        classroom_label.configure(text=str(data))
+        classroom_label.configure(text=str(var_dispclass.get()))
 
     #For each room in global list of classroom objects
     for room in classroom_list:
@@ -568,6 +559,12 @@ def update_schedule(*args):
             continue
 
         for cohort in room.cohorts:
+
+            # If program filter is selected, skip any programs that do not match
+            if var_program_filter_check.get() == 1:
+                if str(cohort.program) != str(var_program_filter.get()):
+                    continue
+             
 
             for course in cohort.courses:
 
@@ -590,6 +587,8 @@ def update_program_filter(menu, var):
         menu.configure(state=DISABLED)
     else:
         menu.configure(state=NORMAL)
+
+    update_schedule([None])
 
 
 
