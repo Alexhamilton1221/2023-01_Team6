@@ -39,7 +39,7 @@ def import_excel(file_name,imp_type, spn=None):
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
-            registration = get_registration(stud_file)
+            registration, student_list = get_registration(stud_file)
 
             update_spinners(registration, spn)
 
@@ -117,6 +117,7 @@ def update_spinners(registration, spn):
         
         
         #Change the var at the same index as the formatted key in the list of spinners
+        vars[spn_names.index(spn_name)].set(str(0))
         vars[spn_names.index(spn_name)].set(str(num))
        
 
@@ -140,14 +141,14 @@ def get_registration(filename):
 
     # Check format for registration file
     if sheet['a1'].value == 'Id':
-        # Student Format
+        # STUDENT INFORMATION
         
 
         for row in sheet.iter_rows(min_row=2):
             new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
                                   core=row[3].value, program=row[4].value)
             
-
+            
             student_list.students.append(new_student)
 
         # Sum core and noncore registration numbers
@@ -155,6 +156,8 @@ def get_registration(filename):
             core_key = str(student.core) + ' ' + str(student.term)
             noncore_key = str(student.program) + ' ' + str(student.term)
 
+
+            # Increment counter for registration for both core and noncore program
             if core_key in registration.keys():
                 registration[core_key] += 1
             else:
@@ -167,7 +170,8 @@ def get_registration(filename):
 
 
         print(registration)
-    #Else, jsut registration numbers
+
+    #Else, just registration numbers
     else:
 
         # For each row in the excel file, skipping the header
@@ -179,15 +183,48 @@ def get_registration(filename):
             term = row[0].value 
             num = row[2].value
 
-            new_student = Student()
-
             registration[course + " " + str(term)] = int(num)
 
 
 
+        temp = registration.copy()
+        student_id = -1
+
+        for i in temp:
+            course = i.split(' ')[0]
+            term = i.split(' ')[1]
 
 
-    return registration
+            # If not a core registration
+            if 'PCOM' not in course and 'BCOM' not in course:
+                continue
+            
+
+            for p in range(temp[i]):
+                #print(i, temp[i])
+
+                # Find a noncore reg of the same term to match with
+                for o in temp:
+                    course_2 = o.split(' ')[0]
+                    term_2 = o.split(' ')[0]
+
+                    # If this is a core or is of wrong term, continue
+                    if 'PCOM' in o or 'BCOM' in o or i[-1] != o[-1] or temp[o] == 0:
+                        continue
+                    #if term != term_2 or 'PCOM' in course or 'BCOM' in course or temp[o] == 0:
+                        
+                    
+                    new_student = Student(id=student_id, name="FakeName", term=term, core=course, program=course_2)
+                    student_list.students.append(new_student)
+
+                    temp[o] -= 1
+                    temp[i] = temp[i]-1
+                    student_id -= 1
+
+                    break
+
+    
+    return (registration, student_list)
 
 
 '''

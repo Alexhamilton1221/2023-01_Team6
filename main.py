@@ -42,7 +42,7 @@ def test_given_cohorts_make_schedules_for_all():
 
     return(classrooms)
 
-test_given_cohorts_make_schedules_for_all()
+#test_given_cohorts_make_schedules_for_all()
 
 
 def update_calendar(*args):
@@ -289,7 +289,7 @@ def main():
     btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
     
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
-                                command=lambda: update_classrooms())
+                                command=lambda: update_classroom_dropdown())
     #clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
     #btn_classroom_list.config(image=clsasroom_list_img)
     btn_classroom_list.place(relx=0.375, rely=0.92,relwidth=0.11, relheight=0.035)
@@ -435,6 +435,7 @@ def main():
     var_dispclass_cohort.set(class_names[0]) 
     
     #Create text diplay for cohorts
+    global display_cohorts
     display_cohorts = tk.Text(frame_t3_schedule,state='normal',font=("Helvetica", 12))
     display_cohorts.place(relwidth=1,relheight=1,rely=0)
     
@@ -523,6 +524,7 @@ def main():
 def update_schedule(*args):
     # Refrences class selected, list of classroom objects, the schedule grid, and the seleced week
     global classroom_label, classroom_list, entries, var_display_week, var_program_filter, var_program_filter_check, var_dispclass
+    print('test')
     # Clear schedule for new blocks
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
@@ -576,21 +578,38 @@ def update_program_filter(menu, var):
 
 
 
-def update_classrooms():
+def update_classroom_dropdown():
     global classroom_list, dispclass, dispclass_2, dispclass_3
-    global var_dispclass, var_dispclass_cohort, var_dispclass_calendar
+    global var_dispclass, var_dispclass_cohort, var_dispclass_calendar, display_cohorts
+
+    helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)
+    mytext="#FFFFFF"
+
 
     room_list = gu.import_excel("resouce_list_name",2)
 
     classroom_list = room_list.classrooms
 
-    print(classroom_list, room_list.classrooms)
+    #print(classroom_list, room_list.classrooms)
 
     parent = dispclass.master
+    dispclass = OptionMenu(parent, var_dispclass, *classroom_list, command=update_schedule)
+    dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
+    dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
-    new_menu = create_room_dropdown(parent, var_dispclass, classroom_list, update_schedule)
 
-    dispclass.destroy()
+    parent = dispclass_2.master
+    dispclass_2.destroy()
+    new_menu = OptionMenu(parent, var_dispclass_cohort, *classroom_list, #Replace Default Values with Classrooms
+    command=lambda x: gu.print_cohorts(room_list,var_dispclass_cohort.get(),display_cohorts))
+    
+    new_menu.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
+    new_menu.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    dispclass_2 = new_menu
+
+    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= update_calendar ) 
+    dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+    dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
     
 
