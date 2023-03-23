@@ -9,12 +9,14 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
-
+from Database.students import Students
+from Database.student import Student
 import random
 from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
+#import main as m
 
 
 
@@ -31,16 +33,13 @@ def import_excel(file_name,imp_type, spn=None):
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
        f_name = os.path.basename(file.name)
 
-       if file:
-           file_name.configure(text=f_name)
+       #if file:
+           #file_name.configure(text=f_name)
 
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
-            registration = get_registration(stud_file)
-
-            if registration == None:
-                raise Exception
+            registration, student_list = get_registration(stud_file)
 
             update_spinners(registration, spn)
 
@@ -59,9 +58,10 @@ def import_excel(file_name,imp_type, spn=None):
             #cohorts.cohorts[0]
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
+            return get_classrooms(file.name)
         
    except Exception as e:
-        messagebox.showwarning("Warning", "Failed to open file. " + str(e))
+        messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
 
 
 #This function forms the schedule. It takes the 2 names of each excel file
@@ -117,6 +117,7 @@ def update_spinners(registration, spn):
         
         
         #Change the var at the same index as the formatted key in the list of spinners
+        vars[spn_names.index(spn_name)].set(str(0))
         vars[spn_names.index(spn_name)].set(str(num))
        
 
@@ -135,27 +136,95 @@ def get_registration(filename):
         #Error opening file, return None
         return None
     
-    # Init return object
+    student_list = Students()
     registration = {}
 
-    # Check file format
+    # Check format for registration file
+    if sheet['a1'].value == 'Id':
+        # STUDENT INFORMATION
+        
+
+        for row in sheet.iter_rows(min_row=2):
+            new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
+                                  core=row[3].value, program=row[4].value)
+            
+            
+            student_list.students.append(new_student)
+
+        # Sum core and noncore registration numbers
+        for student in student_list.students:
+            core_key = str(student.core) + ' ' + str(student.term)
+            noncore_key = str(student.program) + ' ' + str(student.term)
+
+
+            # Increment counter for registration for both core and noncore program
+            if core_key in registration.keys():
+                registration[core_key] += 1
+            else:
+                registration[core_key] = 1
+
+            if noncore_key in registration.keys():
+                registration[noncore_key] += 1
+            else:
+                registration[noncore_key] = 1
+
+
+        print(registration)
+
+    #Else, just registration numbers
+    else:
+
+        # For each row in the excel file, skipping the header
+        for row in sheet.iter_rows(min_row=2):
+            if row[0].value == None:
+                continue
+
+            course = row[1].value 
+            term = row[0].value 
+            num = row[2].value
+
+            registration[course + " " + str(term)] = int(num)
+
+
+
+        temp = registration.copy()
+        student_id = -1
+
+        for i in temp:
+            course = i.split(' ')[0]
+            term = i.split(' ')[1]
+
+
+            # If not a core registration
+            if 'PCOM' not in course and 'BCOM' not in course:
+                continue
+            
+
+            for p in range(temp[i]):
+                #print(i, temp[i])
+
+                # Find a noncore reg of the same term to match with
+                for o in temp:
+                    course_2 = o.split(' ')[0]
+                    term_2 = o.split(' ')[0]
+
+                    # If this is a core or is of wrong term, continue
+                    if 'PCOM' in o or 'BCOM' in o or i[-1] != o[-1] or temp[o] == 0:
+                        continue
+                    #if term != term_2 or 'PCOM' in course or 'BCOM' in course or temp[o] == 0:
+                        
+                    
+                    new_student = Student(id=student_id, name="FakeName", term=term, core=course, program=course_2)
+                    student_list.students.append(new_student)
+
+                    temp[o] -= 1
+                    temp[i] = temp[i]-1
+                    student_id -= 1
+
+                    break
 
     
-
-    # For each row in the excel file, skipping the header
-    for row in sheet.iter_rows(min_row=2):
-        if row[0].value == None:
-            continue
-
-        #Index of values unsure - template not uploaded yet
-        course = row[1].value 
-        term = row[0].value 
-        num = row[2].value
-
-        registration[course + " " + str(term)] = int(num)
-
-
-    return registration
+    return (registration, student_list)
 
 
 '''
@@ -165,7 +234,7 @@ Returns a Classrooms object containing a list of Classroom objects for each clas
 def get_classrooms(filename):
 
     #Init excel work sheet
-    ws = openpyxl.load_workbook(filename).worksheets[4]
+    ws = openpyxl.load_workbook(filename).worksheets[-1]
 
     #Object to hold each Classroom
     room_list = Classrooms()
@@ -182,6 +251,7 @@ def get_classrooms(filename):
         room_list.add_classroom(new_classroom)
 
     #Return entire list
+    
     return room_list
 
 
@@ -632,6 +702,3 @@ class ScrollableFrame(tk.Frame):
 
         # lbl_x+=100
         #lbl_y+=20
-
-
-    
