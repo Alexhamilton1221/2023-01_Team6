@@ -504,8 +504,8 @@ def main():
     tabControl.pack(expand = 1, fill ="both")
     
     #Make it so that window cannot change size/shape
-    root.attributes('-fullscreen', False)
-    root.resizable(False, False)
+    #root.attributes('-fullscreen', False)
+    #root.resizable(False, False)
     
     root.mainloop()  
 
