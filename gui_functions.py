@@ -68,7 +68,7 @@ def form_schedule(classroom_list, total_lables):
 
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
-    students = [['PCOM 1', 20], ['BCOM 1', 20], ['PM 1', 10], ['BA 1', 10]]
+    students = reg_numbers
     print(students)
 
     cohorts = Cohorts()
