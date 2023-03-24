@@ -24,26 +24,6 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
-# TEMP - runs test to create schedule based of dummy data
-def test_given_cohorts_make_schedules_for_all():
-    global classroom_list,classrooms
-    programs = Programs(temp_create_courses())
-    classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
-                ["BK 1", 36]]
-
-    cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students, 2)
-    cohorts.create_schedules(2)
-    gu.print_schedule(classrooms)
-
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
-
-    return(classrooms)
-
-#test_given_cohorts_make_schedules_for_all()
-
 
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
@@ -92,7 +72,7 @@ def main():
     #Setup Window
     root = tk.Tk()
     root.title('Scheduler')
-    root.geometry("1920x1080")
+    root.geometry("1280x720")
 
     #custom colours
     mygreen = "#d2ffd2"
@@ -275,6 +255,7 @@ def main():
         course_label.place(relwidth=0.2, relheight=0.1, relx=0.01, rely= (0.15+(0.15*(i))))
        
 
+    
          
     #Create Buttons 
     btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration",bg=myred, fg=mytext, 
@@ -296,7 +277,7 @@ def main():
     
     
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
-                                   command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
+                                   command=lambda: gu.form_schedule(classroom_list))
     #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
     #btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
@@ -611,6 +592,8 @@ def update_classroom_dropdown():
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
+
+    #test_given_cohorts_make_schedules_for_all()
     
 
 '''

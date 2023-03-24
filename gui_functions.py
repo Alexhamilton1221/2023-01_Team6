@@ -25,6 +25,11 @@ from hardCodedCourses import temp_create_courses
 
 #This is for Calendar Creation
 global lbl_x,lbl_y
+global reg_numbers
+global student_info
+
+reg_numbers = None
+student_info = None
 lbl_x=50; lbl_y=20
 
 def import_excel(file_name,imp_type, spn=None):
@@ -66,10 +71,23 @@ def import_excel(file_name,imp_type, spn=None):
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(student_list_name,resouce_list_name):
+def form_schedule(classroom_list):
     global stud_file,res_file #These are the complete paths to the 2 excel files
+    global reg_numbers, student_info
 
-    print('Creating Schedule')
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(classroom_list)
+    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
+                ["BK 1", 36]]
+
+    cohorts = Cohorts()
+    cohorts.create_cohorts(classrooms, programs, students, 2)
+    cohorts.create_schedules(2)
+    print_schedule(classrooms)
+    student_info.add_to_cohorts(programs, cohorts)
+    for room in classrooms.get_rooms():
+        room.check_for_conflict()
+
  
     #If the schedule creation is successfull show successful message.
     #messagebox.showinfo("Note", "Successfully formed a Schedule")
@@ -108,9 +126,9 @@ def update_spinners(registration, spn):
 
     for key in registration:
         # extract data from registration numbers
-        course = key.split(" ")[0]
-        term = key.split(" ")[1]
-        num = registration[key]
+        course = key[0].split(" ")[0]
+        term = key[0].split(" ")[1]
+        num = key[1]
 
         # Reconstruct data into format used in spinner creation
         spn_name = "spn_" + course.lower() + '_t' + str(term)
@@ -127,7 +145,7 @@ def update_spinners(registration, spn):
 # Takes a file name of the excel file
 # Returns a dictionary formatted: "{Corse_Name} {Term}": int(Registration_Amount) 
 def get_registration(filename):
-
+    global reg_numbers, student_info
      #Open excel file 
     try:
         sheet = openpyxl.load_workbook(filename).worksheets[0]
@@ -169,8 +187,6 @@ def get_registration(filename):
                 registration[noncore_key] = 1
 
 
-        print(registration)
-
     #Else, just registration numbers
     else:
 
@@ -201,8 +217,6 @@ def get_registration(filename):
             
 
             for p in range(temp[i]):
-                #print(i, temp[i])
-
                 # Find a noncore reg of the same term to match with
                 for o in temp:
                     course_2 = o.split(' ')[0]
@@ -223,8 +237,15 @@ def get_registration(filename):
 
                     break
 
-    
-    return (registration, student_list)
+
+    reg_list = []
+
+    for key in registration:
+        reg_list.append([key, registration[key]])
+
+    reg_numbers = reg_list
+    student_info = student_list
+    return (reg_list, student_list)
 
 
 '''
@@ -241,6 +262,9 @@ def get_classrooms(filename):
 
     #For each classroom row, skipping the header
     for row in ws.iter_rows(min_row=2):
+        if row[0].value == None:
+            continue
+
         #Sterilize room No. info
         room_no = row[0].value.split(' ')[0]
         #Save capacity as an int
@@ -285,7 +309,7 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
 
     length =  lecture.end_time - lecture.start_time
 
-    print(name, lecture.start_time, lecture.day, length)
+    #print(name, lecture.start_time, lecture.day, length)
 
     # Init display variable
     display_time = lecture.start_time
@@ -526,13 +550,14 @@ def clear_schedule(entries):
 #prints total schedule for a room
 def print_schedule(classrooms):
     #for room in classrooms:
-    for cohort in classrooms.classrooms[2].cohorts:
-        for course in cohort.courses:
-            for lecture in course.lectures:
-                if lecture.day < 12:
-                    print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
-                    
-                    
+    for room in classrooms.classrooms:
+        for cohort in room.cohorts:
+            for course in cohort.courses:
+                for lecture in course.lectures:
+                    if lecture.day < 12:
+                        print(room.name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        
+                        
 def print_cohorts(classrooms,cohort_name,text_field):
     #print('###################################################################################################')
     #print('###################################################################################################')
