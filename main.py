@@ -423,7 +423,7 @@ def main():
     #Create Class Dropdown
     global dispclass_2
     dispclass_2 = OptionMenu(frame_t3_background, var_dispclass_cohort, *class_names, #Replace Default Values with Classrooms
-    command=lambda x: gu.print_cohorts(classrooms,var_dispclass_cohort.get(),display_cohorts)) 
+    command=lambda x: gu.print_cohorts(Classroom(classroom_list),var_dispclass_cohort.get(),display_cohorts)) 
     dispclass_2.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass_2.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
