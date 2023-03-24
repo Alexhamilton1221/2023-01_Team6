@@ -17,19 +17,21 @@ class Lecture:
 
     def is_within(self, lecture):
         # Check if another lecture interferes with this timeslot
-        if lecture.start_time < self.end_time and lecture.end_time > self.start_time:
+        if (lecture.start_time < self.end_time and lecture.end_time > self.start_time) or (lecture.start_time == self.start_time and lecture.end_time == self.end_time):
             if self.day == lecture.day:
                 return True
         return False
 
     def time_collison_compare(self, start_time, end_time):
         # Purpose: This function checks if the time, but not the date of another lecture is in collision with tihs
-        startLessThanStart = self.start_time < start_time
-        endLessThanEnd = self.end_time < end_time
+        startLessThanStart = self.start_time <= start_time
+        endLessThanEnd = self.end_time <= end_time
         startLessThanEnd = self.start_time < end_time
         endGreaterThanStart = self.end_time > start_time
 
-        if startLessThanStart and endLessThanEnd and startLessThanEnd and endGreaterThanStart:
+        if self.start_time == start_time and self.end_time == end_time:
+            return True
+        elif startLessThanStart and endLessThanEnd and startLessThanEnd and endGreaterThanStart:
             return True
         elif not startLessThanStart and not endLessThanEnd and startLessThanEnd and endGreaterThanStart:
             return True
