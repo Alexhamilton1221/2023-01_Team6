@@ -22,6 +22,10 @@ class Classrooms:
             sized.sort(key=lambda x: x.size, reverse=True)
             return sized
 
+    def clear_cohorts(self):
+        for room in self.classrooms:
+            room.cohorts = []
+
     def add_classroom(self, room):
         # Adds a new room to the classrooms
         self.classrooms.append(room)
