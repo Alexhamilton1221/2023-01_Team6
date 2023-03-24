@@ -48,7 +48,7 @@ def get_FullStack_hours(cur_semester):
             days -= 1
 
 
-    return hours_per_day * days  # NOTE GET NUMBER OF HOURS TO CHECK CLASSES, ONCE GOTTEN CHECK FOR OVER TO SEE CAPACITY
+    return hours_per_day * days
 
 
 def calc_cohort_hours(classrooms, cohorts, core, lab, cur_semester):
