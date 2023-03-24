@@ -78,6 +78,7 @@ def form_schedule(classroom_list, total_lables):
     while has_made_schedule == False:
         try:
             has_made_schedule = True
+            classrooms.clear_cohorts()
             cohorts.cohorts = []
             cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
             cohorts.create_schedules(2)
@@ -85,11 +86,11 @@ def form_schedule(classroom_list, total_lables):
             has_made_schedule = False
             time_mod += 0.1
 
+
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
     print("Added")
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
+
 
  
     #If the schedule creation is successfull show successful message.
