@@ -9,17 +9,28 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
-
+from Database.students import Students
+from Database.student import Student
 import random
 from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
+#import main as m
 
 
 
 
 #from datetime import datetime, timedelta
+
+#This is for Calendar Creation
+global lbl_x,lbl_y
+global reg_numbers
+global student_info
+
+reg_numbers = None
+student_info = None
+lbl_x=50; lbl_y=20
 
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
@@ -27,16 +38,13 @@ def import_excel(file_name,imp_type, spn=None):
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
        f_name = os.path.basename(file.name)
 
-       if file:
-           file_name.configure(text=f_name)
+       #if file:
+           #file_name.configure(text=f_name)
 
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
-            registration = get_registration(stud_file)
-
-            if registration == None:
-                raise Exception
+            registration, student_list = get_registration(stud_file)
 
             update_spinners(registration, spn)
 
@@ -55,17 +63,31 @@ def import_excel(file_name,imp_type, spn=None):
             #cohorts.cohorts[0]
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
+            return get_classrooms(file.name)
         
    except Exception as e:
-        messagebox.showwarning("Warning", "Failed to open file. " + str(e))
+        messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
 
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(student_list_name,resouce_list_name):
+def form_schedule(classroom_list):
     global stud_file,res_file #These are the complete paths to the 2 excel files
+    global reg_numbers, student_info
 
-    print('Creating Schedule')
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(classroom_list)
+    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
+                ["BK 1", 36]]
+
+    cohorts = Cohorts()
+    cohorts.create_cohorts(classrooms, programs, students, 2)
+    cohorts.create_schedules(2)
+    print_schedule(classrooms)
+    student_info.add_to_cohorts(programs, cohorts)
+    for room in classrooms.get_rooms():
+        room.check_for_conflict()
+
  
     #If the schedule creation is successfull show successful message.
     #messagebox.showinfo("Note", "Successfully formed a Schedule")
@@ -104,15 +126,16 @@ def update_spinners(registration, spn):
 
     for key in registration:
         # extract data from registration numbers
-        course = key.split(" ")[0]
-        term = key.split(" ")[1]
-        num = registration[key]
+        course = key[0].split(" ")[0]
+        term = key[0].split(" ")[1]
+        num = key[1]
 
         # Reconstruct data into format used in spinner creation
         spn_name = "spn_" + course.lower() + '_t' + str(term)
         
         
         #Change the var at the same index as the formatted key in the list of spinners
+        vars[spn_names.index(spn_name)].set(str(0))
         vars[spn_names.index(spn_name)].set(str(num))
        
 
@@ -122,7 +145,7 @@ def update_spinners(registration, spn):
 # Takes a file name of the excel file
 # Returns a dictionary formatted: "{Corse_Name} {Term}": int(Registration_Amount) 
 def get_registration(filename):
-
+    global reg_numbers, student_info
      #Open excel file 
     try:
         sheet = openpyxl.load_workbook(filename).worksheets[0]
@@ -131,27 +154,98 @@ def get_registration(filename):
         #Error opening file, return None
         return None
     
-    # Init return object
+    student_list = Students()
     registration = {}
 
-    # Check file format
+    # Check format for registration file
+    if sheet['a1'].value == 'Id':
+        # STUDENT INFORMATION
+        
 
-    
+        for row in sheet.iter_rows(min_row=2):
+            new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
+                                  core=row[3].value, program=row[4].value)
+            
+            
+            student_list.students.append(new_student)
 
-    # For each row in the excel file, skipping the header
-    for row in sheet.iter_rows(min_row=2):
-        if row[0].value == None:
-            continue
-
-        #Index of values unsure - template not uploaded yet
-        course = row[1].value 
-        term = row[0].value 
-        num = row[2].value
-
-        registration[course + " " + str(term)] = int(num)
+        # Sum core and noncore registration numbers
+        for student in student_list.students:
+            core_key = str(student.core) + ' ' + str(student.term)
+            noncore_key = str(student.program) + ' ' + str(student.term)
 
 
-    return registration
+            # Increment counter for registration for both core and noncore program
+            if core_key in registration.keys():
+                registration[core_key] += 1
+            else:
+                registration[core_key] = 1
+
+            if noncore_key in registration.keys():
+                registration[noncore_key] += 1
+            else:
+                registration[noncore_key] = 1
+
+
+    #Else, just registration numbers
+    else:
+
+        # For each row in the excel file, skipping the header
+        for row in sheet.iter_rows(min_row=2):
+            if row[0].value == None:
+                continue
+
+            course = row[1].value 
+            term = row[0].value 
+            num = row[2].value
+
+            registration[course + " " + str(term)] = int(num)
+
+
+
+        temp = registration.copy()
+        student_id = -1
+
+        for i in temp:
+            course = i.split(' ')[0]
+            term = i.split(' ')[1]
+
+
+            # If not a core registration
+            if 'PCOM' not in course and 'BCOM' not in course:
+                continue
+            
+
+            for p in range(temp[i]):
+                # Find a noncore reg of the same term to match with
+                for o in temp:
+                    course_2 = o.split(' ')[0]
+                    term_2 = o.split(' ')[0]
+
+                    # If this is a core or is of wrong term, continue
+                    if 'PCOM' in o or 'BCOM' in o or i[-1] != o[-1] or temp[o] == 0:
+                        continue
+                    #if term != term_2 or 'PCOM' in course or 'BCOM' in course or temp[o] == 0:
+                        
+                    
+                    new_student = Student(id=student_id, name="FakeName", term=term, core=course, program=course_2)
+                    student_list.students.append(new_student)
+
+                    temp[o] -= 1
+                    temp[i] = temp[i]-1
+                    student_id -= 1
+
+                    break
+
+
+    reg_list = []
+
+    for key in registration:
+        reg_list.append([key, registration[key]])
+
+    reg_numbers = reg_list
+    student_info = student_list
+    return (reg_list, student_list)
 
 
 '''
@@ -161,13 +255,16 @@ Returns a Classrooms object containing a list of Classroom objects for each clas
 def get_classrooms(filename):
 
     #Init excel work sheet
-    ws = openpyxl.load_workbook(filename).worksheets[4]
+    ws = openpyxl.load_workbook(filename).worksheets[-1]
 
     #Object to hold each Classroom
     room_list = Classrooms()
 
     #For each classroom row, skipping the header
     for row in ws.iter_rows(min_row=2):
+        if row[0].value == None:
+            continue
+
         #Sterilize room No. info
         room_no = row[0].value.split(' ')[0]
         #Save capacity as an int
@@ -178,6 +275,7 @@ def get_classrooms(filename):
         room_list.add_classroom(new_classroom)
 
     #Return entire list
+    
     return room_list
 
 
@@ -211,7 +309,7 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
 
     length =  lecture.end_time - lecture.start_time
 
-    print(name, lecture.start_time, lecture.day, length)
+    #print(name, lecture.start_time, lecture.day, length)
 
     # Init display variable
     display_time = lecture.start_time
@@ -452,8 +550,180 @@ def clear_schedule(entries):
 #prints total schedule for a room
 def print_schedule(classrooms):
     #for room in classrooms:
-    for cohort in classrooms.classrooms[2].cohorts:
-        for course in cohort.courses:
-            for lecture in course.lectures:
-                if lecture.day < 12:
-                    print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+    for room in classrooms.classrooms:
+        for cohort in room.cohorts:
+            for course in cohort.courses:
+                for lecture in course.lectures:
+                    if lecture.day < 12:
+                        print(room.name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        
+                        
+def print_cohorts(classrooms,cohort_name,text_field):
+    #print('###################################################################################################')
+    #print('###################################################################################################')
+    #print('TEST',cohort_name)
+    #Testing Print
+    text_field.configure(state='normal')
+
+    text_field.delete("1.0", "end") #Clear Text Field
+    for i,x in enumerate(classrooms.classrooms):
+        for cohort in classrooms.classrooms[3].cohorts:
+            for course in cohort.courses:
+                if classrooms.classrooms[i].name==cohort_name:
+                    for lecture in course.lectures:
+                        #Fixing Indentation
+                        if lecture.day<10:
+                            days_spacing="   -"
+                        elif lecture.day<99:
+                            days_spacing=" -"
+                        else:
+                            days_spacing="-"
+
+                        #Init display variable
+                        display_time = lecture.start_time
+                        display_time_end = lecture.end_time
+                        start_pm = False; end_pm = False
+
+                        # If time is greater than 12, keep in 12hr format
+                        if display_time > 12:
+                            display_time -= 12
+                            start_pm = True
+                        if display_time_end > 12:
+                            display_time_end -= 12
+                            end_pm = True
+
+                        # If start or end time is a half hour,  
+                        if display_time.is_integer():
+                            display_time = f"{int(display_time)}:00"
+                        else:
+                            display_time = f"{int(display_time)}:30"
+
+                        if start_pm:
+                            display_time += "pm"
+                        else:
+                            display_time += "am"
+
+                        if display_time_end.is_integer():
+                            display_time_end = f"{int(display_time_end)}:00"
+                        else:
+                            display_time_end = f"{int(display_time_end)}:30"
+
+                        if end_pm:
+                            display_time_end += "pm"
+                        else:
+                            display_time_end += "am"
+
+                        
+                        #print("TESTING",len(display_time))    
+                        if len(display_time)==6:
+                            #print("HERE"+ display_time)
+                            display_time=f"0{display_time} "
+                        
+                        #print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        #For testing include classroom name but remove later
+                        text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
+                        '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
+                        
+    text_field.configure(state='disabled')
+
+
+
+        
+class ScrollableFrame(tk.Frame):
+    def __init__(self, parent,array_rect,array_lbl):
+        tk.Frame.__init__(self, parent)
+    #Create Array for all Rectangles
+        self.array_rect=array_rect
+        self.array_lbl=array_lbl
+
+        
+        # Create a vertical scrollbar
+        scrollbar = ttk.Scrollbar(self, orient='vertical')
+        scrollbar.pack(side='right', fill='y')
+
+        # Create a canvas to contain the widgets
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=canvas.yview)
+
+        # Set the canvas to expand to fill the entire frame
+        self.canvas = canvas
+        canvas.bind('<Configure>', self._configure_canvas)
+
+        # Create a frame to hold the widgets
+        self.inner_frame = tk.Frame(canvas)
+        self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+        # Hide the canvas
+        canvas.configure(borderwidth=0, highlightthickness=0)
+        
+        
+        
+    def _configure_canvas(self, event):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def update_viewport(self):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+     
+    def setup_grid(self):
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                x1 = col * rect_size
+                y1 = row * rect_size
+                x2 = x1 + rect_size
+                y2 = y1 + rect_size
+                rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                self.array_rect.append(rect)
+
+    def clear_grid(self):
+        text_items = self.canvas.find_all()
+        for item in text_items:
+            if self.canvas.type(item) == "text":
+                self.canvas.delete(item)
+
+
+    def formrect(self,sorted_list,i):
+        #print(sorted_list)
+        count=0
+        rect_size = 180
+        for row in range(9):
+            for col in range(7):
+                count+=1
+                pad_y=0
+                if count==i:
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+
+                    #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
+                    for j in sorted_list:
+                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                        self.array_lbl.append(text)
+                        pad_y+=15
+
+        #print(self.array_lbl)
+
+
+
+
+        # area_x = -490
+        # area_y = 0
+        
+        # padding_y=20
+
+        
+        # for j in sorted_list:
+        #     current=self.array_rect[i]
+        #     print('test',current)
+        #     text_x = area_x+185*current
+        #     text_y = (area_y*current)+padding_y
+        #     text = self.canvas.create_text(text_x,text_y,text=j)
+        #     print(j)
+            
+        #     padding_y+=15
+
+            
+            #lbl_y+=15
+
+        # lbl_x+=100
+        #lbl_y+=20
