@@ -1,7 +1,7 @@
 
 class Student:
 
-    def __init__(self, id, name, term, core, core_cohort, program, program_cohort):
+    def __init__(self, id, name, term, core, program, core_cohort = None, program_cohort = None):
         # The student id of the student
         self.id = id
         # The name of the student
