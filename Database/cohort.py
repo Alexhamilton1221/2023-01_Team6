@@ -139,9 +139,7 @@ class Cohort:
                     end_day += 2
 
 
-            if course.name == "PCOM 0103":
-                print("HERE")
-
+            time_resets = 0
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
             # might cause issues later
             while not occupied_room.check_if_lecture_fits(start_day, end_day, cur_start_time, cur_end_time) \
@@ -178,6 +176,9 @@ class Cohort:
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
                     if cur_end_time > max_end_time or cur_start_time < max_start_time:
+                        time_resets += 1
+                        if time_resets == 3:
+                            raise ValueError
                         if self.program.name == "FS":
                             time_offset = 10.5
                         else:

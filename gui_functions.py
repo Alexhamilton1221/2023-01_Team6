@@ -71,9 +71,20 @@ def form_schedule(classroom_list, total_lables):
     students = reg_numbers
     print(students)
 
+    has_made_schedule = False
+    time_mod = 1.0
     cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students, 2)
-    cohorts.create_schedules(2)
+
+    while has_made_schedule == False:
+        try:
+            has_made_schedule = True
+            cohorts.cohorts = []
+            cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
+            cohorts.create_schedules(2)
+        except ValueError:
+            has_made_schedule = False
+            time_mod += 0.1
+
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
     print("Added")
@@ -366,7 +377,7 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
         
         if hour == int(length)-1:
             entry.config(state=NORMAL)
-            entry.insert(0, name + ' - ' + cohort.name)
+            entry.insert(0, cohort.name + ' - ' + name)
             entry.config(state=DISABLED)
 
         if hour == int(length):
