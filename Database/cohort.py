@@ -25,12 +25,12 @@ class Cohort:
         self.students = []
 
 
-    def create_schedule(self, term):
+    def create_schedule(self, cur_semester):
         # This creates the schedules for the cohorts of the term
         # var term is the term of this semester fall, winter, or sprint
 
-        holidays = hardcodedother.get_holidays(term)
-        term_length = hardcodedother.get_term_length(term)
+        holidays = hardcodedother.get_holidays(cur_semester)
+        term_length = hardcodedother.get_term_length(cur_semester)
         # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
             starts_on = 3
@@ -166,7 +166,7 @@ class Cohort:
                         continue
 
                         # DEBUG
-                    if course.name == "CMSK 0151" and start_day == 6 and cur_start_time == 16.5:
+                    if course.name == "CMSK 0233" and start_day == 15 and cur_start_time == 12.5:
                         print("ON")
                 else:
                     # If it can't fit a lecture by a time no where in the semester, will go to the next time slot 30 later (or before for full stack)
