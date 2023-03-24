@@ -25,7 +25,8 @@ from hardCodedCourses import temp_create_courses
 
 #This is for Calendar Creation
 global lbl_x,lbl_y
-global reg_numbers
+global reg_numbers 
+reg_numbers= []
 global student_info
 
 reg_numbers = None
@@ -48,19 +49,7 @@ def import_excel(file_name,imp_type, spn=None):
 
             update_spinners(registration, spn)
 
-            # TEMP FUNCTION TO RUN ON EXECUTE
-            # Assumes term is spring
-            reg_list = []
-            #for key in registration.keys():
-            #    if registration.get(key) > 0:
-            #        reg_list.append([key, registration.get(key)])
-
-            #cohorts = Cohorts()
-            #programs = Programs(temp_create_courses())
-            #classrooms = Classrooms(temp_Classroom_add())
-            #cohorts.create_cohorts(classrooms, programs, reg_list)
-            #cohorts.create_schedules(1)
-            #cohorts.cohorts[0]
+      
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
             return get_classrooms(file.name)
@@ -71,20 +60,23 @@ def import_excel(file_name,imp_type, spn=None):
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(classroom_list):
+def form_schedule(classroom_list, total_lables):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info
 
+
+
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
-    students = [["PCOM 1", 60], ["PCOM 3", 40], ["BA 1", 46], ["BA 3", 30], ["DXD 1", 60],
-                ["BK 1", 36]]
+    students = [['PCOM 1', 20], ['BCOM 1', 20], ['PM 1', 10], ['BA 1', 10]]
+    print(students)
 
     cohorts = Cohorts()
     cohorts.create_cohorts(classrooms, programs, students, 2)
     cohorts.create_schedules(2)
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
+    print("Added")
     for room in classrooms.get_rooms():
         room.check_for_conflict()
 
@@ -187,8 +179,7 @@ def get_registration(filename):
                 registration[noncore_key] = 1
 
 
-    #Else, just registration numbers
-    else:
+    else: # Just registration info
 
         # For each row in the excel file, skipping the header
         for row in sheet.iter_rows(min_row=2):
@@ -199,6 +190,9 @@ def get_registration(filename):
             term = row[0].value 
             num = row[2].value
 
+            if num == 0 or num == None:
+                continue
+
             registration[course + " " + str(term)] = int(num)
 
 
@@ -206,7 +200,7 @@ def get_registration(filename):
         temp = registration.copy()
         student_id = -1
 
-        for i in temp:
+        for i in temp.keys():
             course = i.split(' ')[0]
             term = i.split(' ')[1]
 
@@ -238,14 +232,23 @@ def get_registration(filename):
                     break
 
 
-    reg_list = []
 
+
+    #Turn dictionary into a list of lists
+    reg_list = []
     for key in registration:
         reg_list.append([key, registration[key]])
 
     reg_numbers = reg_list
     student_info = student_list
     return (reg_list, student_list)
+
+
+
+
+def create_student_objects(reg_numbers):
+    pass
+
 
 
 '''
@@ -550,6 +553,7 @@ def clear_schedule(entries):
 #prints total schedule for a room
 def print_schedule(classrooms):
     #for room in classrooms:
+    print('printing')
     for room in classrooms.classrooms:
         for cohort in room.cohorts:
             for course in cohort.courses:

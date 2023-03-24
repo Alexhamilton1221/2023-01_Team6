@@ -72,7 +72,7 @@ def main():
     #Setup Window
     root = tk.Tk()
     root.title('Scheduler')
-    root.geometry("1280x720")
+    root.geometry("1920x1080")
 
     #custom colours
     mygreen = "#d2ffd2"
@@ -277,7 +277,7 @@ def main():
     
     
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
-                                   command=lambda: gu.form_schedule(classroom_list))
+                                   command=lambda: gu.form_schedule(classroom_list, info_label_totals))
     #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
     #btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
@@ -505,7 +505,6 @@ def main():
 def update_schedule(*args):
     # Refrences class selected, list of classroom objects, the schedule grid, and the seleced week
     global classroom_label, classroom_list, entries, var_display_week, var_program_filter, var_program_filter_check, var_dispclass
-    print('test')
     # Clear schedule for new blocks
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
