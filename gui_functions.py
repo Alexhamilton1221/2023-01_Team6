@@ -60,10 +60,21 @@ def import_excel(file_name,imp_type, spn=None):
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(classroom_list, total_lables):
+def form_schedule(classroom_list, total_lables, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info
 
+    cur_semester = 1
+    if var_chosen_term.get() == "Fall":
+        cur_semester = 1
+    elif var_chosen_term.get() == "Winter":
+        cur_semester = 2
+    elif var_chosen_term.get() == "Spring/Summer":
+        cur_semester = 3
+
+
+    total_order = ['PCOM', 'BCOM', "PM", "BA", "GLM", "FS", "DXD", "BK"]
+    
 
 
     programs = Programs(temp_create_courses())
@@ -72,11 +83,10 @@ def form_schedule(classroom_list, total_lables):
     print(students)
 
     cohorts = Cohorts()
-    cohorts.create_cohorts(classrooms, programs, students, 2)
-    cohorts.create_schedules(2)
+    cohorts.create_cohorts(classrooms, programs, students, cur_semester)
+    cohorts.create_schedules(cur_semester)
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
-    print("Added")
     for room in classrooms.get_rooms():
         room.check_for_conflict()
 
@@ -553,7 +563,6 @@ def clear_schedule(entries):
 #prints total schedule for a room
 def print_schedule(classrooms):
     #for room in classrooms:
-    print('printing')
     for room in classrooms.classrooms:
         for cohort in room.cohorts:
             for course in cohort.courses:
