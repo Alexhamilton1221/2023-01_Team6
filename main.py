@@ -277,7 +277,7 @@ def main():
     
     
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
-                                   command=lambda: gu.form_schedule(classroom_list, info_label_totals))
+                                   command=lambda: gu.form_schedule(classroom_list, info_label_totals, var_chosenterm))
     #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
     #btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
