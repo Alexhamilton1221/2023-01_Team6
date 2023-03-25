@@ -233,16 +233,11 @@ class Cohorts:
                 continue
             # Checks if room is not too small
             if classroom_hours[room_num][2 + not_core] >= hours_per_cohort:
-                # Gets the amount of cohorts that fit in the room
-                fitting_cohorts = math.floor(classroom_hours[room_num][2 + not_core] / hours_per_cohort)
-                if fitting_cohorts > total_hours / hours_per_cohort:
-                    fitting_cohorts = int(total_hours / hours_per_cohort)
-                for i in range(fitting_cohorts):
-                    cohorts[assigned_class_index + i].room = classroom_hours[room_num][0]
-                assigned_class_index += fitting_cohorts
-                # Removes all possibles hours from the classroom and removes them from the classroom
-                total_hours -= hours_per_cohort * fitting_cohorts
-                classroom_hours[room_num][2 + not_core] -= hours_per_cohort * fitting_cohorts
+
+                total_hours, assigned_class_index = self.__fit_cohorts_into_rooms__(cohorts, classroom_hours, room_num,
+                                                                                  2 + not_core, assigned_class_index,
+                                                                                  total_hours, hours_per_cohort, for_lab=False)
+
 
             room_num += 1
 
@@ -275,16 +270,7 @@ class Cohorts:
                         lab_hours[room_num][3] += lab_hours[room_num][4]
                         lab_hours[room_num][4] = 0
 
-                        fitting_cohorts = math.floor(lab_hours[room_num][3] / hours_per_cohort)
-                        if fitting_cohorts > total_hours / hours_per_cohort:
-                            fitting_cohorts = int(total_hours / hours_per_cohort)
-
-                        for i in range(fitting_cohorts):
-                            cohorts[assigned_lab_index + i].lab = lab_hours[room_num][0]
-                        assigned_lab_index += fitting_cohorts
-                        # Removes all possibles hours from the classroom
-                        total_hours -= hours_per_cohort * fitting_cohorts
-                        lab_hours[room_num][3] -= hours_per_cohort * fitting_cohorts
+                        total_hours, assigned_lab_index = self.__fit_cohorts_into_rooms__(cohorts, lab_hours, room_num, 3, assigned_lab_index, total_hours, hours_per_cohort, for_lab=True)
 
 
                 else:
@@ -292,20 +278,31 @@ class Cohorts:
             else:
                 # Checks if room is not too small
                 if lab_hours[room_num][2 + not_core] >= hours_per_cohort:
-                    fitting_cohorts = math.floor(lab_hours[room_num][2 + not_core] / hours_per_cohort)
-                    if fitting_cohorts > total_hours / hours_per_cohort:
-                        fitting_cohorts = int(total_hours / hours_per_cohort)
-
-                    for i in range(fitting_cohorts):
-                       cohorts[assigned_lab_index + i].lab = lab_hours[room_num][0]
-                    assigned_lab_index += fitting_cohorts
-                    # Removes all possibles hours from the classroom
-                    total_hours -= hours_per_cohort * fitting_cohorts
-                    lab_hours[room_num][2 + not_core] -= hours_per_cohort * fitting_cohorts
+                    total_hours, assigned_lab_index = self.__fit_cohorts_into_rooms__(cohorts, lab_hours, room_num, 2 + not_core, assigned_lab_index, total_hours, hours_per_cohort, for_lab=True)
                 else:
                     room_num += 1
 
         return cohorts
+
+    def __fit_cohorts_into_rooms__(self,cohorts, room_hours, room_num, hour_access, assigned_index, total_hours, hours_per_cohort, for_lab):
+        # Fits a number of cohorts into rooms by calculating the number that fit into the room
+        fitting_cohorts = math.floor(room_hours[room_num][hour_access] / hours_per_cohort)
+        if fitting_cohorts > total_hours / hours_per_cohort:
+            fitting_cohorts = int(total_hours / hours_per_cohort)
+
+        if for_lab:
+            for i in range(fitting_cohorts):
+                cohorts[assigned_index + i].lab = room_hours[room_num][0]
+        else:
+            for i in range(fitting_cohorts):
+                cohorts[assigned_index + i].room = room_hours[room_num][0]
+
+        assigned_index += fitting_cohorts
+        # Removes all possibles hours from the classroom
+        total_hours -= hours_per_cohort * fitting_cohorts
+        room_hours[room_num][hour_access] -= hours_per_cohort * fitting_cohorts
+
+        return total_hours, assigned_index
 
     def __student_assignment__(self, students, class_by_size, labs_by_size, programs, cur_semester, safety_net=1.1, extra_time_mod=1.0):
         # Returns: list of [success/failType, program , amount of extra hours, whether it was the labs that failed]
