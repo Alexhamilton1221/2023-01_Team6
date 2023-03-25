@@ -16,6 +16,7 @@ from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
+import date_create
 #import main as m
 
 
@@ -58,8 +59,8 @@ def import_excel(file_name,imp_type, spn=None):
         messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
 
 
-#This function forms the schedule. It takes the 2 names of each excel file
-#names as parameters.
+# Takes list of classroom objects, spinner vars, and the chosen term
+# Calls various subroutines to create schedule, add it to classrooms, and insert students
 def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info
@@ -73,9 +74,12 @@ def form_schedule(classroom_list, vars, var_chosen_term):
         cur_semester = 3
 
     reg_numbers = match_spinners_to_reg(vars, reg_numbers, student_info)
-   
+    #print(classroom_list)
+
+    for room in classroom_list:
+        print(room, room.size)
+
  
-    print(reg_numbers)
     if reg_numbers == None or reg_numbers == []:
         print("EMPTY REGISTRATION")
         return
@@ -87,6 +91,7 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     has_made_schedule = False
     time_mod = 1.0
     cohorts = Cohorts()
+
 
     while has_made_schedule == False:
         try:
@@ -296,6 +301,7 @@ def get_registration(filename):
         reg_list.append([key, registration[key]])
 
     if len(student_list.students) == 0:
+        print("Making objects")
         student_list = create_student_objects(reg_list)
         
 
@@ -378,7 +384,7 @@ def get_classrooms(filename):
 
     #Return entire list
     
-    return room_list
+    return room_list.classrooms
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
@@ -829,3 +835,17 @@ class ScrollableFrame(tk.Frame):
 
         # lbl_x+=100
         #lbl_y+=20
+
+
+
+def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_object):
+
+    for room in classroom_list:
+        room.cohorts = []
+
+    for var in spn_vars:
+        var.set(0)
+
+    update_all_totals(spn_core,spn_noncore,total_labels,spinner_object)
+
+    return []
