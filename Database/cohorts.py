@@ -166,7 +166,7 @@ class Cohorts:
                 continue
 
             return [0, None], capacity
-        return [total_hours, lab_failed], None
+        return [math.floor(total_hours/extra_time_mod), lab_failed], None
 
     def __create_unassigned_cohorts__(self, capacity, group, program):
         # Creates cohorts for a specific group of students (program term) and balances the amounts
@@ -254,7 +254,6 @@ class Cohorts:
             # Goes through full stack hours first
             if group[0] == "FS":
 
-                # NOTE: THIS IS A STOP GAP, SOME TIME MAY BE WASTED FROM THE LACK OF CROSSOVER
                 if lab_hours[room_num][4] + lab_hours[room_num][2 + not_core] >= hours_per_cohort:
                     fitting_cohorts = math.floor(lab_hours[room_num][4] / hours_per_cohort)
                     if fitting_cohorts > total_hours / hours_per_cohort:
@@ -317,7 +316,7 @@ class Cohorts:
                         # Checks if the safty has been removed, if so there is no room for the safty to be removed
 
                         if safety_net == 1.0:
-                            raise OverLimit
+                            return fail_check
                         else:
                             raise NearLimit
                         # If the group cannot fit, raises the priority of the group so they get first choice of room
@@ -355,15 +354,13 @@ class Cohorts:
             self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.1, extra_time_mod)
         except NearLimit:
 
-            # If the class does not fit, removes the 10% safty to try to match room sizes
-            try:
-                self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.0, extra_time_mod)
 
-                # TEMP, PUT STUFF HERE TO INFOM THE USER ABOUT HOW IT FAILED
-                fail_type = NearLimit
-            except OverLimit:
-                print("WARNING: TOO MANY STUDENTS. (ADD better error handeling here)")
-                fail_type = OverLimit
+            failInfo = self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.0, extra_time_mod)
+            if failInfo[0] != 0:
+                if failInfo[1]:
+                    print("WARNING: TOO MANY STUDENTS. Not Enough Lab Capacity")
+                else:
+                    print("WARNING: TOO MANY STUDENTS. Not Enough Class Capacity")
 
         return None
 
