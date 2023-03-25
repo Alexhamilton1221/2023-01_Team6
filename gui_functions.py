@@ -26,21 +26,21 @@ from hardCodedCourses import temp_create_courses
 #This is for Calendar Creation
 global lbl_x,lbl_y
 global reg_numbers 
-reg_numbers= []
+reg_numbers = []
 global student_info
 
-reg_numbers = None
-student_info = None
+
+student_info = Students()
 lbl_x=50; lbl_y=20
 
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
    try:
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
-       f_name = os.path.basename(file.name)
 
-       #if file:
-           #file_name.configure(text=f_name)
+       if file == None:
+           return None
+
 
        #Checks flag variable to update correct path
        if imp_type==1:
@@ -60,7 +60,7 @@ def import_excel(file_name,imp_type, spn=None):
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(classroom_list, total_lables, var_chosen_term):
+def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info
 
@@ -72,11 +72,13 @@ def form_schedule(classroom_list, total_lables, var_chosen_term):
     elif var_chosen_term.get() == "Spring/Summer":
         cur_semester = 3
 
-
-    total_order = ['PCOM', 'BCOM', "PM", "BA", "GLM", "FS", "DXD", "BK"]
-    
-
-
+    reg_numbers = match_spinners_to_reg(vars, reg_numbers, student_info)
+   
+ 
+    print(reg_numbers)
+    if reg_numbers == None or reg_numbers == []:
+        print("EMPTY REGISTRATION")
+        return
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = reg_numbers
@@ -91,7 +93,7 @@ def form_schedule(classroom_list, total_lables, var_chosen_term):
             has_made_schedule = True
             cohorts.cohorts = []
             cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
-            cohorts.create_schedules(2)
+            cohorts.create_schedules(cur_semester)
         except ValueError:
             has_made_schedule = False
             time_mod += 0.1
@@ -104,6 +106,71 @@ def form_schedule(classroom_list, total_lables, var_chosen_term):
  
     #If the schedule creation is successfull show successful message.
     #messagebox.showinfo("Note", "Successfully formed a Schedule")
+
+# If value in spinner is not equal to the registraion list of lists, update or append it
+def match_spinners_to_reg(spn_vars, reg_nums, students):
+    spn_order = ['PCOM 1', 'PCOM 2', 'PCOM 3', 'BCOM 1', 'BCOM 2', 'BCOM 3', 
+                 'PM 1', 'PM 2', 'PM 3', 'BA 1', 'BA 2', 'BA 3', 'GL 1', 'GL 2', 
+                 'GL 3', 'FS 1', 'FS 2', 'FS 3', 'DXD 1', 'DXD 2', 'DXD 3', 'BK 1', 'BK 2', 'BK 3']    
+    
+    new_registraions = []
+    if reg_nums == None or reg_nums == []:
+        reg_nums = []
+
+    # Isolate the spinner entries into a list of list matching reg_nums
+    for i, var in enumerate(spn_vars):
+        course, term = spn_order[i].split(' ')
+        num_students = int(var.get())
+        if int(num_students) > 0:
+            print([spn_order[i], num_students])
+            new_registraions.append([spn_order[i], num_students])
+
+
+    # For each value from spinner, check to see if there is a matching 
+    for new_reg in new_registraions:
+        found = False
+        for j, reg in enumerate(reg_nums):
+            if reg[0] == new_reg[0]:
+                if new_reg[1] > reg_nums[j][1]:
+                    reg_nums[j][1] = new_reg[1]
+                found = True
+                break
+        if not found:
+            print("APPending", new_reg)
+            reg_numbers.append(new_reg)
+
+
+    return reg_numbers
+
+
+'''
+
+            reg_nums.append([spn_order[i], int(var.get())])
+        print("EMPTY INTO -", reg_nums)
+        return reg_nums
+
+
+    else:
+        for i, var in enumerate(spn_vars):
+
+            if int(var.get()) == 0:
+                continue
+
+            reg = 0
+
+            for course in reg_numbers:
+                if course[0] == spn_order[i]:
+                    reg = course[1]
+                    print("FOUND MATCH #########################################")
+                    course[1] = int(var.get())
+            if reg == 0:
+                reg_nums.append([spn_order[i], var.get()])
+
+
+    return [reg_nums, create_student_objects(reg_numbers=reg_nums)]
+
+'''
+
 
 #Function for downloading scedule, maybe need this
 def save_schedule():
@@ -171,10 +238,10 @@ def get_registration(filename):
     registration = {}
 
     # Check format for registration file
-    if sheet['a1'].value == 'Id':
-        # STUDENT INFORMATION
-        
+    if sheet['a1'].value == 'Id':         # STUDENT INFORMATION FORMAT
 
+        
+        # Create a student object for every row in excel file
         for row in sheet.iter_rows(min_row=2):
             new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
                                   core=row[3].value, program=row[4].value)
@@ -200,7 +267,7 @@ def get_registration(filename):
                 registration[noncore_key] = 1
 
 
-    else: # Just registration info
+    else: # REGISTRATION NUMBERS FORMAT
 
         # For each row in the excel file, skipping the header
         for row in sheet.iter_rows(min_row=2):
@@ -218,47 +285,14 @@ def get_registration(filename):
 
 
 
-        temp = registration.copy()
-        student_id = -1
-
-        for i in temp.keys():
-            course = i.split(' ')[0]
-            term = i.split(' ')[1]
-
-
-            # If not a core registration
-            if 'PCOM' not in course and 'BCOM' not in course:
-                continue
-            
-
-            for p in range(temp[i]):
-                # Find a noncore reg of the same term to match with
-                for o in temp:
-                    course_2 = o.split(' ')[0]
-                    term_2 = o.split(' ')[0]
-
-                    # If this is a core or is of wrong term, continue
-                    if 'PCOM' in o or 'BCOM' in o or i[-1] != o[-1] or temp[o] == 0:
-                        continue
-                    #if term != term_2 or 'PCOM' in course or 'BCOM' in course or temp[o] == 0:
-                        
-                    
-                    new_student = Student(id=student_id, name="FakeName", term=term, core=course, program=course_2)
-                    student_list.students.append(new_student)
-
-                    temp[o] -= 1
-                    temp[i] = temp[i]-1
-                    student_id -= 1
-
-                    break
-
-
-
-
     #Turn dictionary into a list of lists
     reg_list = []
     for key in registration:
         reg_list.append([key, registration[key]])
+
+    if len(student_list.students) == 0:
+        student_list = create_student_objects(reg_list)
+        
 
     reg_numbers = reg_list
     student_info = student_list
@@ -266,9 +300,48 @@ def get_registration(filename):
 
 
 
-
+# Takes a registration list of lists and creates dummy Student objects for them
+# Returns a Students() object
 def create_student_objects(reg_numbers):
-    pass
+
+    core_courses = ['PCOM', 'BCOM']
+    core_registrations = {}
+    noncore_registrations = []
+    students = Students()
+
+    data = reg_numbers.copy()
+    id = -1
+
+    # Seperate core and non core registrations
+    for item in data:
+        course, term = item[0].split(' ')
+        num_students = item[1]
+
+        if course in core_courses:
+            if course in core_registrations:
+                core_registrations[course].append((term, num_students))
+            else:
+                core_registrations[course] = [(term, num_students)]
+
+        else:
+            for i in range(num_students):
+                noncore_registrations.append((course, term))
+
+    # For each core registration, find a matching non core, create the student
+    for core_course, core_reg in core_registrations.items():
+        for term, num_students in core_reg:
+            for i in range(num_students):
+                for j, (noncore_course, noncore_term) in enumerate(noncore_registrations):
+                    if term == noncore_term:
+                        new_student = Student(id=-(len(Students.students)+1), name="Fname", core=core_course, program=noncore_course)
+                        students.students.append(new_student)
+                        del noncore_registrations[j]
+                        break
+
+    return Students
+
+
+
 
 
 
@@ -341,10 +414,10 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
     start_pm = False; end_pm = False
 
     # If time is greater than 12, keep in 12hr format
-    if display_time > 12:
+    if display_time >= 13:
         display_time -= 12
         start_pm = True
-    if display_time_end > 12:
+    if display_time_end >= 13:
         display_time_end -= 12
         end_pm = True
 
