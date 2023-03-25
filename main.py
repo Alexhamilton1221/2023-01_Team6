@@ -276,7 +276,7 @@ def main():
     
     #Generate Schedule Button
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
-                                   command=lambda: gu.form_schedule(student_list_name.cget("text"),resouce_list_name.cget("text")))
+                                   command=lambda: gu.form_schedule(classroom_list, vars, var_chosenterm))
 
     btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
     
