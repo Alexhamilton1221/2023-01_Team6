@@ -24,6 +24,8 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
+semester_lectures=[]
+
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
     global classroom_label, classroom_list, entries, var_display_week
