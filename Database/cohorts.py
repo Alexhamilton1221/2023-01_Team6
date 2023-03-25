@@ -27,10 +27,10 @@ class Cohorts:
     def create_empty_lectures(self):
         for cohort in self.cohorts:
             cohort.create_empty_lectures()
-    def create_schedules(self, term):
+    def create_schedules(self, cur_semester):
         self.create_empty_lectures()
         for cohort in self.cohorts:
-            cohort.create_schedule(term)
+            cohort.create_schedule(cur_semester)
 
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):

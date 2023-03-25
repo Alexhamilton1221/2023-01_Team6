@@ -37,6 +37,11 @@ class Course:
             lecture.start_time = start_time
             lecture.end_time = end_time
 
+    def remove_day_zero_lectures(self):
+        # Removes all lectures with a day value of zero from the course
+        for lecture in self.lectures:
+            if lecture.day == 0:
+                self.lectures.remove(lecture)
     def last_prereq_day(self):
         # returns the day of the last prequsit for this course
         max_day = 0
@@ -69,7 +74,6 @@ class Course:
             self.lectures.append(Lecture(0, 0, 0))
 
     def lecture_length(self):
-        # Brian: not all stored lectures have a lecture length, not sure what to do when that happens
         extras = self.extra_req.split("|")
         lecture_length = 1.5
         for extra in extras:
