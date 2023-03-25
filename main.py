@@ -108,13 +108,21 @@ def update_calendar(*args):
                         for lecture in course.lectures:
                                 if lecture.day==i:
                                     start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
-                                    day_lectures.append([i,course.name,cohort.name])
+                                    day_lectures.append([i,course.name,cohort.name,lecture.start_time])
                                     #semester_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
-                                    semester_lectures.append([i,course.name,cohort.name,start_time,end_game])
+                                    #Pass in lecture.start_time just to sort in calendar_entry_clicked
+                                    semester_lectures.append([i,course.name,cohort.name,start_time,end_game,lecture.start_time])
 
-        #Sort the list based on starting hours
-        sorted_list = sorted(day_lectures, key=lambda x: x[0])
+        #Sort the list based on Day
+        sorted_list = sorted(day_lectures, key=lambda x: x[3])
+        print(sorted_list)
+        # arr = [subarr for subarr in sorted_list if any(elem for elem in subarr if elem)]
 
+        # arr = [[subsubarr for subsubarr in subarr if subsubarr] for subarr in arr]
+        # #sorted_list = [subarr for subarr in sorted_list if subarr]
+
+        
+        #print(arr)
         #Make a calendar entry for the day
         cal_frame.calendar_day_entry(sorted_list,i)
  
@@ -378,7 +386,6 @@ def main():
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
   
-    #gu.form_schedule_screen(frame_t2_background)
     
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule

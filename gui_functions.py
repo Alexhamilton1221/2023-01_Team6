@@ -581,40 +581,41 @@ class Calendar(tk.Frame):
 
         #Number of columns
         num_of_columns=7
-        #index=event.widget.find_closest(event.x, event.y)[0]
         index=  row *num_of_columns  + col
 
-        #print(self.semester_lectures)
-        #print("Square at row {}, column {} was clicked.".format(row, col))   
-        print(f"Rectangle {index} clicked!")
         # Create New Window Displaying Class Info
         # TODO Make the title the appropriate date
         if not new_window_open:
             #Create New Window
             new_window = tk.Toplevel(self.canvas)
-            new_window.title("Date") 
+            new_window.title("Date {class_etr[0]}") 
             new_window.geometry("640x360")
             new_window.config(background='#252526')
-            #TODO Place Date in this Object
-            title = tk.Label(new_window, text="Date", bg="#252526", fg='white',font=new_window_body)
-            title.pack()
-
+            
             #Call Class to construct Canvas
             entry_frame = Day(new_window)
             entry_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
             
             indexed_lecs=[]
             for subarr in self.semester_lectures:
-                #print(subarr)
                 if subarr[0]==index:
                     indexed_lecs.append(subarr)
-                    print(subarr)
+                    #print('new',subarr)
 
-            sorted_list = sorted(indexed_lecs, key=lambda x: x[3])
+            sorted_list = sorted(indexed_lecs, key=lambda x: x[5])
+            
+            #For Testing
+            #TODO Place Date in this Object Using for testing
+            title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+            title.pack()
 
+
+            
             x1=325 ; y1=20 ; pad_y=0
-            for x in sorted_list:
-                text = entry_frame.canvas.create_text(x1,y1+pad_y,text=x,fill="white",font=new_window_body)
+            for class_etr in sorted_list:
+                new_text=f" {class_etr[1]} {class_etr[2]} {class_etr[3]} - {class_etr[4]}"
+                
+                entry_frame.canvas.create_text(x1,y1+pad_y,text=new_text,fill="white",font=new_window_body)
                 #self.canvas.itemconfigure(text, fill="blue")
 
                 pad_y+=20
@@ -635,7 +636,7 @@ class Calendar(tk.Frame):
     def setup_grid(self):
         rect_size = 180
         count=0
-        for row in range(9):
+        for row in range(5):
             for col in range(7):
                 x1 = col * rect_size
                 y1 = row * rect_size
@@ -650,10 +651,13 @@ class Calendar(tk.Frame):
                 self.array_rect.append(rect)
                 count+=1
 
+        #Deal With last Entry
+        self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
+
         #print(self.array_rect)
         
     def clear_grid(self):
-        text_items = self.canvas.find_all()
+        text_items = self.canvas.find_all()     
         for item in text_items:
             if self.canvas.type(item) == "text":
                 self.canvas.delete(item)
@@ -665,7 +669,7 @@ class Calendar(tk.Frame):
         # Font for Calendar Creation
         my_font = ("Arial", 24) 
 
-        for row in range(9):
+        for row in range(5):
             for col in range(7):
                 count+=1
                 pad_y=0
@@ -675,8 +679,10 @@ class Calendar(tk.Frame):
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
-                    for j in sorted_list:
-                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                    for cal_etr in sorted_list:
+                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
+
+                        text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         
                         self.array_lbl.append(text)
                         pad_y+=15
@@ -686,8 +692,10 @@ class Calendar(tk.Frame):
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
-                    for j in sorted_list[:8]:
-                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                    for cal_etr in sorted_list[:8]:
+                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
+
+                        text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         self.array_lbl.append(text)
                         pad_y+=15
                     text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)
