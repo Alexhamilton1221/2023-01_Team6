@@ -24,6 +24,10 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
+
+#List of all lectures for Calendar
+semester_lectures=[]
+
 # TEMP - runs test to create schedule based of dummy data
 def test_given_cohorts_make_schedules_for_all():
     global classroom_list,classrooms
@@ -82,10 +86,14 @@ def update_schedule(*args):
 
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the seleced week
-    global classroom_label, classroom_list, entries, var_display_week
+    global classroom_label, classroom_list, entries, var_display_week,semester_lectures
 
     #Clear Grid
     cal_frame.clear_grid()
+    
+    #Reset Grid Array
+    cal_frame.clean_array()
+
 
     #For each room in global list of classroom objects
     for i in range (0,100,1):   #TODO This is just a dummy value, need to find a way to get real value
@@ -99,15 +107,24 @@ def update_calendar(*args):
                             # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
                                 if lecture.day==i:
-                                    #print(room.name ,' | ', course.name,cohort.name,lecture.day,"|",lecture.start_time,"|",lecture.end_time)
-                                    #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
+                                    start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
                                     day_lectures.append([i,course.name,cohort.name])
-    
+                                    #semester_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
+                                    semester_lectures.append([i,course.name,cohort.name,start_time,end_game])
+
         #Sort the list based on starting hours
         sorted_list = sorted(day_lectures, key=lambda x: x[0])
 
         #Make a calendar entry for the day
         cal_frame.calendar_day_entry(sorted_list,i)
+ 
+ 
+ 
+    
+ 
+ 
+ 
+ 
  
 def main(): 
     
@@ -361,7 +378,7 @@ def main():
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
   
-    gu.form_schedule_screen(frame_t2_background)
+    #gu.form_schedule_screen(frame_t2_background)
     
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
@@ -427,12 +444,12 @@ def main():
     #Calendar Tab 
     
     #Create Canvas Frame
-    global cal_frame,frame_t4_topbar
+    global cal_frame,frame_t4_topbar,semester_lectures
     all_rectangles=[] ; all_labels=[]
     frame_t4_topbar = tk.Frame(calendar_tab, bg=myframebg, bd=5)
     frame_t4_topbar.place(relx=0.5, rely=0, relwidth=1, relheight=0.1, anchor='n')
     
-    cal_frame = gu.Calendar(calendar_tab,all_rectangles,all_labels)
+    cal_frame = gu.Calendar(calendar_tab,all_rectangles,all_labels,semester_lectures)
     cal_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
  
     #Create Var for Class Dropdown
@@ -448,14 +465,6 @@ def main():
     
     #Setup Grid for Calendar
     cal_frame.setup_grid()
-    
-    
-
-    
-    #For testing Scrollbar  
-    # for i in range(50):
-    #     label = tk.Label(cal_frame.inner_frame, text=f'Label {i}')
-    #     label.pack()
     
         
     #Screen Setup
