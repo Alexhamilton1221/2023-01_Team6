@@ -268,7 +268,7 @@ def main():
     
     #Import Classrooms Button
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
-                                command=lambda: gu.import_excel(resouce_list_name,2))
+                                command=lambda: update_classroom_dropdown())
 
     #clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
     #btn_classroom_list.config(image=clsasroom_list_img)
