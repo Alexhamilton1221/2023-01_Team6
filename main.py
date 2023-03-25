@@ -179,6 +179,7 @@ def main():
     #Create Spinbox Objects for Core Courses
     core_spn_xvals=[0.28,0.53,0.78] 
     spn_core={"spn_pcom_t1": "spn_0","spn_pcom_t2" :"spn_1","spn_pcom_t3":"spn_2","spn_bcom_t1": "spn_3","spn_bcom_t2":"spn_4","spn_bcom_t3":"spn_5"}
+
     spn_names = [];    spn_core_obj=[]
 
     for i, spn in enumerate(spn_core):
@@ -261,22 +262,27 @@ def main():
     
          
     #Create Buttons 
+    btn_reset = Button(frame_t1_background, borderwidth=0, width=350, height=52, text="Reset", bg=myred, fg=mytext,
+                       command = lambda: gu.reset(classroom_list, spn_core, spn_noncore, info_label_totals,spn_core_obj+spn_noncore_obj))
+    btn_reset.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
+
+    
     btn_student_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text= "Import Registration",bg=myred, fg=mytext, 
                               command=lambda: 
     (gu.import_excel(student_list_name,1, [spn_names, vars]),gu.update_all_totals(spn_core,spn_noncore,info_label_totals,spn_core_obj+spn_noncore_obj)))
-    btn_student_list.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
+    btn_student_list.place(relx=0.63, rely=0.92,relwidth=0.10, relheight=0.035)
     
-    #Import Classrooms Button
+
+
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
                                 command=lambda: update_classroom_dropdown())
+    btn_classroom_list.place(relx=0.5, rely=0.92,relwidth=0.11, relheight=0.035)
 
-    #clsasroom_list_img = PhotoImage(file="Images\import_classrooms.png") 
-    #btn_classroom_list.config(image=clsasroom_list_img)
-    btn_classroom_list.place(relx=0.375, rely=0.92,relwidth=0.11, relheight=0.035)
     
     #Generate Schedule Button
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
                                    command=lambda: gu.form_schedule(classroom_list, vars, var_chosenterm))
+
 
     btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
     
@@ -284,6 +290,7 @@ def main():
     #Download Schedule Button
     btn_download_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Download",bg=myred,fg=mytext,
                                    command=lambda: gu.save_schedule())
+
     btn_download_schedule.place(relx=0.90, rely=0.92,relwidth=0.065, relheight=0.035)
     
 
@@ -325,7 +332,6 @@ def main():
 
 
     #dispclass = OptionMenu(frame_t2_background, var_dispclass, *classroom_list, command=update_schedule) #Replace Default Values with Classrooms
-    print(update_schedule)
     dispclass = create_room_dropdown(frame_t2_background, var_dispclass, classroom_list, update_schedule)
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
@@ -338,7 +344,7 @@ def main():
     
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
-    weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9"]
+    weeks=["Week 1", "Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8","Week 9", "Week 10", "Week 11", "Week 12", "Week 13", "Week 14"]
     global var_display_week
     var_display_week = StringVar(root) ; var_display_week.set(weeks[0]) 
     display_week=OptionMenu(frame_t2_background, var_display_week, *weeks,command=update_schedule ) #Replace Default Values with Classrooms
@@ -353,10 +359,8 @@ def main():
     # Create labels for each class period on Y axis
     times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
              "11:30 am", "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
-
- 
              "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm"
-             ,"7:00 pm","7:30 pm","8:00 pm"]
+             ,"7:00 pm","7:30 pm","8:00 pm", "8:30 pm"]
 
     for i, time in enumerate(times):
         tk.Label(frame_t2_schedule, text=time, font=roboto_18).grid(row=i+1, column=0)
@@ -537,7 +541,7 @@ def update_classroom_dropdown():
     if room_list == None:
         return None
 
-    classroom_list = room_list.classrooms
+    classroom_list = room_list
 
     #print(classroom_list, room_list.classrooms)
 
