@@ -25,12 +25,12 @@ class Cohort:
         self.students = []
 
 
-    def create_schedule(self, term):
+    def create_schedule(self, cur_semester):
         # This creates the schedules for the cohorts of the term
         # var term is the term of this semester fall, winter, or sprint
 
-        holidays = hardcodedother.get_holidays(term)
-        term_length = hardcodedother.get_term_length(term)
+        holidays = hardcodedother.get_holidays(cur_semester)
+        term_length = hardcodedother.get_term_length(cur_semester)
         # This checks whether the course starts on the first day of the semester or the second
         if self.program.is_core():
             starts_on = 3
@@ -61,6 +61,7 @@ class Cohort:
         # Keeps looping until all courses in the stack are gone
         while course_stack != []:
             course = course_stack[i]
+
             lecture_length = 1.5
             course_lecture_length = lecture_length
             day_min = 0
@@ -139,9 +140,7 @@ class Cohort:
                     end_day += 2
 
 
-            if course.name == "PCOM 0103":
-                print("HERE")
-
+            time_resets = 0
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
             # might cause issues later
             while not occupied_room.check_if_lecture_fits(start_day, end_day, cur_start_time, cur_end_time) \
@@ -165,6 +164,10 @@ class Cohort:
                             end_day += 2
                     if end_day > term_length:
                         continue
+
+                        # DEBUG
+                    if course.name == "CMSK 0233" and start_day == 15 and cur_start_time == 12.5:
+                        print("ON")
                 else:
                     # If it can't fit a lecture by a time no where in the semester, will go to the next time slot 30 later (or before for full stack)
                     start_day = starts_on + course.last_prereq_day()
@@ -177,7 +180,10 @@ class Cohort:
                     time_offset += time_change_mod
                     cur_start_time = max_start_time + time_offset
                     cur_end_time = lecture_length + cur_start_time
-                    if cur_end_time > max_end_time or cur_start_time < max_start_time:
+                    if (self.program.name != "FS" and cur_end_time > max_end_time) or (self.program.name == "FS" and cur_start_time < max_start_time):
+                        time_resets += 1
+                        if time_resets == 3:
+                            raise ValueError
                         if self.program.name == "FS":
                             time_offset = 10.5
                         else:
@@ -205,7 +211,7 @@ class Cohort:
                     if day not in holidays:
                         course.lectures[j].day = day
                         j += 1
-
+                course.remove_day_zero_lectures()
                 course_stack.remove(course)
 
                 corequsite.set_lecture_time(cur_start_time + course_lecture_length, cur_start_time + course_lecture_length + coreq_lecture_length)
@@ -216,6 +222,7 @@ class Cohort:
                         corequsite.lectures[j].day = day
                         j += 1
 
+                corequsite.remove_day_zero_lectures()
                 course_stack.remove(corequsite)
             # This sets the next index of the loop.
             i = self.course_stack_update_index(course_stack, course, i)

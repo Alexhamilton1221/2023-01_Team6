@@ -12,6 +12,9 @@ class Classroom:
         # Cohorts assigned to the Room (array of Cohorts)
         self.cohorts = []
 
+    def __repr__(self):
+        return self.name
+
     def check_if_lecture_fits(self, start_day, end_day, start_time, end_time):
         # Checks if a lecuture fits in the classroom
         # for cohort in self.cohorts:
@@ -34,22 +37,23 @@ class Classroom:
             if self.is_lab:
                 for course in cohort.courses:
                     if course.delivery == "Lab":
-                        start_lecture = course.lectures[0]
-                        end_lecture = course.lectures[len(course.lectures) - 1]
+                        # Check if another lecture interferes with this timeslot
                         for day in range(start_day, end_day + 1, 2):
                             comp_lecture = Lecture(day, start_time, end_time)
-                            if comp_lecture.is_within(start_lecture) or comp_lecture.is_within(end_lecture):
-                                return False
+                            for lecture in course.lectures:
+                                if comp_lecture.is_within(lecture):
+                                    return False
+
 
             else:
                 for course in cohort.courses:
                     if course.delivery == "Class":
-                        start_lecture = course.lectures[0]
-                        end_lecture = course.lectures[len(course.lectures) - 1]
+                        # Check if another lecture interferes with this timeslot
                         for day in range(start_day, end_day + 1, 2):
                             comp_lecture = Lecture(day, start_time, end_time)
-                            if comp_lecture.is_within(start_lecture) or comp_lecture.is_within(end_lecture):
-                                return False
+                            for lecture in course.lectures:
+                                if comp_lecture.is_within(lecture):
+                                    return False
 
         return True
 

@@ -9,7 +9,8 @@ import datetime
 import openpyxl
 from Database.classrooms import Classrooms
 from Database.classroom import Classroom
-
+from Database.students import Students
+from Database.student import Student
 import random
 from Database.cohorts import Cohorts
 from Database.programs import Programs
@@ -22,37 +23,43 @@ new_window_open = False
 new_window = None
 
 
+#import main as m
+
+
+
+
+#from datetime import datetime, timedelta
+
+#This is for Calendar Creation
+global lbl_x,lbl_y
+global reg_numbers 
+reg_numbers = []
+global student_info
+
+
+student_info = Students()
+lbl_x=50; lbl_y=20
+
 def import_excel(file_name,imp_type, spn=None):
    global stud_file,res_file
    try:
        file = filedialog.askopenfile(mode='r', filetypes=[('CSV files', '*.xlsx')])
-       f_name = os.path.basename(file.name)
 
-       if file:
-           file_name.configure(text=f_name)
+       if file == None:
+           return None
+
 
        #Checks flag variable to update correct path
        if imp_type==1:
             stud_file=os.path.abspath(file.name)
-            registration = get_registration(stud_file)
+            registration, student_list = get_registration(stud_file)
 
             update_spinners(registration, spn)
 
-            # TEMP FUNCTION TO RUN ON EXECUTE
-            # Assumes term is spring
-            reg_list = []
-            #for key in registration.keys():
-            #    if registration.get(key) > 0:
-            #        reg_list.append([key, registration.get(key)])
-
-            #cohorts = Cohorts()
-            #programs = Programs(temp_create_courses())
-            #classrooms = Classrooms(temp_Classroom_add())
-            #cohorts.create_cohorts(classrooms, programs, reg_list)
-            #cohorts.create_schedules(1)
-            #cohorts.cohorts[0]
+      
        elif imp_type==2:
             res_file=os.path.abspath(file.name)
+            return get_classrooms(file.name)
         
    except Exception as e:
         messagebox.showwarning("Warning", "Failed to upload file. " + str(e))
@@ -60,13 +67,122 @@ def import_excel(file_name,imp_type, spn=None):
 
 #This function forms the schedule. It takes the 2 names of each excel file
 #names as parameters.
-def form_schedule(student_list_name,resouce_list_name):
+def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
+    global reg_numbers, student_info
 
-    print('Creating Schedule')
+    cur_semester = 1
+    if var_chosen_term.get() == "Fall":
+        cur_semester = 1
+    elif var_chosen_term.get() == "Winter":
+        cur_semester = 2
+    elif var_chosen_term.get() == "Spring/Summer":
+        cur_semester = 3
+
+    reg_numbers = match_spinners_to_reg(vars, reg_numbers, student_info)
+   
+ 
+    print(reg_numbers)
+    if reg_numbers == None or reg_numbers == []:
+        print("EMPTY REGISTRATION")
+        return
+    programs = Programs(temp_create_courses())
+    classrooms = Classrooms(classroom_list)
+    students = reg_numbers
+    print(students)
+
+    has_made_schedule = False
+    time_mod = 1.0
+    cohorts = Cohorts()
+
+    while has_made_schedule == False:
+        try:
+            has_made_schedule = True
+            classrooms.clear_cohorts()
+            cohorts.cohorts = []
+            cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
+            cohorts.create_schedules(cur_semester)
+        except ValueError:
+            has_made_schedule = False
+            time_mod += 0.1
+
+
+    print_schedule(classrooms)
+    student_info.add_to_cohorts(programs, cohorts)
+
+    print("Added")
+
+    for room in classrooms.get_rooms():
+        room.check_for_conflict()
+
  
     #If the schedule creation is successfull show successful message.
     #messagebox.showinfo("Note", "Successfully formed a Schedule")
+
+# If value in spinner is not equal to the registraion list of lists, update or append it
+def match_spinners_to_reg(spn_vars, reg_nums, students):
+    spn_order = ['PCOM 1', 'PCOM 2', 'PCOM 3', 'BCOM 1', 'BCOM 2', 'BCOM 3', 
+                 'PM 1', 'PM 2', 'PM 3', 'BA 1', 'BA 2', 'BA 3', 'GL 1', 'GL 2', 
+                 'GL 3', 'FS 1', 'FS 2', 'FS 3', 'DXD 1', 'DXD 2', 'DXD 3', 'BK 1', 'BK 2', 'BK 3']    
+    
+    new_registraions = []
+    if reg_nums == None or reg_nums == []:
+        reg_nums = []
+
+    # Isolate the spinner entries into a list of list matching reg_nums
+    for i, var in enumerate(spn_vars):
+        course, term = spn_order[i].split(' ')
+        num_students = int(var.get())
+        if int(num_students) > 0:
+            print([spn_order[i], num_students])
+            new_registraions.append([spn_order[i], num_students])
+
+
+    # For each value from spinner, check to see if there is a matching 
+    for new_reg in new_registraions:
+        found = False
+        for j, reg in enumerate(reg_nums):
+            if reg[0] == new_reg[0]:
+                if new_reg[1] > reg_nums[j][1]:
+                    reg_nums[j][1] = new_reg[1]
+                found = True
+                break
+        if not found:
+            print("APPending", new_reg)
+            reg_numbers.append(new_reg)
+
+
+    return reg_numbers
+
+
+'''
+
+            reg_nums.append([spn_order[i], int(var.get())])
+        print("EMPTY INTO -", reg_nums)
+        return reg_nums
+
+
+    else:
+        for i, var in enumerate(spn_vars):
+
+            if int(var.get()) == 0:
+                continue
+
+            reg = 0
+
+            for course in reg_numbers:
+                if course[0] == spn_order[i]:
+                    reg = course[1]
+                    print("FOUND MATCH #########################################")
+                    course[1] = int(var.get())
+            if reg == 0:
+                reg_nums.append([spn_order[i], var.get()])
+
+
+    return [reg_nums, create_student_objects(reg_numbers=reg_nums)]
+
+'''
+
 
 #Function for downloading scedule, maybe need this
 def save_schedule():
@@ -102,15 +218,16 @@ def update_spinners(registration, spn):
 
     for key in registration:
         # extract data from registration numbers
-        course = key.split(" ")[0]
-        term = key.split(" ")[1]
-        num = registration[key]
+        course = key[0].split(" ")[0]
+        term = key[0].split(" ")[1]
+        num = key[1]
 
         # Reconstruct data into format used in spinner creation
         spn_name = "spn_" + course.lower() + '_t' + str(term)
         
         
         #Change the var at the same index as the formatted key in the list of spinners
+        vars[spn_names.index(spn_name)].set(str(0))
         vars[spn_names.index(spn_name)].set(str(num))
        
 
@@ -120,7 +237,7 @@ def update_spinners(registration, spn):
 # Takes a file name of the excel file
 # Returns a dictionary formatted: "{Corse_Name} {Term}": int(Registration_Amount) 
 def get_registration(filename):
-
+    global reg_numbers, student_info
      #Open excel file 
     try:
         sheet = openpyxl.load_workbook(filename).worksheets[0]
@@ -129,23 +246,115 @@ def get_registration(filename):
         #Error opening file, return None
         return None
     
-    # Init return object
+    student_list = Students()
     registration = {}
 
-    # For each row in the excel file, skipping the header
-    for row in sheet.iter_rows(min_row=2):
-        if row[0].value == None:
-            continue
+    # Check format for registration file
+    if sheet['a1'].value == 'Id':         # STUDENT INFORMATION FORMAT
 
-        #Index of values unsure - template not uploaded yet
-        course = row[1].value 
-        term = row[0].value 
-        num = row[2].value
+        
+        # Create a student object for every row in excel file
+        for row in sheet.iter_rows(min_row=2):
+            new_student = Student(id= row[0].value,name=row[1].value, term=row[2].value, 
+                                  core=row[3].value, program=row[4].value)
+            
+            
+            student_list.students.append(new_student)
 
-        registration[course + " " + str(term)] = int(num)
+        # Sum core and noncore registration numbers
+        for student in student_list.students:
+            core_key = str(student.core) + ' ' + str(student.term)
+            noncore_key = str(student.program) + ' ' + str(student.term)
 
 
-    return registration
+            # Increment counter for registration for both core and noncore program
+            if core_key in registration.keys():
+                registration[core_key] += 1
+            else:
+                registration[core_key] = 1
+
+            if noncore_key in registration.keys():
+                registration[noncore_key] += 1
+            else:
+                registration[noncore_key] = 1
+
+
+    else: # REGISTRATION NUMBERS FORMAT
+
+        # For each row in the excel file, skipping the header
+        for row in sheet.iter_rows(min_row=2):
+            if row[0].value == None:
+                continue
+
+            course = row[1].value 
+            term = row[0].value 
+            num = row[2].value
+
+            if num == 0 or num == None:
+                continue
+
+            registration[course + " " + str(term)] = int(num)
+
+
+
+    #Turn dictionary into a list of lists
+    reg_list = []
+    for key in registration:
+        reg_list.append([key, registration[key]])
+
+    if len(student_list.students) == 0:
+        student_list = create_student_objects(reg_list)
+        
+
+    reg_numbers = reg_list
+    student_info = student_list
+    return (reg_list, student_list)
+
+
+
+# Takes a registration list of lists and creates dummy Student objects for them
+# Returns a Students() object
+def create_student_objects(reg_numbers):
+
+    core_courses = ['PCOM', 'BCOM']
+    core_registrations = {}
+    noncore_registrations = []
+    students = Students()
+
+    data = reg_numbers.copy()
+    id = -1
+
+    # Seperate core and non core registrations
+    for item in data:
+        course, term = item[0].split(' ')
+        num_students = item[1]
+
+        if course in core_courses:
+            if course in core_registrations:
+                core_registrations[course].append((term, num_students))
+            else:
+                core_registrations[course] = [(term, num_students)]
+
+        else:
+            for i in range(num_students):
+                noncore_registrations.append((course, term))
+
+    # For each core registration, find a matching non core, create the student
+    for core_course, core_reg in core_registrations.items():
+        for term, num_students in core_reg:
+            for i in range(num_students):
+                for j, (noncore_course, noncore_term) in enumerate(noncore_registrations):
+                    if term == noncore_term:
+                        new_student = Student(id=-(len(Students.students)+1), name="Fname", core=core_course, program=noncore_course)
+                        students.students.append(new_student)
+                        del noncore_registrations[j]
+                        break
+
+    return Students
+
+
+
+
 
 
 '''
@@ -155,13 +364,16 @@ Returns a Classrooms object containing a list of Classroom objects for each clas
 def get_classrooms(filename):
 
     #Init excel work sheet
-    ws = openpyxl.load_workbook(filename).worksheets[4]
+    ws = openpyxl.load_workbook(filename).worksheets[-1]
 
     #Object to hold each Classroom
     room_list = Classrooms()
 
     #For each classroom row, skipping the header
     for row in ws.iter_rows(min_row=2):
+        if row[0].value == None:
+            continue
+
         #Sterilize room No. info
         room_no = row[0].value.split(' ')[0]
         #Save capacity as an int
@@ -172,6 +384,7 @@ def get_classrooms(filename):
         room_list.add_classroom(new_classroom)
 
     #Return entire list
+    
     return room_list
 
 #Takes a time and converts it to its regular time 
@@ -179,13 +392,50 @@ def conv_time(start_time,end_time):
      # Init display variable
     display_time = start_time
     display_time_end = end_time
+
+
+# Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
+def create_schedule_block(entries_dict, lecture, name, cohort): 
+
+    program = cohort.program.name
+
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
+              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '#00cdac', 'BK': '#6c88c4'}
+    color = ''
+    for key in colors.keys():
+        if program in key:
+            color = colors[key]
+    if len(color) == 0:
+        r = lambda: random.randint(0,255)
+        color = '#%02X%02X%02X' % (r(),r(),r())
+
+
+    # Schedule begins at 8 so remove those indexes
+    starting_hour = lecture.start_time - 8
+
+    # Indexes in hlaf hour increments so double the starting hour
+    starting_index = starting_hour // 0.5
+
+    # Get day in terms of index of week, lectures start at 1, indexs at 0 so -1
+    day = (lecture.day % 4)-1
+    # If wrapped around, 
+    if day == -1:
+        day = 3
+
+    length =  lecture.end_time - lecture.start_time
+
+    #print(name, lecture.start_time, lecture.day, length)
+
+    # Init display variable
+    display_time = lecture.start_time
+    display_time_end = lecture.end_time
     start_pm = False; end_pm = False
 
     # If time is greater than 12, keep in 12hr format
-    if display_time > 12:
+    if display_time >= 13:
         display_time -= 12
         start_pm = True
-    if display_time_end > 12:
+    if display_time_end >= 13:
         display_time_end -= 12
         end_pm = True
 
@@ -261,7 +511,7 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
         
         if hour == int(length)-1:
             entry.config(state=NORMAL)
-            entry.insert(0, name + ' - ' + cohort.name)
+            entry.insert(0, cohort.name + ' - ' + name)
             entry.config(state=DISABLED)
 
         if hour == int(length):
@@ -448,13 +698,14 @@ def clear_schedule(entries):
 #prints total schedule for a room
 def print_schedule(classrooms):
     #for room in classrooms:
-    for cohort in classrooms.classrooms[2].cohorts:
-        for course in cohort.courses:
-            for lecture in course.lectures:
-                if lecture.day < 12:
-                    print(classrooms.classrooms[2].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
-                    
-                    
+    for room in classrooms.classrooms:
+        for cohort in room.cohorts:
+            for course in cohort.courses:
+                for lecture in course.lectures:
+                    if lecture.day < 12:
+                        print(room.name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+                        
+                        
 def print_cohorts(classrooms,cohort_name,text_field):
     #print('###################################################################################################')
     #print('###################################################################################################')
@@ -734,3 +985,6 @@ class Day(tk.Frame):
 
     def update_viewport(self):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+        # lbl_x+=100
+        #lbl_y+=20

@@ -27,10 +27,10 @@ class Cohorts:
     def create_empty_lectures(self):
         for cohort in self.cohorts:
             cohort.create_empty_lectures()
-    def create_schedules(self, term):
+    def create_schedules(self, cur_semester):
         self.create_empty_lectures()
         for cohort in self.cohorts:
-            cohort.create_schedule(term)
+            cohort.create_schedule(cur_semester)
 
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):
@@ -103,7 +103,7 @@ class Cohorts:
 
         return p_sorted_students
 
-    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours):
+    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, extra_time_mod):
         # Capcaites[extra space in group, the size of the cohort,the count of the cohort]
         #
         not_core = int(not program.is_core())
@@ -116,7 +116,7 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
-            hours_per_cohort = program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1])
+            hours_per_cohort = math.ceil(program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
             total_hours = hours_per_cohort * capacity[2]
 
             # Goes through every classroom
@@ -141,7 +141,7 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
-            hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
+            hours_per_cohort = math.ceil(program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
             total_hours = hours_per_cohort * capacity[2]
             while room_num < len(lab_hours) and total_hours > 0:
                 # Checks if the room is too small
@@ -207,7 +207,7 @@ class Cohorts:
         capacities.sort(key=lambda capacity: capacity[0])
         return capacities
 
-    def __set_rooms__(self, capacity, group, program, classroom_hours, lab_hours):
+    def __set_rooms__(self, capacity, group, program, classroom_hours, lab_hours, extra_time_mod):
         # Adds a value for checking if a room is core or not and deducts the correct hours
         not_core = int(not program.is_core())
 
@@ -218,7 +218,7 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        hours_per_cohort = program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1])
+        hours_per_cohort = math.ceil(program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
         total_hours = hours_per_cohort * capacity[2]
         # Goes through every classroom
         while room_num < len(classroom_hours) and total_hours > 0:
@@ -244,7 +244,7 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        hours_per_cohort = program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1])
+        hours_per_cohort = math.ceil(program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
         total_hours = hours_per_cohort * capacity[2]
         while room_num < len(lab_hours) and total_hours > 0:
             # Checks if the room is too small
@@ -284,7 +284,7 @@ class Cohorts:
 
         return cohorts
 
-    def __student_assignment__(self, students, class_by_size, labs_by_size, programs, cur_semester, safety_net=1.1):
+    def __student_assignment__(self, students, class_by_size, labs_by_size, programs, cur_semester, safety_net=1.1, extra_time_mod=1.0):
         # Returns: list of [success/failType, program , amount of extra hours, whether it was the labs that failed]
         # list[0]: 0 = success, 1 = nearly to capacity, 2 = over capacity
 
@@ -311,7 +311,7 @@ class Cohorts:
                 capacities = Cohorts.__create_capacities__(class_sizes, group, safety_net)
 
                 # Returns whether cohort fit, and which capacity it fit in (if it did)
-                fail_check, capacity = self.__check_if_fits__(capacities, group, program, classroom_hours, lab_hours)
+                fail_check, capacity = self.__check_if_fits__(capacities, group, program, classroom_hours, lab_hours, extra_time_mod=extra_time_mod)
                 if fail_check[0] > 0:
                     if group[3] > 50:
                         # Checks if the safty has been removed, if so there is no room for the safty to be removed
@@ -323,12 +323,12 @@ class Cohorts:
                         # If the group cannot fit, raises the priority of the group so they get first choice of room
                     group[3] += 1
 
-                    self.__student_assignment__(students, class_by_size, labs_by_size, programs, cur_semester, safety_net)
+                    self.__student_assignment__(students, class_by_size, labs_by_size, programs, cur_semester, safety_net, extra_time_mod)
                     return  # This ends the recusive loop
                 else:
                     # If there is enouh room in the classes for this cohort, removes its hours from the class
                     # so futor cohorts do not stack
-                    new_cohorts = self.__set_rooms__(capacity, group, program, classroom_hours, lab_hours)
+                    new_cohorts = self.__set_rooms__(capacity, group, program, classroom_hours, lab_hours, extra_time_mod)
                     for a_cohort in new_cohorts:
                         a_cohort.generate_name()
                         cohorts.append(a_cohort)
@@ -337,7 +337,7 @@ class Cohorts:
         # Adds the cohort to the data class since they all fix
         self.cohorts = cohorts
 
-    def create_cohorts(self, classrooms, programs, students, cur_semester):
+    def create_cohorts(self, classrooms, programs, students, cur_semester, extra_time_mod=1.0):
         # Given an amount of classrooms in the classrooms object
         # programs from the programs object
         # students: a list of students in the format [("PROGRAM-NAME TERM", COUNT)]
@@ -352,12 +352,12 @@ class Cohorts:
         # Do all again with priority level 0-1-2
         try:
 
-            self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.1)
+            self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.1, extra_time_mod)
         except NearLimit:
 
             # If the class does not fit, removes the 10% safty to try to match room sizes
             try:
-                self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.0)
+                self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.0, extra_time_mod)
 
                 # TEMP, PUT STUFF HERE TO INFOM THE USER ABOUT HOW IT FAILED
                 fail_type = NearLimit
