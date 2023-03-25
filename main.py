@@ -278,17 +278,12 @@ def main():
     
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
                                    command=lambda: gu.form_schedule(classroom_list, vars, var_chosenterm))
-    #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
-    #btn_generate_schedule.config(image=generate_schedule_img)
     btn_generate_schedule.place(relx=0.85, rely=0.92, relwidth=0.15, relheight=0.035, anchor= 'n')
     
 
     
-    btn_download_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Download",bg=myred,fg=mytext,
-                                   command=lambda: gu.save_schedule())
-    #download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
-    #btn_download_schedule.config(image=download_schedule_img)
-    #btn_download_schedule.place(relx=0.90, rely=0.92,relwidth=0.065, relheight=0.035)
+    #btn_download_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Download",bg=myred,fg=mytext,
+                                  # command=lambda: gu.save_schedule())
     
     
     #Create Dropdown for Terms
