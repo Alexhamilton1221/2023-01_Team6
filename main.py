@@ -24,21 +24,19 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 
-
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
     global classroom_label, classroom_list, entries, var_display_week
 
-    # global lbl_x,lbl_y
-    # lbl_x,lbl_y=10,10
-    
-    #First Clear Grid
+    #Clear Grid
     cal_frame.clear_grid()
+    
+    #Reset Grid Array
+    cal_frame.clean_array()
 
-    
-    
+
     #For each room in global list of classroom objects
-    for i in range (0,100,1):
+    for i in range (0,100,1):   #TODO This is just a dummy value, need to find a way to get real value
         day_lectures=[]
 
         for room in classroom_list:
@@ -49,25 +47,32 @@ def update_calendar(*args):
                             # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
                                 if lecture.day==i:
-                                    #print(room.name ,' | ', course.name,cohort.name,lecture.day,"|",lecture.start_time,"|",lecture.end_time)
-                                    #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
-                                    day_lectures.append([i,course.name,cohort.name])
+                                    start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
+                                    day_lectures.append([i,course.name,cohort.name,lecture.start_time])
+                                    #semester_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
+                                    #Pass in lecture.start_time just to sort in calendar_entry_clicked
+                                    semester_lectures.append([i,course.name,cohort.name,start_time,end_game,lecture.start_time])
 
-        sorted_list = sorted(day_lectures, key=lambda x: x[0])
+        #Sort the list based on Day
+        sorted_list = sorted(day_lectures, key=lambda x: x[3])
+        print(sorted_list)
+        # arr = [subarr for subarr in sorted_list if any(elem for elem in subarr if elem)]
 
-        cal_frame.formrect(sorted_list,i)
+        # arr = [[subsubarr for subsubarr in subarr if subsubarr] for subarr in arr]
+        # #sorted_list = [subarr for subarr in sorted_list if subarr]
+
         
-        # for j in sorted_list:
-        #     text = tk.Label(frame_t4_calendar,text=j)
-        #     text.place(x=lbl_x,y=lbl_y)
-        #     lbl_y+=10
-        #     print(j)
-        # #lbl_x+=20
-        # lbl_y+=20
+        #print(arr)
+        #Make a calendar entry for the day
+        cal_frame.calendar_day_entry(sorted_list,i)
 
+ 
+ 
+def main(): 
+    
+    global classroom_list
 
-
-def main():
+    
 
     #Setup Window
     root = tk.Tk()
@@ -88,9 +93,6 @@ def main():
     schedule_tab = ttk.Frame(tabControl)
     cohort_tab = ttk.Frame(tabControl)
     calendar_tab = ttk.Frame(tabControl)
-
-    global classroom_list
-    
 
 
     #Create Style for Tab_Bar
@@ -143,7 +145,6 @@ def main():
     totals.place(relwidth=0.3, relheight=0.05, relx=0.365, rely=0.001)
     
     #Labels that print Totals from inputed data using generate button
-
     info_label_totals=[] ;  info_label_totals_y=[0.065,0.125,0.45,0.55,0.65,0.75,0.85,0.95]
     for i in range(0,8,1):
         new_lbl = customtkinter.CTkLabel(master=frame_t1_totals, text=0, font=roboto_18,text_color=mytext)
@@ -159,9 +160,6 @@ def main():
     resouce_list_name.place(relwidth=0.40, relheight=0.1, relx=0.41, rely=0.89)
     
     
-
-
-
     #Information Tab Labels for Core Courses
     info_label_core_names={"lbl0":"Core Courses","lbl1":"Term 1","lbl2":"Term 2","lbl3":"Term 3","lbl4":"PCOM","lbl5":"BCOM"}
     info_label_core=[] ; info_label_core_x=[0.01,0.21,0.46,0.71,0.01,0.01] ;info_label_core_y=[0.025,0.025,0.025,0.025,0.25,0.475]
@@ -250,11 +248,16 @@ def main():
         term_label.place(relwidth=0.2, relheight=0.1, relx=info_label_noncore_x[i], rely=0.025)
         info_label_noncore.append(term_label)
 
+    #Create Information Tab Labels for Non Core Courses
     noncore_label_text = ["PM", "BA", "GLM", "FS", "DXD", "BK"]
     for i, label_text in enumerate(noncore_label_text):
         course_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=label_text, font=roboto_18, text_color=mytext)   
         course_label.place(relwidth=0.2, relheight=0.1, relx=0.01, rely= (0.15+(0.15*(i))))
        
+  
+    #Information Tab Buttons
+      
+    #Import Regestration Button
 
     
          
@@ -274,42 +277,36 @@ def main():
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
                                 command=lambda: update_classroom_dropdown())
     btn_classroom_list.place(relx=0.5, rely=0.92,relwidth=0.11, relheight=0.035)
+
     
-    
+    #Generate Schedule Button
     btn_generate_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Generate",bg=myred,fg=mytext,
                                    command=lambda: gu.form_schedule(classroom_list, vars, var_chosenterm))
-    #generate_schedule_img = PhotoImage(file="Images\generate_schedule.png") 
-    #btn_generate_schedule.config(image=generate_schedule_img)
-    btn_generate_schedule.place(relx=0.85, rely=0.92, relwidth=0.15, relheight=0.035, anchor= 'n')
+
+
+    btn_generate_schedule.place(relx=0.75, rely=0.92,relwidth=0.065, relheight=0.035)
     
 
-    
+    #Download Schedule Button
     btn_download_schedule = Button(frame_t1_background,borderwidth=0,width=350, height=52, text="Download",bg=myred,fg=mytext,
                                    command=lambda: gu.save_schedule())
-    #download_schedule_img = PhotoImage(file="Images\download_schedule.png") 
-    #btn_download_schedule.config(image=download_schedule_img)
-    #btn_download_schedule.place(relx=0.90, rely=0.92,relwidth=0.065, relheight=0.035)
+
+    btn_download_schedule.place(relx=0.90, rely=0.92,relwidth=0.065, relheight=0.035)
     
-    
-    #Create Dropdown for Terms
-    #Using temporary values, need to calc date using datetime probably & predict future terms
-    # t1=gu.get_season()
 
     
-    
+    #Create Dropdown to select current Tern
     weeks=["Fall","Winter","Spring/Summer"]
     var_chosenterm = StringVar(root) ; var_chosenterm.set("Choose a Term") 
     display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,info_label_noncore)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
-    # display_week.bind("<Leave>", gu.on_leave)
-    # display_week.bind("<Enter>", gu.on_enter)
+
 
   
 ###################################################################################################
     #Schedule Tab     #TODO - Remake with Canvas and Frames so that scrollbar can be added to have all times
    
-
     #Schedule Tab Frames
     frame_t2_background = tk.Frame(schedule_tab, bg=myframebg, bd=5)
     frame_t2_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
@@ -333,16 +330,17 @@ def main():
     var_dispclass.set(classroom_list[0]) 
     #var_dispclass.trace_variable('w', update_schedule)
 
+
     #dispclass = OptionMenu(frame_t2_background, var_dispclass, *classroom_list, command=update_schedule) #Replace Default Values with Classrooms
     dispclass = create_room_dropdown(frame_t2_background, var_dispclass, classroom_list, update_schedule)
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
+    #Create label that displays current Classroom
     global classroom_label
     classroom_label = customtkinter.CTkLabel(master=frame_t2_background, text=var_dispclass.get(), font=roboto_18, text_color=mytext)
     classroom_label.place(relwidth=0.2, relheight=0.1, relx=0.4, rely= 0.02)
   
-    gu.form_schedule_screen(frame_t2_background)
     
     #Create Dropdown for Weeks
     #Using temporary 9 week schedule
@@ -353,12 +351,12 @@ def main():
     display_week.place(relwidth=0.08, relheight=0.05, relx=0.203, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
-
+    #Create labels displaying Days on top X axis
     days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
     for i, day in enumerate(days):
         tk.Label(frame_t2_schedule, text=day, font=roboto_18).grid(row=0, column=i+1)
 
-    # Create labels for each class period
+    # Create labels for each class period on Y axis
     times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
              "11:30 am", "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
              "3:00 pm", "3:30 pm", "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm"
@@ -400,13 +398,14 @@ def main():
 ###################################################################################################
     #Cohort Tab    
     
-    #Cohort Tab Frames
+    # Cohort Tab Frames
     frame_t3_background = tk.Frame(cohort_tab, bg=myframebg, bd=5)
     frame_t3_background.place(relx=0.5, rely=0, relwidth=1, relheight=1, anchor='n')
 
     frame_t3_schedule = tk.Frame(cohort_tab, bd=5,bg=mygrey)
     frame_t3_schedule.place(relx=0.5, rely=0.1, relwidth=0.85, relheight=0.85, anchor='n')
     
+
     #Set initial value to Dropdown
     global var_dispclass_cohort
     var_dispclass_cohort = StringVar(root)
@@ -424,22 +423,16 @@ def main():
     dispclass_2.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass_2.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
-    #Create Button for cohort
-    #find_cohorts = Button(frame_t3_schedule,borderwidth=0, width=350, height=52, text="Display Cohorts",bg=myred,fg=mytext,
-    #command=lambda x: gu.print_cohorts(classrooms,var_dispclass_cohort.get(),display_cohorts))
-    #find_cohorts.place(relx=0.45, rely=0.96,relwidth=0.11, relheight=0.035)
-    
-    
-    ###################################################################################################
+###################################################################################################
     #Calendar Tab 
     
     #Create Canvas Frame
-    global cal_frame,frame_t4_topbar
+    global cal_frame,frame_t4_topbar,semester_lectures
     all_rectangles=[] ; all_labels=[]
     frame_t4_topbar = tk.Frame(calendar_tab, bg=myframebg, bd=5)
     frame_t4_topbar.place(relx=0.5, rely=0, relwidth=1, relheight=0.1, anchor='n')
     
-    cal_frame = gu.ScrollableFrame(calendar_tab,all_rectangles,all_labels)
+    cal_frame = gu.Calendar(calendar_tab,all_rectangles,all_labels,semester_lectures)
     cal_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
  
     #Create Var for Class Dropdown
@@ -455,27 +448,7 @@ def main():
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
     #Setup Grid for Calendar
-
     cal_frame.setup_grid()
-    
-    # define the size of the rectangles
-    
-    
-    
-   
-    
-    # for i, day in enumerate(days):
-    #     tk.Label(frame_t4_calendar, text=day, font=roboto_18).grid(row=0, column=i+1)
-        
-        
-    # for i, time in enumerate(times):
-    #     tk.Label(frame_t4_calendar, text=time, font=roboto_18).grid(row=i+1, column=0)
-      
-      
-    #For testing Scrollbar  
-    # for i in range(50):
-    #     label = tk.Label(cal_frame.inner_frame, text=f'Label {i}')
-    #     label.pack()
     
         
 
