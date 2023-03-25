@@ -15,13 +15,23 @@ class TestDateCreate(TestCase):
     def test_insert_class_days(self):
         date3 = DateCreate(2023,"Fall")
         #date3.generate_calendar()
-        date3.insert_class_days()
+        #date3.insert_class_days()
 
     def test_locate_start_day(self):
         date4 = DateCreate(2023,"Fall")
-        print('locate start')
         date4.locate_start_day()
-        print(date4.start_day)
+
+    def test_lobor_day_calc(self):
+        date5 = DateCreate(2023,"Fall")
+        date5.insert_class_days()
+
+    def test_winter_day_calc(self):
+        date6 = DateCreate(2023, "Winter")
+        date6.insert_class_days()
+    def test_spring_day_calc(self):
+        date7 = DateCreate(2023, "Spring")
+        date7.insert_class_days()
+        print(date7.calendar_dictionary)
 
 
 
