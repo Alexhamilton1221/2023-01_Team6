@@ -16,6 +16,13 @@ from Database.cohorts import Cohorts
 from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
+#from datetime import datetime, timedelta
+
+# Global Vars for preventing multiple windows opening
+new_window_open = False
+new_window = None
+
+
 #import main as m
 
 
@@ -183,18 +190,18 @@ def save_schedule():
     messagebox.showinfo("Note", "Successfully downloaded the Schedule")
 
 #Form the schedule when optionbox is changed
-def form_schedule_screen(frame_t2_background):
+# def form_schedule_screen(frame_t2_background):
    
-    times =["6:00 am", "6:30 am", "7:00 am", "7:30 am", "8:00 am", "8:30 am",
-             "9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
-             "11:30 am",
-             "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
-             "3:00 pm", "3:30 pm",
-             "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm",
-             "7:00 pm"]
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday']
+#     times =["6:00 am", "6:30 am", "7:00 am", "7:30 am", "8:00 am", "8:30 am",
+#              "9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
+#              "11:30 am",
+#              "12:00 pm", "12:30 pm", "1:00 pm", "1:30 pm", "2:00 pm", "2:30 pm",
+#              "3:00 pm", "3:30 pm",
+#              "4:00 pm", "4:30 pm", "5:00 pm", "5:30 pm", "6:00 pm", "6:30 pm",
+#              "7:00 pm"]
+#     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday']
     
-    print()
+#     print()
      # Horizontal lines serparating times
     #for i in days:
     #frame_t2_background.create_line(50, 0, 50, 20, fill="red", width=2)
@@ -380,6 +387,12 @@ def get_classrooms(filename):
     
     return room_list
 
+#Takes a time and converts it to its regular time 
+def conv_time(start_time,end_time):
+     # Init display variable
+    display_time = start_time
+    display_time_end = end_time
+
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
 def create_schedule_block(entries_dict, lecture, name, cohort): 
@@ -446,9 +459,42 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
         display_time_end += "pm"
     else:
         display_time_end += "am"
+        
+    return display_time,display_time_end
+
+# Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
+def create_schedule_block(entries_dict, lecture, name, cohort): 
+
+    program = cohort.program.name
+
+    colors = {"BCOM": '#f4ceb8', 'PCOM': '#c2a2c2', 'BA': '#e9a7b8', 'DXD': '#a7bed3',
+              'PM': '#00A5E3', 'FS': '#8dd7bf', 'GLM': '#00cdac', 'BK': '#6c88c4'}
+    color = ''
+    for key in colors.keys():
+        if program in key:
+            color = colors[key]
+    if len(color) == 0:
+        r = lambda: random.randint(0,255)
+        color = '#%02X%02X%02X' % (r(),r(),r())
 
 
-    #For each entry in range of Length in half hour increments
+    # Schedule begins at 8 so remove those indexes
+    starting_hour = lecture.start_time - 8
+
+    # Indexes in half hour increments so double the starting hour
+    starting_index = starting_hour // 0.5
+
+    # Get day in terms of index of week, lectures start at 1, indexs at 0 so -1
+    day = (lecture.day % 4)-1
+    # If wrapped around, 
+    if day == -1:
+        day = 3
+
+    length =  lecture.end_time - lecture.start_time
+    
+    display_time,display_time_end=conv_time(lecture.start_time,lecture.end_time)
+
+        #For each entry in range of Length in half hour increments
     for hour in range(int(length/0.5)):
 
         # Get entry object at [Day_index, (starting_hour + each hour in length)]
@@ -716,7 +762,7 @@ def print_cohorts(classrooms,cohort_name,text_field):
                             display_time_end += "am"
 
                         
-                        #print("TESTING",len(display_time))    
+                        #print("TESTING",display_time)    
                         if len(display_time)==6:
                             #print("HERE"+ display_time)
                             display_time=f"0{display_time} "
@@ -727,18 +773,16 @@ def print_cohorts(classrooms,cohort_name,text_field):
                         '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
                         
     text_field.configure(state='disabled')
-
-
-
         
-class ScrollableFrame(tk.Frame):
-    def __init__(self, parent,array_rect,array_lbl):
+class Calendar(tk.Frame):
+    def __init__(self, parent,array_rect,array_lbl,semester_lectures):
         tk.Frame.__init__(self, parent)
-    #Create Array for all Rectangles
+        # Create Array for all Rectangles
+        # When rectangles are saved to array, they are saved by an ID number
+        # Must reference them using methods.
         self.array_rect=array_rect
         self.array_lbl=array_lbl
-
-        
+        self.semester_lectures=semester_lectures
         # Create a vertical scrollbar
         scrollbar = ttk.Scrollbar(self, orient='vertical')
         scrollbar.pack(side='right', fill='y')
@@ -758,74 +802,189 @@ class ScrollableFrame(tk.Frame):
 
         # Hide the canvas
         canvas.configure(borderwidth=0, highlightthickness=0)
-        
-        
+            
         
     def _configure_canvas(self, event):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
 
     def update_viewport(self):
         self.canvas.config(scrollregion=self.canvas.bbox('all'))
-     
+    
+    def close_new_window(self):
+        global new_window_open
+        # Set the new window flag to False and destroy the window
+        new_window_open = False
+        new_window.destroy()
+        
+    
+    def clean_array(self):
+        while self.semester_lectures:
+            self.semester_lectures.pop()
+
+    #def clean_array(self):
+     #   self.semester_lectures = [subarr for subarr in self.semester_lectures if subarr]
+    
+    
+    def calendar_entry_clicked(self,event,row,col):
+        global new_window_open, new_window
+        
+        new_window_body=("Arial", 14) 
+
+        #Number of columns
+        num_of_columns=7
+        index=  row *num_of_columns  + col
+
+        # Create New Window Displaying Class Info
+        # TODO Make the title the appropriate date
+        if not new_window_open:
+            #Create New Window
+            new_window = tk.Toplevel(self.canvas)
+            new_window.title("Date {class_etr[0]}") 
+            new_window.geometry("640x360")
+            new_window.config(background='#252526')
+            
+            #Call Class to construct Canvas
+            entry_frame = Day(new_window)
+            entry_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
+            
+            indexed_lecs=[]
+            for subarr in self.semester_lectures:
+                if subarr[0]==index:
+                    indexed_lecs.append(subarr)
+                    #print('new',subarr)
+
+            sorted_list = sorted(indexed_lecs, key=lambda x: x[5])
+            
+            #For Testing
+            #TODO Place Date in this Object Using for testing
+            title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+            title.pack()
+
+
+            
+            x1=325 ; y1=20 ; pad_y=0
+            for class_etr in sorted_list:
+                new_text=f" {class_etr[1]} {class_etr[2]} {class_etr[3]} - {class_etr[4]}"
+                
+                entry_frame.canvas.create_text(x1,y1+pad_y,text=new_text,fill="white",font=new_window_body)
+                #self.canvas.itemconfigure(text, fill="blue")
+
+                pad_y+=20
+                  
+
+            #Screen Settings
+            
+            # Make it so that window cannot change size/shape
+            new_window.attributes('-fullscreen', False)
+            new_window.resizable(False, False)
+
+            #Call function to close window to prevent multiple open windows
+            new_window_open = True
+            new_window.protocol("WM_DELETE_WINDOW", self.close_new_window)
+
+    
+    
     def setup_grid(self):
         rect_size = 180
-        for row in range(9):
+        count=0
+        for row in range(5):
             for col in range(7):
                 x1 = col * rect_size
                 y1 = row * rect_size
                 x2 = x1 + rect_size
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
-                self.array_rect.append(rect)
+                self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col))
 
+                #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
+                #self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
+
+                self.array_rect.append(rect)
+                count+=1
+
+        #Deal With last Entry
+        self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
+
+        #print(self.array_rect)
+        
     def clear_grid(self):
-        text_items = self.canvas.find_all()
+        text_items = self.canvas.find_all()     
         for item in text_items:
             if self.canvas.type(item) == "text":
                 self.canvas.delete(item)
 
 
-    def formrect(self,sorted_list,i):
-        #print(sorted_list)
-        count=0
-        rect_size = 180
-        for row in range(9):
+    def calendar_day_entry(self,sorted_list,i):
+        count=0; rect_size = 180
+                
+        # Font for Calendar Creation
+        my_font = ("Arial", 24) 
+
+        for row in range(5):
             for col in range(7):
                 count+=1
                 pad_y=0
-                if count==i:
+                
+                # Default Case: Print all Lectures
+                if count==i and len(sorted_list)<8:
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
-                    #rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
-                    for j in sorted_list:
-                        text = self.canvas.create_text(x1,y1+pad_y,text=j)
+                    for cal_etr in sorted_list:
+                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
+
+                        text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
+                        
                         self.array_lbl.append(text)
                         pad_y+=15
+                
+                # Second Case: Print 8 lectures and add ...
+                elif count==i: 
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
 
-        #print(self.array_lbl)
+                    for cal_etr in sorted_list[:8]:
+                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
 
-
-
-
-        # area_x = -490
-        # area_y = 0
+                        text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
+                        self.array_lbl.append(text)
+                        pad_y+=15
+                    text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)
+        #self.semester_lectures.append(sorted_list)
         
-        # padding_y=20
-
         
-        # for j in sorted_list:
-        #     current=self.array_rect[i]
-        #     print('test',current)
-        #     text_x = area_x+185*current
-        #     text_y = (area_y*current)+padding_y
-        #     text = self.canvas.create_text(text_x,text_y,text=j)
-        #     print(j)
-            
-        #     padding_y+=15
 
+
+class Day(tk.Frame):
+    def __init__(self, parent,):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a vertical scrollbar
+        scrollbar = ttk.Scrollbar(self, orient='vertical')
+        scrollbar.pack(side='right', fill='y')
+
+        # Create a canvas to contain the widgets
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0, yscrollcommand=scrollbar.set,background='#3e3e42')
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=canvas.yview)
+
+        # Set the canvas to expand to fill the entire frame
+        self.canvas = canvas
+        canvas.bind('<Configure>', self._configure_canvas)
+
+        # Create a frame to hold the widgets
+        self.inner_frame = tk.Frame(canvas)
+        self.inner_frame_id = canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+        # Hide the canvas
+        canvas.configure(borderwidth=0, highlightthickness=0)
             
-            #lbl_y+=15
+        
+    def _configure_canvas(self, event):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def update_viewport(self):
+        self.canvas.config(scrollregion=self.canvas.bbox('all'))
 
         # lbl_x+=100
         #lbl_y+=20
