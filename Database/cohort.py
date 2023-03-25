@@ -56,7 +56,7 @@ class Cohort:
         self.add_to_stack(course_stack, self.courses)
         self.stack_coreq_mover(course_stack)
         self.not_prereq_lower_priority(course_stack)
-
+        self.first_lab_first(course_stack)
         i = 0
         # Keeps looping until all courses in the stack are gone
         while course_stack != []:
@@ -165,9 +165,7 @@ class Cohort:
                     if end_day > term_length:
                         continue
 
-                        # DEBUG
-                    if course.name == "CMSK 0233" and start_day == 15 and cur_start_time == 12.5:
-                        print("ON")
+
                 else:
                     # If it can't fit a lecture by a time no where in the semester, will go to the next time slot 30 later (or before for full stack)
                     start_day = starts_on + course.last_prereq_day()
@@ -182,7 +180,9 @@ class Cohort:
                     cur_end_time = lecture_length + cur_start_time
                     if (self.program.name != "FS" and cur_end_time > max_end_time) or (self.program.name == "FS" and cur_start_time < max_start_time):
                         time_resets += 1
+
                         if time_resets == 3:
+
                             raise ValueError
                         if self.program.name == "FS":
                             time_offset = 10.5
@@ -297,7 +297,16 @@ class Cohort:
                     if c_course.name == coreq:
                         stack.remove(course)
                         stack.insert(stack.index(c_course), course)
-
+    def first_lab_first(self, course_stack):
+        # This pulls the first lab in the course stack forward, as lab time is more valueable that course time
+        i = 0
+        while i < len(course_stack) and course_stack[i].delivery != "Lab":
+            i += 1
+        if i < len(course_stack) and course_stack[i] == "Lab":
+            for j in range(i, 0, -1):
+                swapC = course_stack[j-1]
+                course_stack[j-1] = course_stack[j]
+                course_stack[j] = swapC
     def not_prereq_lower_priority(self, course_stack):
         # This function moves courses that are not prequsits to any course to be assigned last since they are the least
         # Important
