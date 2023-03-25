@@ -399,6 +399,38 @@ def conv_time(start_time,end_time):
      # Init display variable
     display_time = start_time
     display_time_end = end_time
+    start_pm = False; end_pm = False
+
+    # If time is greater than 12, keep in 12hr format
+    if display_time > 12:
+        display_time -= 12
+        start_pm = True
+    if display_time_end > 12:
+        display_time_end -= 12
+        end_pm = True
+
+    # If start or end time is a half hour,  
+    if display_time.is_integer():
+        display_time = f"{int(display_time)}:00"
+    else:
+        display_time = f"{int(display_time)}:30"
+
+    if start_pm:
+        display_time += "pm"
+    else:
+        display_time += "am"
+
+    if display_time_end.is_integer():
+        display_time_end = f"{int(display_time_end)}:00"
+    else:
+        display_time_end = f"{int(display_time_end)}:30"
+
+    if end_pm:
+        display_time_end += "pm"
+    else:
+        display_time_end += "am"
+        
+    return display_time,display_time_end
 
 
 # Takes list of entries from schedule page, time of class as a float, list of days as an index, length as a float
@@ -846,7 +878,7 @@ class Calendar(tk.Frame):
         if not new_window_open:
             #Create New Window
             new_window = tk.Toplevel(self.canvas)
-            new_window.title("Date {class_etr[0]}") 
+            new_window.title("Date") 
             new_window.geometry("640x360")
             new_window.config(background='#252526')
             
@@ -863,9 +895,14 @@ class Calendar(tk.Frame):
             sorted_list = sorted(indexed_lecs, key=lambda x: x[5])
             
             #For Testing
-            #TODO Place Date in this Object Using for testing
-            title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
-            title.pack()
+            #TODO Place Date in this Object 
+            #This is just for testing, replace this later
+            try:
+                title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+                title.pack()
+            except:
+                title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
+                title.pack()
 
 
             
