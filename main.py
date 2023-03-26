@@ -24,6 +24,7 @@ stud_file=''
 res_file=''
 classroom_list = cl.temp_Classroom_add()
 semester_lectures = []
+global schedule_day_labels
 
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
@@ -49,8 +50,6 @@ def update_calendar(*args):
                             # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
                                 if lecture.day==i:
-                                    #print(room.name ,' | ', course.name,cohort.name,lecture.day,"|",lecture.start_time,"|",lecture.end_time)
-                                    #day_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
                                     day_lectures.append([i,course.name,cohort.name])
 
         sorted_list = sorted(day_lectures, key=lambda x: x[0])
@@ -260,7 +259,7 @@ def main():
          
     #Create Buttons 
     btn_reset = Button(frame_t1_background, borderwidth=0, width=350, height=52, text="Reset", bg=myred, fg=mytext,
-                       command = lambda: gu.reset(classroom_list, spn_core, spn_noncore, info_label_totals,spn_core_obj+spn_noncore_obj))
+                       command = lambda: gu.reset(classroom_list, vars, spn_core, spn_noncore, info_label_totals, spn_core_obj+spn_noncore_obj))
     btn_reset.place(relx=0.022, rely=0.92,relwidth=0.10, relheight=0.035)
 
     
@@ -302,7 +301,7 @@ def main():
 
   
 ###################################################################################################
-    #Schedule Tab     #TODO - Remake with Canvas and Frames so that scrollbar can be added to have all times
+    #Schedule Tab     
    
 
     #Schedule Tab Frames
@@ -350,8 +349,13 @@ def main():
 
 
     days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+    global schedule_day_labels
+    schedule_day_labels = []
     for i, day in enumerate(days):
-        tk.Label(frame_t2_schedule, text=day, font=roboto_18).grid(row=0, column=i+1)
+        new_label =customtkinter.CTkLabel(master=frame_t2_schedule, text=day, font=roboto_18,text_color='black')
+        new_label.grid(row=0, column=i+1)
+        schedule_day_labels.append(new_label)
+
 
     # Create labels for each class period
     times =["8:00 am", "8:30 am","9:00 am", "9:30 am", "10:00 am", "10:30 am", "11:00 am",
@@ -497,6 +501,7 @@ def main():
 def update_schedule(*args):
     # Refrences class selected, list of classroom objects, the schedule grid, and the seleced week
     global classroom_label, classroom_list, entries, var_display_week, var_program_filter, var_program_filter_check, var_dispclass
+    global schedule_day_labels
     # Clear schedule for new blocks
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
@@ -504,6 +509,8 @@ def update_schedule(*args):
 
     # Get current week from global dropdown variable
     week = int(var_display_week.get()[-1])
+
+    gu.update_schedule_labels(schedule_day_labels, week)
     
     # If the classroom dropdown has changed, not the week
     if isinstance(data, Classroom):
@@ -586,24 +593,8 @@ def update_classroom_dropdown():
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
-
-    #test_given_cohorts_make_schedules_for_all()
     
 
-'''
-    var_dispclass.set('')
-    var_dispclass_calendar.set('')
-    var_dispclass_cohort.set('')
-
-    dispclass['menu'].delete(0,'end')
-    dispclass_2['menu'].delete(0,'end')
-    dispclass_3['menu'].delete(0,'end')
-    for room in classroom_list:
-        dispclass['menu'].add_command(label=room, command=tk._setit(var_dispclass, room))
-        dispclass_2['menu'].add_command(label=room, command=tk._setit(var_dispclass_cohort, room))
-        dispclass_3['menu'].add_command(label=room, command=tk._setit(var_dispclass_calendar, room))
-
-'''
 
 def create_room_dropdown(frame, var, room_list, func):
     dispclass = OptionMenu(frame, var, *room_list, command=func)
