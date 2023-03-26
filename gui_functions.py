@@ -356,7 +356,7 @@ def get_classrooms(filename):
             continue
 
         #Sterilize room No. info
-        room_no = row[0].value.split(' ')[0]
+        room_no = row[0].value
         #Save capacity as an int
         cap = int(row[1].value)
         #Create Classroom object
