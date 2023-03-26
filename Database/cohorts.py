@@ -29,6 +29,7 @@ class Cohorts:
             cohort.create_empty_lectures()
 
     def create_schedules(self, cur_semester):
+
         self.create_empty_lectures()
         failed_cohorts = []
         for cohort in self.cohorts:

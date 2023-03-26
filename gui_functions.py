@@ -133,11 +133,6 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     print("Added")
 
 
-    #If the schedule creation is successfull show successful message.
-    #messagebox.showinfo("Note", "Successfully formed a Schedule")
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
-
 
 # If value in spinner is not equal to the registraion list of lists, update or append it
 def match_spinners_to_reg(spn_vars, reg_nums, students):
