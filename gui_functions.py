@@ -561,14 +561,25 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
 
 # Function for when a new term is selected from dropdown.
 # Takes the term chosen from dropdown and label lists and updates title labels
-def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
+def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore,months_dropdown,months_dropdown_var):
     termlist=["Fall","Winter","Spring/Summer"]
+    fall_months=["September","October","November","December"]
+    winter_months=["January","Febuary","March","April"]
+    spring_months=["May","June","July","August"]
+
     term=var_chosenterm.get()
     if term=="Fall":
         for i in range(1, 4):
             infolabelscore[i].configure(text=termlist[i-1])
             infolabelsnoncore[i-1].configure(text=termlist[i-1])
-            
+        
+        #Update Dropdown in Calendar Tab
+        months_dropdown['menu'].delete(0, 'end')
+        for option in fall_months:
+            months_dropdown['menu'].add_command(label=option, command=tk._setit(months_dropdown_var, option))
+       
+        months_dropdown_var.set(fall_months[0])
+        #months_dropdown.destroy()
     elif term=="Winter":
         for i in range(1, 3):
             infolabelscore[i].configure(text=termlist[i])
@@ -576,7 +587,14 @@ def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
         
         infolabelscore[3].configure(text=termlist[0])
         infolabelsnoncore[2].configure(text=termlist[0])
-   
+        
+        #Update Dropdown in Calendar Tab
+        months_dropdown['menu'].delete(0, 'end')
+        for option in winter_months:
+            months_dropdown['menu'].add_command(label=option, command=tk._setit(months_dropdown_var, option))
+       
+        months_dropdown_var.set(winter_months[0])
+
     else:
         infolabelscore[1].configure(text=termlist[2])
         infolabelsnoncore[0].configure(text=termlist[2])
@@ -585,6 +603,17 @@ def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
                 infolabelscore[i].configure(text=termlist[i-2])
                 infolabelsnoncore[i-1].configure(text=termlist[i-2])
         
+        #Update Dropdown in Calendar Tab
+        months_dropdown['menu'].delete(0, 'end')
+        for option in spring_months:
+            months_dropdown['menu'].add_command(label=option, command=tk._setit(months_dropdown_var, option))
+        
+        months_dropdown_var.set(spring_months[0])
+
+    
+    
+        
+    
 # This function is called whenever a Spinbox is updated to print the new totals.
 def update_totals(spinners,total_labels,row_num,spinner_object):
 

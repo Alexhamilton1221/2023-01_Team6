@@ -294,7 +294,8 @@ def main():
     #Create Dropdown to select current Tern
     weeks=["Fall","Winter","Spring/Summer"]
     var_chosenterm = StringVar(root) ; var_chosenterm.set("Choose a Term") 
-    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,info_label_noncore)) #Replace Default Values with Classrooms
+    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,
+    info_label_noncore,dispmonth,var_dispmonth_calendar)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
@@ -442,6 +443,21 @@ def main():
     command= update_calendar ) 
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    
+    #Create Var for Month Dropdown
+    global var_dispmonth_calendar
+    var_dispmonth_calendar = StringVar(root)
+    #var_dispmonth_calendar.set("September")
+    
+    init_list=["September","October","November","December"]
+
+    
+    #Create Dropdown for Months
+    dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,[], #Replace Default Values with Classrooms
+    command= update_calendar ) 
+    dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+    dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    
     
     #Setup Grid for Calendar
     cal_frame.setup_grid()
