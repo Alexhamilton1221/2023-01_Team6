@@ -97,29 +97,33 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     print(students)
 
     has_made_schedule = False
-    time_mod = 1.0
+    time_mods = []
     cohorts = Cohorts()
 
-
     while has_made_schedule == False:
-        try:
-            has_made_schedule = True
-            classrooms.clear_cohorts()
-            cohorts.cohorts = []
-            cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
-            cohorts.create_schedules(cur_semester)
-        except ValueError:
+
+        has_made_schedule = True
+        classrooms.clear_cohorts()
+        cohorts.cohorts = []
+        cohorts.create_cohorts(classrooms, programs, students, 2, time_mods)
+        failed_cohorts = cohorts.create_schedules(cur_semester)
+        if failed_cohorts != []:
+            for cohort in failed_cohorts:
+                for mod in time_mods:
+                    if mod.program == cohort.program:
+                        mod.modifier += 0.1
+
+                        break
+                else:
+                    time_mods.append(Cohorts.timeModifer(cohort.program))
+
             has_made_schedule = False
-            time_mod += 0.1
 
 
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
 
     print("Added")
-
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
 
  
     #If the schedule creation is successfull show successful message.

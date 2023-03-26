@@ -30,8 +30,18 @@ class Cohorts:
 
     def create_schedules(self, cur_semester):
         self.create_empty_lectures()
+        failed_cohorts = []
         for cohort in self.cohorts:
-            cohort.create_schedule(cur_semester)
+            try:
+                cohort.create_schedule(cur_semester)
+            except ValueError:
+                for failed_cohort in failed_cohorts:
+                    if failed_cohort.program == cohort.program:
+                        break
+                # For else occurs when no breaks occur in a for loop
+                else:
+                    failed_cohorts.append(cohort)
+        return failed_cohorts
 
     @staticmethod
     def __set_cohorts_rooms_from_list__(cohorts):
@@ -108,7 +118,17 @@ class Cohorts:
 
         return p_sorted_students
 
-    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, extra_time_mod):
+    class timeModifer:
+        # This is a data class for storing the internal modifiers for the times
+        def __init__(self, program, modifier = 1.1):
+            # The program of the modifier
+            self.program = program
+            # The modifier amount
+            self.modifier = modifier
+
+    def __calculate_total_and_per_hours__(self, student_count, program, delivery, term, time_modifiers):
+        print("REPLACE")
+    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, time_modifiers):
         # This checks if a single variation of cohorts will fit in a classroom
         # Capcaites[extra space in group, the size of the cohort,the count of the cohort]
         #
@@ -123,6 +143,11 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
+
+            extra_time_mod = 1.0
+            for time_mod in time_modifiers:
+                if program == time_mod.program:
+                    extra_time_mod = time_mod.modifier
             hours_per_cohort = math.ceil(program.get_hours(
                 lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
             total_hours = hours_per_cohort * capacity[2]
@@ -142,7 +167,7 @@ class Cohorts:
                 room_num += 1
                 # If the classrooms was able to handle hours
             if total_hours > 0:
-                fail_array.append([group[0], math.floor(total_hours / extra_time_mod), capacity[1], False])
+                fail_array.append([group[0], group[1], math.floor(total_hours / extra_time_mod), capacity[1], False])
                 # This means that the current capacity cannot hold the students
                 # Changes the way that the students are stored
                 continue
@@ -150,6 +175,10 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
+            extra_time_mod = 1.0
+            for time_mod in time_modifiers:
+                if program == time_mod.program:
+                    extra_time_mod = time_mod.modifier
             hours_per_cohort = math.ceil(
                 program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
             total_hours = hours_per_cohort * capacity[2]
@@ -225,7 +254,7 @@ class Cohorts:
         capacities.sort(key=lambda capacity: capacity[0])
         return capacities
 
-    def __set_rooms__(self, capacity, group, program, classroom_hours, lab_hours, extra_time_mod):
+    def __set_rooms__(self, capacity, group, program, classroom_hours, lab_hours, time_modifiers):
         # This puts the cohorts into the rooms
 
         # Adds a value for checking if a room is core or not and deducts the correct hours
@@ -238,6 +267,10 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
+        extra_time_mod = 1.0
+        for time_mod in time_modifiers:
+            if program == time_mod.program:
+                extra_time_mod = time_mod.modifier
         hours_per_cohort = math.ceil(
             program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
         total_hours = hours_per_cohort * capacity[2]
@@ -259,6 +292,10 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
+        extra_time_mod = 1.0
+        for time_mod in time_modifiers:
+            if program == time_mod.program:
+                extra_time_mod = time_mod.modifier
         hours_per_cohort = math.ceil(
             program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
         total_hours = hours_per_cohort * capacity[2]
@@ -327,7 +364,7 @@ class Cohorts:
         return total_hours, assigned_index
 
     def __student_assignment__(self, students, class_by_size, labs_by_size, programs, cur_semester, safety_net=1.1,
-                               extra_time_mod=1.0):
+                               time_modifiers = []):
         # Returns: list of [success/failType, program , amount of extra hours, whether it was the labs that failed]
         # list[0]: 0 = success, 1 = nearly to capacity, 2 = over capacity
 
@@ -357,7 +394,7 @@ class Cohorts:
 
                 # Returns whether cohort fit, and which capacity it fit in (if it did)
                 new_fail_array, capacity = self.__check_if_fits__(capacities, group, program, classroom_hours, lab_hours,
-                                                              extra_time_mod=extra_time_mod)
+                                                              time_modifiers=time_modifiers)
                 fail_array += new_fail_array
                 if len(new_fail_array) > 0:
                     if p_students[0][3] > 50:
@@ -371,13 +408,13 @@ class Cohorts:
                     group[3] += 1
 
                     fail_array = self.__student_assignment__(students, class_by_size, labs_by_size, programs, cur_semester,
-                                                safety_net, extra_time_mod)
+                                                safety_net, time_modifiers=time_modifiers)
                     return fail_array # This ends the recusive loop
                 else:
                     # If there is enouh room in the classes for this cohort, removes its hours from the class
                     # so futor cohorts do not stack
                     new_cohorts = self.__set_rooms__(capacity, group, program, classroom_hours, lab_hours,
-                                                     extra_time_mod)
+                                                     time_modifiers=time_modifiers)
                     for a_cohort in new_cohorts:
                         a_cohort.generate_name()
                         cohorts.append(a_cohort)
@@ -389,7 +426,7 @@ class Cohorts:
 
         return fail_array
 
-    def create_cohorts(self, classrooms, programs, students, cur_semester, extra_time_mod=1.0):
+    def create_cohorts(self, classrooms, programs, students, cur_semester, time_mods = []):
         # Given an amount of classrooms in the classrooms object
         # programs from the programs object
         # students: a list of students in the format [("PROGRAM-NAME TERM", COUNT)]
@@ -405,11 +442,11 @@ class Cohorts:
         try:
 
             self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs, cur_semester, 1.1,
-                                        extra_time_mod)
+                                        time_mods)
         except NearLimit:
 
             fail_array = self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs,
-                                                   cur_semester, 1.0, extra_time_mod)
+                                                   cur_semester, 1.0, time_mods)
             if len(fail_array) != 0:
 
 

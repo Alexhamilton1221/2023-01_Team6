@@ -34,44 +34,37 @@ class Classroom:
 
         # Checks if a lecture fits in a period of time
         for cohort in self.cohorts:
+            if cohort.courses[0].lectures[0].day % 2 != start_day % 2 or cohort.courses[0].lectures[0].day == 0:
+                continue
             if self.is_lab:
                 for course in cohort.courses:
                     if course.delivery == "Lab":
-                        # Check if another lecture interferes with this timeslot
-                        for day in range(start_day, end_day + 1, 2):
-                            comp_lecture = Lecture(day, start_time, end_time)
-                            for lecture in course.lectures:
-                                if comp_lecture.is_within(lecture):
-                                    return False
+                        l_start = course.lectures[0].start_time
+                        l_end = course.lectures[0].end_time
+                        l_fDay = course.lectures[0].day
+                        l_lDay = course.lectures[len(course.lectures) - 1].day
+
+                        if (end_time > l_start > start_time) or (start_time < l_end < end_time) or (start_time < l_start and end_time > l_end) or (start_time > start_time and end_time < l_end) or(end_time == l_end and l_start == start_time):
+                            if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
+                                return False
 
 
             else:
                 for course in cohort.courses:
                     if course.delivery == "Class":
-                        # Check if another lecture interferes with this timeslot
-                        for day in range(start_day, end_day + 1, 2):
-                            comp_lecture = Lecture(day, start_time, end_time)
-                            for lecture in course.lectures:
-                                if comp_lecture.is_within(lecture):
-                                    return False
+                        l_start = course.lectures[0].start_time
+                        l_end = course.lectures[0].end_time
+                        l_fDay = course.lectures[0].day
+                        l_lDay = course.lectures[len(course.lectures) - 1].day
+                        if (end_time > l_start > start_time) or (start_time < l_end < end_time) or (start_time < l_start and end_time > l_end) or (start_time > start_time and end_time < l_end) or (end_time == l_end and l_start == start_time):
+                            if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
+                                return False
 
         return True
 
-    def check_for_conflict(self):
-        for cohort in self.cohorts:
-            for course in cohort.courses:
-                for lecture in course.lectures:
-                    for cohort2 in self.cohorts:
-                        if cohort != cohort2:
-                            for course2 in cohort2.courses:
-                                if course.delivery == course2.delivery:
-                                    for lecture2 in course2.lectures:
-                                        if lecture.day == lecture2.day and lecture.start_time == lecture2.start_time and lecture.end_time == lecture2.end_time:
-                                            return (course, course2)
-
-        return None
     def add_cohort(self, cohort):
         self.cohorts.append(cohort)
+
     def same_name(self, name):
         return self.name == name
 
@@ -85,6 +78,3 @@ class Classroom:
         if type(other) != Classroom:
             return False
         return self.same_name(other.name) and self.same_size(other.size) and self.is_lab == other.is_lab
-
-
-
