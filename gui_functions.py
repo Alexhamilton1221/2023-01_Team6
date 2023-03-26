@@ -374,6 +374,7 @@ def conv_time(start_time,end_time):
     display_time = start_time
     display_time_end = end_time
     start_pm = False; end_pm = False
+    start_pm = False; end_pm = False
 
     # If time is greater than 12, keep in 12hr format
     if display_time >= 13:
@@ -842,7 +843,7 @@ class Calendar(tk.Frame):
         if not new_window_open:
             #Create New Window
             new_window = tk.Toplevel(self.canvas)
-            new_window.title("Date {class_etr[0]}") 
+            new_window.title("Date") 
             new_window.geometry("640x360")
             new_window.config(background='#252526')
             
@@ -859,9 +860,14 @@ class Calendar(tk.Frame):
             sorted_list = sorted(indexed_lecs, key=lambda x: x[5])
             
             #For Testing
-            #TODO Place Date in this Object Using for testing
-            title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
-            title.pack()
+            #TODO Place Date in this Object 
+            #This is just for testing, replace this later
+            try:
+                title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+                title.pack()
+            except:
+                title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
+                title.pack()
 
 
             
