@@ -1010,18 +1010,86 @@ def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_ob
 def update_schedule_labels(labels, week):
     global date_dict
 
-    start_day = date_dict.calendar_dictionary
+
+    week_start_day = (((week-1)*4)+1)-2
+
+
+
+    for i, label in enumerate(labels):
+        if week_start_day+i == 0 or week_start_day+i == -1:
+            day_num = date_dict.locate_start_day()+week_start_day+i
+            txt = f"{month_num_to_name(str(list(date_dict.calendar_dictionary.keys())[0]))}"
+            txt += f" {date_suffix(day_num)}"
+
+
+        else:
+            txt = schedule_day_to_date(date_dict, week_start_day+i)
+        
+        label.configure(text=txt)
+
+def date_suffix(date):
+    suffix_dict = {1: "1st", 
+               2: "2nd", 
+               3: "3rd", 
+               4: "4th", 
+               5: "5th", 
+               6: "6th", 
+               7: "7th", 
+               8: "8th", 
+               9: "9th", 
+               10: "10th", 
+               11: "11th", 
+               12: "12th"}
+    
+    return suffix_dict[date]
+
+def month_num_to_name(num):
+    months = {	'1':'Janauary',
+		'2':'February',
+		'3':'March',
+		'4':'April',
+		'5':'May',
+		'6':'June',
+		'7':'July',
+		'8':'August',
+		'9':'September',
+		'10':'October',
+		'11':'November',
+		'12':'December'		}
+    
+    return months[num]
 
 
 
 def schedule_day_to_date(date_dict, day):
 
-    for month in date_dict:
+    
+    
 
-        for date in date_dict[month]:
-            if date_dict[month][date] == day:
-                return date
+    if day in [0,-1]:
+        txt = month_num_to_name(date_dict.calendar_dictionary.keys()[0])
+        txt += f"{(date_dict.locate_start_day())+day}"
 
+    
+
+
+    for month in date_dict.calendar_dictionary:
+
+        for date in date_dict.calendar_dictionary[month]:
+            if date_dict.calendar_dictionary[month][date] == day:
+                date_num = int(date.split('-')[-1])
+                text =  f"{month_num_to_name(str(month))} {date_num}"
+
+                if date_num == 1:
+                    text += "st"
+                elif date_num == 2:
+                    text += "nd"
+                elif date_num == 3:
+                    text += "rd"
+                else:
+                    text += "th"
+
+                return text
 
 
 
