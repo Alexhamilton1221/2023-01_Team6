@@ -300,7 +300,7 @@ def create_student_objects(reg_numbers):
     core_courses = ['PCOM', 'BCOM']
     core_registrations = {}
     noncore_registrations = []
-    students = Students()
+    student_list = Students()
 
     data = reg_numbers.copy()
     id = -1
@@ -326,9 +326,10 @@ def create_student_objects(reg_numbers):
             for i in range(num_students):
                 for j, (noncore_course, noncore_term) in enumerate(noncore_registrations):
                     if term == noncore_term:
-                        new_student = Student(id=-(len(Students.students)+1), name="Fname", core=core_course, program=noncore_course)
-                        students.students.append(new_student)
+                        new_student = Student(id=id, name="Fname", core=core_course, program=noncore_course, term=term)
+                        student_list.students.append(new_student)
                         del noncore_registrations[j]
+                        id -= 1
                         break
 
     return Students
