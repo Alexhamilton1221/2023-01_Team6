@@ -127,8 +127,17 @@ class Cohorts:
             # The modifier amount
             self.modifier = modifier
 
-    def __calculate_total_and_per_hours__(self, student_count, program, delivery, term, time_modifiers):
-        print("REPLACE")
+    def __calc_time_modifer__(self, program, time_modifiers):
+        extra_time_mod = 1.0
+        for time_mod in time_modifiers:
+            if program == time_mod.program:
+                extra_time_mod = time_mod.modifier
+        return extra_time_mod
+    def __calculate_total_and_per_hours__(self, student_count, program, delivery, term, extra_time_mod):
+        hours_per_cohort = math.ceil(program.get_hours(
+            lambda course: course.delivery == delivery and course.term == term) * extra_time_mod)
+        total_hours = hours_per_cohort * student_count
+        return total_hours, hours_per_cohort
     def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, time_modifiers):
         # This checks if a single variation of cohorts will fit in a classroom
         # Capcaites[extra space in group, the size of the cohort,the count of the cohort]
@@ -144,14 +153,9 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
-
-            extra_time_mod = 1.0
-            for time_mod in time_modifiers:
-                if program == time_mod.program:
-                    extra_time_mod = time_mod.modifier
-            hours_per_cohort = math.ceil(program.get_hours(
-                lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
-            total_hours = hours_per_cohort * capacity[2]
+            extra_time_mod = self.__calc_time_modifer__(program, time_modifiers)
+            total_hours, hours_per_cohort = self.__calculate_total_and_per_hours__(capacity[2], program, "Class",
+                                                                                      group[1], extra_time_mod)
 
             # Goes through every classroom
             while room_num < len(classroom_hours) and total_hours > 0:
@@ -176,13 +180,8 @@ class Cohorts:
             room_num = 0
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
-            extra_time_mod = 1.0
-            for time_mod in time_modifiers:
-                if program == time_mod.program:
-                    extra_time_mod = time_mod.modifier
-            hours_per_cohort = math.ceil(
-                program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
-            total_hours = hours_per_cohort * capacity[2]
+            total_hours, hours_per_cohort = self.__calculate_total_and_per_hours__(capacity[2], program, "Lab",
+                                                                                   group[1], extra_time_mod)
             while room_num < len(lab_hours) and total_hours > 0:
                 # Checks if the room is too small
                 if lab_hours[room_num][1] < capacity[1]:
@@ -268,13 +267,9 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        extra_time_mod = 1.0
-        for time_mod in time_modifiers:
-            if program == time_mod.program:
-                extra_time_mod = time_mod.modifier
-        hours_per_cohort = math.ceil(
-            program.get_hours(lambda course: course.delivery == "Class" and course.term == group[1]) * extra_time_mod)
-        total_hours = hours_per_cohort * capacity[2]
+        extra_time_mod = self.__calc_time_modifer__(program, time_modifiers)
+        total_hours, hours_per_cohort = self.__calculate_total_and_per_hours__(capacity[2], program, "Class",
+                                                                               group[1], extra_time_mod)
         # Goes through every classroom
         while room_num < len(classroom_hours) and total_hours > 0:
             # Checks if the room is too small
@@ -293,13 +288,9 @@ class Cohorts:
         room_num = 0
         # Hours per cohort is the amount of hours this cohort will need for the program
         # total hours is the total number of hours needed for all cohorts
-        extra_time_mod = 1.0
-        for time_mod in time_modifiers:
-            if program == time_mod.program:
-                extra_time_mod = time_mod.modifier
-        hours_per_cohort = math.ceil(
-            program.get_hours(lambda course: course.delivery == "Lab" and course.term == group[1]) * extra_time_mod)
-        total_hours = hours_per_cohort * capacity[2]
+
+        total_hours, hours_per_cohort = self.__calculate_total_and_per_hours__(capacity[2], program, "Lab",
+                                                                               group[1], extra_time_mod)
         while room_num < len(lab_hours) and total_hours > 0:
             # Checks if the room is too small
             if lab_hours[room_num][1] < capacity[1]:
@@ -449,17 +440,16 @@ class Cohorts:
             fail_array = self.__student_assignment__(termed_students, classes_by_size, labs_by_size, programs,
                                                    cur_semester, 1.0, time_mods)
             if len(fail_array) != 0:
+                return fail_array
 
+                # for fail_data in fail_array:
+                #     if fail_data[4]:
+                #         print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
+                #             fail_data[2]) + " in a Lab of minimum size " + str(fail_data[3]))
+                #     else:
+                #         print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
+                #             fail_data[2]) + " in a Class of minimum size " + str(fail_data[3]))
 
-                for fail_data in fail_array:
-                    if fail_data[4]:
-                        print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
-                            fail_data[2]) + " in a Lab of minimum size " + str(fail_data[3]))
-                    else:
-                        print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
-                            fail_data[2]) + " in a Class of minimum size " + str(fail_data[3]))
-
-                return
         return None
 
     def add_cohort(self, cohort):
