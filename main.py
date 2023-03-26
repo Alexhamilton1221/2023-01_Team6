@@ -26,6 +26,8 @@ classroom_list = cl.temp_Classroom_add()
 semester_lectures = []
 global schedule_day_labels
 
+semester_lectures=[]
+
 def update_calendar(*args):
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
     global classroom_label, classroom_list, entries, var_display_week
@@ -52,8 +54,11 @@ def update_calendar(*args):
                                 if lecture.day==i:
                                     day_lectures.append([i,course.name,cohort.name])
 
-        sorted_list = sorted(day_lectures, key=lambda x: x[0])
-
+        #Sort the list based on Day
+        sorted_list = sorted(day_lectures, key=lambda x: x[3])
+        #print(sorted_list)
+      
+        #Make a calendar entry for the day
         cal_frame.calendar_day_entry(sorted_list,i)
         
         # for j in sorted_list:
