@@ -106,13 +106,13 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     has_made_schedule = False
     time_mods = []
     cohorts = Cohorts()
-
+    fail_array = None
     while has_made_schedule == False:
 
         has_made_schedule = True
         classrooms.clear_cohorts()
         cohorts.cohorts = []
-        cohorts.create_cohorts(classrooms, programs, students, 2, time_mods)
+        fail_array = cohorts.create_cohorts(classrooms, programs, students, 2, time_mods)
         failed_cohorts = cohorts.create_schedules(cur_semester)
         if failed_cohorts != []:
             for cohort in failed_cohorts:
@@ -125,7 +125,17 @@ def form_schedule(classroom_list, vars, var_chosen_term):
                     time_mods.append(Cohorts.timeModifer(cohort.program))
 
             has_made_schedule = False
+    if fail_array != None:
+        outputString = ""
+        for fail_data in fail_array:
+            if fail_data[4]:
+                outputString += "Program: " + fail_data[0] + " term: " + str(fail_data[1]) + ", hours needed: " + str(
+                    fail_data[2]) + "\nfor class of minimum size " + str(fail_data[3]) + "\n"
+            else:
+                outputString += "Program: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
+                    fail_data[2]) + "\nfor class of minimum size " + str(fail_data[3]) + "\n"
 
+        messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
 
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
