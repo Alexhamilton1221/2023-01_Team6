@@ -44,7 +44,7 @@ class Classroom:
                         l_fDay = course.lectures[0].day
                         l_lDay = course.lectures[len(course.lectures) - 1].day
 
-                        if (end_time > l_start > start_time) or (start_time < l_end < end_time) or (start_time < l_start and end_time > l_end) or (start_time > start_time and end_time < l_end) or(end_time == l_end and l_start == start_time):
+                        if Classroom.check_time_conflict(start_time, l_start, end_time, l_end):
                             if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
                                 return False
 
@@ -56,11 +56,19 @@ class Classroom:
                         l_end = course.lectures[0].end_time
                         l_fDay = course.lectures[0].day
                         l_lDay = course.lectures[len(course.lectures) - 1].day
-                        if (end_time > l_start > start_time) or (start_time < l_end < end_time) or (start_time < l_start and end_time > l_end) or (start_time > start_time and end_time < l_end) or (end_time == l_end and l_start == start_time):
+                        if Classroom.check_time_conflict(start_time, l_start, end_time, l_end):
                             if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
                                 return False
 
         return True
+    @staticmethod
+    def check_time_conflict(aStartTime, bStartTime, aEndTime, bEndTime):
+        aGoesOverB = (aEndTime > bStartTime > aStartTime)
+        bGoesOverA = (aStartTime < bEndTime < aEndTime)
+        bWithinA = (aStartTime <= bStartTime and aEndTime >= bEndTime)
+        aWithinB = (aStartTime >= bStartTime and aEndTime <= bEndTime)
+        return aGoesOverB or bGoesOverA or bWithinA or aWithinB or (aEndTime == bEndTime and bStartTime == aStartTime)
+
 
     def add_cohort(self, cohort):
         self.cohorts.append(cohort)
