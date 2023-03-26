@@ -26,7 +26,11 @@ classroom_list = cl.temp_Classroom_add()
 
 semester_lectures=[]
 
+
 def update_calendar(*args):
+    global init_list
+    print(init_list)
+    print('formed')
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
     global classroom_label, classroom_list, entries, var_display_week
 
@@ -36,9 +40,11 @@ def update_calendar(*args):
     #Reset Grid Array
     cal_frame.clean_array()
 
+    term_start=0
+    term_length=100  #TODO This is just a dummy value, need to find a way to get real value
 
     #For each room in global list of classroom objects
-    for i in range (0,100,1):   #TODO This is just a dummy value, need to find a way to get real value
+    for i in range (term_start,term_length,1):  
         day_lectures=[]
 
         for room in classroom_list:
@@ -291,10 +297,10 @@ def main():
     
 
     
-    #Create Dropdown to select current Tern
+    #Create Dropdown to select current Term
     weeks=["Fall","Winter","Spring/Summer"]
     var_chosenterm = StringVar(root) ; var_chosenterm.set("Choose a Term") 
-    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,
+    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: term_changed(var_chosenterm,info_label_core,
     info_label_noncore,dispmonth,var_dispmonth_calendar)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
@@ -445,15 +451,14 @@ def main():
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     
     #Create Var for Month Dropdown
-    global var_dispmonth_calendar
+    global var_dispmonth_calendar,init_list
     var_dispmonth_calendar = StringVar(root)
     #var_dispmonth_calendar.set("September")
     
     init_list=["September","October","November","December"]
-
     
     #Create Dropdown for Months
-    dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,[], #Replace Default Values with Classrooms
+    dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*init_list, #Replace Default Values with Classrooms
     command= update_calendar ) 
     dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
@@ -475,6 +480,70 @@ def main():
 
 
 
+# Function for when a new term is selected from dropdown.
+# Takes the term chosen from dropdown and label lists and updates title labels
+def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore,months_dropdown,months_dropdown_var):    
+    termlist=["Fall","Winter","Spring/Summer"]
+    fall_months=["September","October","November","December"]
+    winter_months=["January","Febuary","March","April"]
+    spring_months=["May","June","July","August"]
+    
+    helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)
+    mytext="#FFFFFF"
+
+    term=var_chosenterm.get()
+    if term=="Fall":
+        for i in range(1, 4):
+            infolabelscore[i].configure(text=termlist[i-1])
+            infolabelsnoncore[i-1].configure(text=termlist[i-1])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*fall_months, #Replace Default Values with Classrooms
+        command= update_calendar ) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(fall_months[0])  
+
+
+    elif term=="Winter":
+        infolabelscore[3].configure(text=termlist[0])
+        infolabelsnoncore[2].configure(text=termlist[0])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*winter_months, #Replace Default Values with Classrooms
+        command= update_calendar ) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(winter_months[0])  
+
+      
+
+    else:
+        infolabelscore[1].configure(text=termlist[2])
+        infolabelsnoncore[0].configure(text=termlist[2])
+        
+        for i in range(3, 1,-1):
+                infolabelscore[i].configure(text=termlist[i-2])
+                infolabelsnoncore[i-1].configure(text=termlist[i-2])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*spring_months, #Replace Default Values with Classrooms
+        command= update_calendar ) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(spring_months[0])  
 
 
 
