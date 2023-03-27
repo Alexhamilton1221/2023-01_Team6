@@ -16,23 +16,7 @@ class Classroom:
         return self.name
 
     def check_if_lecture_fits(self, start_day, end_day, start_time, end_time):
-        # Checks if a lecuture fits in the classroom
-        # for cohort in self.cohorts:
-        #     if self.is_lab:
-        #         for course in cohort.courses:
-        #             for l_lecture in course.lectures:
-        #                 if course.delivery == "Lab" and l_lecture.is_within(lecture):
-        #                     return False
-        #
-        #     else:
-        #         for course in cohort.courses:
-        #             for l_lecture in course.lectures:
-        #                 if course.delivery == "Class" and l_lecture.is_within(lecture):
-        #                     return False
-        #
-        # return True
-
-        # Checks if a lecture fits in a period of time
+        # This checks if a lecture fits within the classroom if it has the allotted times
         for cohort in self.cohorts:
             if cohort.courses[0].lectures[0].day % 2 != start_day % 2 or cohort.courses[0].lectures[0].day == 0:
                 continue

@@ -44,7 +44,7 @@ class Cohort:
             time_change_mod = -0.5
             time_offset = 10.5
         else:
-            max_end_time = 16.50
+            max_end_time = 15.50
             time_change_mod = 0.5
             time_offset = 0
         max_start_time = 8.50

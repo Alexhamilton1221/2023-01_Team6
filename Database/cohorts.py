@@ -138,7 +138,7 @@ class Cohorts:
             lambda course: course.delivery == delivery and course.term == term) * extra_time_mod)
         total_hours = hours_per_cohort * student_count
         return total_hours, hours_per_cohort
-    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, time_modifiers):
+    def __check_if_fits__(self, capacities, group, program, classroom_hours, lab_hours, time_modifiers, current_semester):
         # This checks if a single variation of cohorts will fit in a classroom
         # Capcaites[extra space in group, the size of the cohort,the count of the cohort]
         #
@@ -154,6 +154,7 @@ class Cohorts:
             # Hours per cohort is the amount of hours this cohort will need for the program
             # total hours is the total number of hours needed for all cohorts
             extra_time_mod = self.__calc_time_modifer__(program, time_modifiers)
+
             total_hours, hours_per_cohort = self.__calculate_total_and_per_hours__(capacity[2], program, "Class",
                                                                                       group[1], extra_time_mod)
 
@@ -172,7 +173,12 @@ class Cohorts:
                 room_num += 1
                 # If the classrooms was able to handle hours
             if total_hours > 0:
-                fail_array.append([group[0], group[1], math.floor(total_hours / extra_time_mod), capacity[1], False])
+                needed_spots = total_hours / hours_per_cohort
+                class_hours = get_hours(not not_core, current_semester)
+                max_cohorts = class_hours / hours_per_cohort
+                needed_rooms = math.ceil(needed_spots / max_cohorts)
+
+                fail_array.append([group[0], group[1], needed_rooms, capacity[1], False])
                 # This means that the current capacity cannot hold the students
                 # Changes the way that the students are stored
                 continue
@@ -207,7 +213,11 @@ class Cohorts:
             if total_hours > 0:
                 # This means that the current capacity cannot hold the students
                 # Changes the way that the students are stored
-                fail_info = [group[0], group[1], math.floor(total_hours / extra_time_mod), capacity[1], True]
+                needed_spots = total_hours / hours_per_cohort
+                class_hours = get_hours(not not_core, current_semester)
+                max_cohorts = class_hours / hours_per_cohort
+                needed_rooms = math.ceil(needed_spots / max_cohorts)
+                fail_info = [group[0], group[1], needed_rooms, capacity[1], True]
                 if fail_info not in fail_array:
                     fail_array.append(fail_info)
                 continue
@@ -386,7 +396,7 @@ class Cohorts:
 
                 # Returns whether cohort fit, and which capacity it fit in (if it did)
                 new_fail_array, capacity = self.__check_if_fits__(capacities, group, program, classroom_hours, lab_hours,
-                                                              time_modifiers=time_modifiers)
+                                                              time_modifiers=time_modifiers, current_semester=cur_semester)
                 fail_array += new_fail_array
                 if len(new_fail_array) > 0:
                     if p_students[0][3] > 50:
@@ -441,14 +451,6 @@ class Cohorts:
                                                    cur_semester, 1.0, time_mods)
             if len(fail_array) != 0:
                 return fail_array
-
-                # for fail_data in fail_array:
-                #     if fail_data[4]:
-                #         print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
-                #             fail_data[2]) + " in a Lab of minimum size " + str(fail_data[3]))
-                #     else:
-                #         print("\tProgram: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
-                #             fail_data[2]) + " in a Class of minimum size " + str(fail_data[3]))
 
         return None
 
