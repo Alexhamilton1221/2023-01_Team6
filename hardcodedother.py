@@ -17,10 +17,10 @@ def get_holidays(cur_semester):
     # Fall
     if cur_semester == 1:
         # TEMP
-        return [5, 17, 18, 21, 22, 23, 24, 30]
+        return [15, 19, 39, 40, 41, 42]
     # Winter
     elif cur_semester == 2:
-        return [5, 17, 18, 21, 22, 23, 24, 30]
+        return [27, 28, 29, 30, 51]
     # Sprint
     else:
-        return [5, 17, 18, 30]
+        return [11, 35, 56]
