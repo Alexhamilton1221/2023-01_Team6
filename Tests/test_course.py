@@ -70,7 +70,7 @@ class TestCourse(TestCase):
         assert lecture2.end_time == 10
 
     def test_course_lecture_length(self):
-        course1 = Course("Fake101", 21, [], "Class", "H=1.5h")
+        course1 = Course("Fake101", 21, [], "Class", "H=1.5h|Coreq=CMPT 201")
         answer1 = 1.5
         #testing course lecture length as float
 
