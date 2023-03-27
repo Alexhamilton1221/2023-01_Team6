@@ -77,8 +77,8 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info, date_dict
 
-    cur_semester = 1
-    if var_chosen_term.get() == "Fall" or var_chosen_term.get() == "Choose a Term":
+    cur_semester = 0
+    if var_chosen_term.get() == "Fall":
         date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Fall')
         cur_semester = 1
     elif var_chosen_term.get() == "Winter":
@@ -87,6 +87,10 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     elif var_chosen_term.get() == "Spring/Summer":
         date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Spring')
         cur_semester = 3
+
+    if cur_semester == 0:
+        messagebox.showwarning("Warning", "No semester Selected, select a semester")
+        return
 
     date_dict.insert_class_days()
 
@@ -112,7 +116,7 @@ def form_schedule(classroom_list, vars, var_chosen_term):
         has_made_schedule = True
         classrooms.clear_cohorts()
         cohorts.cohorts = []
-        fail_array = cohorts.create_cohorts(classrooms, programs, students, 2, time_mods)
+        fail_array = cohorts.create_cohorts(classrooms, programs, students, cur_semester, time_mods)
         failed_cohorts = cohorts.create_schedules(cur_semester)
         if failed_cohorts != []:
             for cohort in failed_cohorts:
@@ -129,11 +133,11 @@ def form_schedule(classroom_list, vars, var_chosen_term):
         outputString = ""
         for fail_data in fail_array:
             if fail_data[4]:
-                outputString += "Program: " + fail_data[0] + " term: " + str(fail_data[1]) + ", hours needed: " + str(
-                    fail_data[2]) + "\nfor class of minimum size " + str(fail_data[3]) + "\n"
+                outputString += "For Program: " + fail_data[0] + " term " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " classes needed of size minimum size " + str(fail_data[3]) + "\n"
             else:
-                outputString += "Program: " + fail_data[0] + " " + str(fail_data[1]) + ", hours needed: " + str(
-                    fail_data[2]) + "\nfor class of minimum size " + str(fail_data[3]) + "\n"
+                outputString += "For Program: " + fail_data[0] + " term: " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " labs needed of size minimum size " + str(fail_data[3]) + "\n"
 
         messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
 
