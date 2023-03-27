@@ -904,8 +904,6 @@ class Calendar(tk.Frame):
                 x2 = x1 + rect_size
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
-                #label = Label(rect, text="test")
-                # label.pack()
                 self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col))
 
                 #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
