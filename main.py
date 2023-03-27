@@ -444,7 +444,7 @@ def main():
     frame_t4_topbar.place(relx=0.5, rely=0, relwidth=1, relheight=0.1, anchor='n')
     
     cal_frame = gu.Calendar(calendar_tab,all_rectangles,all_labels, semester_lectures)
-    cal_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
+    cal_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')
  
     #Create Var for Class Dropdown
     global var_dispclass_calendar
