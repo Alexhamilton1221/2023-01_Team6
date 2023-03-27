@@ -36,7 +36,7 @@ new_window = None
 #This is for Calendar Creation
 global lbl_x,lbl_y
 global reg_numbers 
-global date_dict 
+global date_dict
 date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Fall')
 date_dict.insert_class_days()
 reg_numbers = []
@@ -77,8 +77,8 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
     global reg_numbers, student_info, date_dict
 
-    cur_semester = 1
-    if var_chosen_term.get() == "Fall" or var_chosen_term.get() == "Choose a Term":
+    cur_semester = 0
+    if var_chosen_term.get() == "Fall":
         date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Fall')
         cur_semester = 1
     elif var_chosen_term.get() == "Winter":
@@ -87,6 +87,10 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     elif var_chosen_term.get() == "Spring/Summer":
         date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Spring')
         cur_semester = 3
+
+    if cur_semester == 0:
+        messagebox.showwarning("Warning", "No semester Selected, select a semester")
+        return
 
     date_dict.insert_class_days()
 
@@ -97,35 +101,51 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     if reg_numbers == None or reg_numbers == []:
         print("EMPTY REGISTRATION")
         return
-    
+
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = reg_numbers
     print(students)
 
     has_made_schedule = False
-    time_mod = 1.0
+    time_mods = []
     cohorts = Cohorts()
-
+    fail_array = None
     while has_made_schedule == False:
-        try:
-            has_made_schedule = True
-            classrooms.clear_cohorts()
-            cohorts.cohorts = []
-            cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
-            cohorts.create_schedules(cur_semester)
-        except ValueError:
-            has_made_schedule = False
-            time_mod += 0.1
 
+        has_made_schedule = True
+        classrooms.clear_cohorts()
+        cohorts.cohorts = []
+        fail_array = cohorts.create_cohorts(classrooms, programs, students, cur_semester, time_mods)
+        failed_cohorts = cohorts.create_schedules(cur_semester)
+        if failed_cohorts != []:
+            for cohort in failed_cohorts:
+                for mod in time_mods:
+                    if mod.program == cohort.program:
+                        mod.modifier += 0.1
+
+                        break
+                else:
+                    time_mods.append(Cohorts.timeModifer(cohort.program))
+
+            has_made_schedule = False
+    if fail_array != None:
+        outputString = ""
+        for fail_data in fail_array:
+            if fail_data[4]:
+                outputString += "For Program: " + fail_data[0] + " term " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " classes needed of size minimum size " + str(fail_data[3]) + "\n"
+            else:
+                outputString += "For Program: " + fail_data[0] + " term: " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " labs needed of size minimum size " + str(fail_data[3]) + "\n"
+
+        messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
 
     print_schedule(classrooms)
     student_info.add_to_cohorts(programs, cohorts)
 
     print("Added")
 
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
 
 
 # If value in spinner is not equal to the registraion list of lists, update or append it
@@ -769,10 +789,10 @@ def print_cohorts(classrooms,cohort_name,text_field):
                         else:
                             display_time_end += "am"
 
-                        
+
                         if len(display_time)==6:
                             display_time=f"0{display_time} "
-                        
+
                         #For testing include classroom name but remove later
                         text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
                         '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
@@ -1002,7 +1022,7 @@ class Day(tk.Frame):
 
 
 def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_object):
-    global reg_numbers 
+    global reg_numbers
     reg_numbers = []
     for room in classroom_list:
         room.cohorts = []
@@ -1031,23 +1051,23 @@ def update_schedule_labels(labels, week):
 
         else:
             txt = schedule_day_to_date(date_dict, week_start_day+i)
-        
+
         label.configure(text=txt)
 
 def date_suffix(date):
-    suffix_dict = {1: "1st", 
-               2: "2nd", 
-               3: "3rd", 
-               4: "4th", 
-               5: "5th", 
-               6: "6th", 
-               7: "7th", 
-               8: "8th", 
-               9: "9th", 
-               10: "10th", 
-               11: "11th", 
+    suffix_dict = {1: "1st",
+               2: "2nd",
+               3: "3rd",
+               4: "4th",
+               5: "5th",
+               6: "6th",
+               7: "7th",
+               8: "8th",
+               9: "9th",
+               10: "10th",
+               11: "11th",
                12: "12th"}
-    
+
     return suffix_dict[date]
 
 def month_num_to_name(num):
@@ -1063,21 +1083,21 @@ def month_num_to_name(num):
 		'10':'October',
 		'11':'November',
 		'12':'December'		}
-    
+
     return months[num]
 
 
 
 def schedule_day_to_date(date_dict, day):
 
-    
-    
+
+
 
     if day in [0,-1]:
         txt = month_num_to_name(date_dict.calendar_dictionary.keys()[0])
         txt += f"{(date_dict.locate_start_day())+day}"
 
-    
+
 
 
     for month in date_dict.calendar_dictionary:
@@ -1107,4 +1127,4 @@ def value_to_key(dict, val):
             return key
     print("Not Found", val)
     return False
-    
+
