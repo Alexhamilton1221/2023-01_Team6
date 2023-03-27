@@ -5,7 +5,12 @@ from calendar import Calendar
 # Calendar1.Calendar_dictionary -> returns the dictionary of dicationaries for the dates
 # if you want to add holidays manually, use the format yyyy-mm-dd with Calendar1.add_holidays("2023-09-01")
 #
-# Days that have None, do not have lecutures. All other days have integer based on the class day for the schedule
+# Days that have None, do not have lectures. All other days have integer based on the class day for the schedule
+
+#create_date_dict() helper function to return date dictionary
+def create_date_dict(year,semester):
+    date_create_obj = DateCreate(year, semester)
+    return date_create_obj.calendar_dictionary
 
 class DateCreate:
     def __init__(self, year, term):
@@ -14,13 +19,16 @@ class DateCreate:
         self.term = term
         self.term_start = 0
         self.start_day = 0
-        self.holidays = []
-
+        #Holidays and reading weeks from Fall 2022 to Spring 2024
+        self.holidays = ['2022-09-07','2022-10-10','2022-11-07','2022-11-08','2022-11-09','2022-11-10','2022-11-11','2022-12-25','2023-01-2','2023-02-20','2023-02-21','2023-02-22','2023-02-23','2023-02-24','2023-04-7','2023-04-10','2023-05-22','2023-07-3','2023-08-07','2023-09-04','2023-10-09','2023-11-13','2023-11-14','2023-11-15','2023-11-16','2023-11-17','2023-12-25','2024-01-01','2024-02-19','2023-11-20','2023-11-21','2023-11-22','2023-11-23','2024-03-29','2024-04-01','2024-05-20','2024-07-01','2024-08-05']
         # generating the day dictionaries within the month dictionaries
         self.generate_calendar()
 
         self.first_month = list(self.calendar_dictionary.keys())[0]
         self.start_day = self.locate_start_day()
+        self.insert_class_days()
+
+        #return self.calendar_dictionary
 
     def generate_calendar(self):
         months = []
@@ -126,3 +134,5 @@ class DateCreate:
     def add_holidays(self, holiday):
         self.holidays.append(holiday)
         return None
+
+
