@@ -81,11 +81,9 @@ def temp_create_courses():
     GLM.add_course(StoredCourse("SCMT 0501", 21, 1, []))
     GLM.add_course(StoredCourse("SCMT 0502", 21, 1, []))
     GLM.add_course(StoredCourse("PRDV 0304", 15, 1, []))
-    GLM.add_course(StoredCourse("SCMT 9901", 50, 1, [], "Virtual"))
     # Term 2
     GLM.add_course(StoredCourse("SCMT 0503", 15, 2, []))
     GLM.add_course(StoredCourse("SCMT 0504", 21, 2, []))
-    GLM.add_course(StoredCourse("SCMT 9902", 50, 2, [], "Virtual"))
     # Term 3
     GLM.add_course(StoredCourse("SCMT 0505", 21, 3, []))
     GLM.add_course(StoredCourse("PCOM 0151", 39, 3, [], "Class", "H=3"))
