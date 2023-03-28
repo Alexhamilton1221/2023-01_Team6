@@ -44,13 +44,13 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
     #cal_frame.setup_grid()
     
 
-    month_start=1
-    month_length=30  #TODO This is just a dummy value, need to find a way to get real value
-    
+    #month_start=1
+    #month_length=30  # This is just a dummy value, need to find a way to get real value
+
 
     month_start,month_end,current_mon=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
     
-    print(f"Current Month Starts at {month_start}: Days {month_length} Current Month Ends at {month_end} Current Month {current_mon}")
+    #print(f"Current Month Starts at {month_start}: Days {month_length} Current Month Ends at {month_end} Current Month {current_mon}")
     
     for day_in_month in range (month_start,month_end,1):  
         day_lectures=[]
@@ -489,7 +489,7 @@ def main():
 def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore,months_dropdown,months_dropdown_var,display_week):    
     termlist=["Fall","Winter","Spring/Summer"]
     fall_months=["September","October","November","December"]
-    winter_months=["January","Febuary","March","April"]
+    winter_months=["January","February","March","April"]
     spring_months=["May","June","July","August"]
     
     helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)

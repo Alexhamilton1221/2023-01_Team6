@@ -953,7 +953,7 @@ class Calendar(tk.Frame):
         #     count+=30
         
         
-        print(sorted_list)
+        #print(sorted_list)
         for row in range(8):
             for col in range(4):
                                 
@@ -962,7 +962,7 @@ class Calendar(tk.Frame):
                
                 # Default Case: Print all Lectures
                 if count==day_in_month and len(sorted_list)<8:
-                    print(f"The Current Day is {day_in_month} and count is {count}")
+                    #print(f"The Current Day is {day_in_month} and count is {count}")
 
                 
                     x1 = col * rect_size; x1+=85
@@ -1073,8 +1073,12 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
     
     fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
     winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
-    springsum_months = {'April': 30,'May': 31,'June': 30,'July': 31}
-
+    springsum_months = {'May': 31,'June': 30,'July': 31}
+    
+    #Rough estimate, subtract fri, sat, sun, doest account for holidays
+    # fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
+    # winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
+    # springsum_months = {'May': 19,'June': 18,'July': 19}
     
     
     month_start=0; month_length=30 ; month_end=0; current_mon=1
@@ -1095,6 +1099,35 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
         #         print(f"End: {key} Value {value}")
         #         return month_start,month_length
         for key,value in fall_months.items():
+            if key != current_month: #If it is not the right month
+                month_start+=value
+                month_end+=value
+                current_mon+=1
+            else:
+                month_end+=value
+                month_length=value
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
+
+                #Remove first montrh
+                return month_start,month_end,current_mon
+            
+    elif current_term=="Winter":
+        print("Winter Time")
+        for key,value in winter_months.items():
+            if key != current_month: #If it is not the right month
+                month_start+=value
+                month_end+=value
+                current_mon+=1
+            else:
+                month_end+=value
+                month_length=value
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
+
+                #Remove first montrh
+                return month_start,month_end,current_mon
+    elif current_term=="Spring/Summer":
+        print("Spring/Summer Time")
+        for key,value in springsum_months.items():
             if key != current_month: #If it is not the right month
                 month_start+=value
                 month_end+=value
