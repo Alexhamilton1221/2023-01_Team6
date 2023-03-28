@@ -105,6 +105,7 @@ def form_schedule(classroom_list, vars, var_chosen_term):
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = reg_numbers
+
     print(students)
 
     has_made_schedule = False
@@ -141,7 +142,10 @@ def form_schedule(classroom_list, vars, var_chosen_term):
 
         messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
 
+
+
     print_schedule(classrooms)
+    student_info.convert_student_strs_to_objects(programs)
     student_info.add_to_cohorts(programs, cohorts)
 
     print("Added")
@@ -743,60 +747,77 @@ def print_cohorts(classrooms,cohort_name,text_field):
 
     text_field.delete("1.0", "end") #Clear Text Field
     for i,x in enumerate(classrooms.classrooms):
-        for cohort in classrooms.classrooms[3].cohorts:
-            for course in cohort.courses:
-                if classrooms.classrooms[i].name==cohort_name:
-                    for lecture in course.lectures:
-                        #Fixing Indentation
-                        if lecture.day<10:
-                            days_spacing="   -"
-                        elif lecture.day<99:
-                            days_spacing=" -"
-                        else:
-                            days_spacing="-"
+        if classrooms.classrooms[i].name == cohort_name:
+            for cohort in classrooms.classrooms[i].cohorts:
+                text_field.insert(tk.END, cohort.name + "\nClassroom: " + str(cohort.room) + " Lab: " + str(cohort.lab) + "\n")
+                text_field.insert(tk.END, "Students: \n")
+                count = 0
+                student_info = ""
+                for student in cohort.students:
+                    student_info += "    Id: " + str(student.id) + "    name: " + student.name + ", "
+                    count += 1
+                    if count == 5:
+                        text_field.insert(tk.END, student_info + '\n')
+                        student_info = ""
+                        count = 0
 
-                        #Init display variable
-                        display_time = lecture.start_time
-                        display_time_end = lecture.end_time
-                        start_pm = False; end_pm = False
+                text_field.insert(tk.END, "Courses: \n")
+                for course in cohort.courses:
+
+                    lecture = course.lectures[0]
+                    end_lecture = course.lectures[len(course.lectures) - 1]
+                    days_spacing = " - "
+                    # if lecture.day<10:
+                    #     days_spacing="   -"
+                    # elif lecture.day<99:
+                    #     days_spacing=" -"
+                    # else:
+                    #     days_spacing="-"
+
+                    #Init display variable
+                    display_time = lecture.start_time
+                    display_time_end = lecture.end_time
+                    start_pm = False; end_pm = False
 
                         # If time is greater than 12, keep in 12hr format
-                        if display_time > 12:
-                            display_time -= 12
-                            start_pm = True
-                        if display_time_end > 12:
-                            display_time_end -= 12
-                            end_pm = True
+                    if display_time > 12:
+                        display_time -= 12
+                        start_pm = True
+                    if display_time_end > 12:
+                        display_time_end -= 12
+                        end_pm = True
 
-                        # If start or end time is a half hour,  
-                        if display_time.is_integer():
-                            display_time = f"{int(display_time)}:00"
-                        else:
-                            display_time = f"{int(display_time)}:30"
+                      # If start or end time is a half hour,
+                    if display_time.is_integer():
+                        display_time = f"{int(display_time)}:00"
+                    else:
+                        display_time = f"{int(display_time)}:30"
 
-                        if start_pm:
-                            display_time += "pm"
-                        else:
-                            display_time += "am"
+                    if start_pm:
+                        display_time += "pm"
+                    else:
+                        display_time += "am"
 
-                        if display_time_end.is_integer():
-                            display_time_end = f"{int(display_time_end)}:00"
-                        else:
-                            display_time_end = f"{int(display_time_end)}:30"
+                    if display_time_end.is_integer():
+                        display_time_end = f"{int(display_time_end)}:00"
+                    else:
+                        display_time_end = f"{int(display_time_end)}:30"
 
-                        if end_pm:
-                            display_time_end += "pm"
-                        else:
-                            display_time_end += "am"
+                    if end_pm:
+                        display_time_end += "pm"
+                    else:
+                        display_time_end += "am"
 
 
-                        if len(display_time)==6:
-                            display_time=f"0{display_time} "
+                    if len(display_time)==6:
+                        display_time=f"0{display_time} "
 
                         #For testing include classroom name but remove later
-                        text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
-                        '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
-                        
+                    text_field.insert(tk.END,course.name+' - Days: '+str(lecture.day)+str(days_spacing)+str(end_lecture.day)+
+                    '      Time: '+str(display_time) + " - " + str(display_time_end)+'      Delivery Type: '+ course.delivery+'\n')
+                text_field.insert(tk.END, '   \n')
+
+
     text_field.configure(state='disabled')
         
 class Calendar(tk.Frame):

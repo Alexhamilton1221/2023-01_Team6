@@ -490,14 +490,7 @@ def main():
     #root.attributes('-fullscreen', False)
     #root.resizable(False, False)
     
-    root.mainloop()  
-
-
-
-
-
-
-
+    root.mainloop()
 
 # Runs when either week or class dropdown is updated on schedule tab
 # Clears the entries and iterates through global list of classroom objects
@@ -511,9 +504,12 @@ def update_schedule(*args):
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
     data = args[0]
-
+    info = data.split(" ")
     # Get current week from global dropdown variable
-    week = int(var_display_week.get()[-1])
+
+
+    #week = int(var_display_week.get()[-1])
+    week = int(info[1])
 
     gu.update_schedule_labels(schedule_day_labels, week)
     
@@ -588,7 +584,7 @@ def update_classroom_dropdown():
     parent = dispclass_2.master
     dispclass_2.destroy()
     new_menu = OptionMenu(parent, var_dispclass_cohort, *classroom_list, #Replace Default Values with Classrooms
-    command=lambda x: gu.print_cohorts(room_list,var_dispclass_cohort.get(),display_cohorts))
+    command=lambda x: gu.print_cohorts(Classrooms(room_list),var_dispclass_cohort.get(),display_cohorts))
     
     new_menu.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     new_menu.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
