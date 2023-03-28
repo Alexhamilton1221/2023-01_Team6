@@ -30,10 +30,13 @@ class TestDateCreate(TestCase):
         date6.insert_class_days()
     def test_spring_day_calc(self):
         date7 = DateCreate(2023, "Fall")
-        print(date7.calendar_dictionary)
+        #print(date7.calendar_dictionary)
 
     def test_date_dict(self):
         print(create_date_dict(2023,"Fall"))
+
+    def test_four_day_dict(self):
+        print(create_four_day_dict(2023, "Fall"))
 
 
 
