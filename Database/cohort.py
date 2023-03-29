@@ -1,6 +1,7 @@
 import math
 
 import hardcodedother
+from Database.classroom import Classroom
 from Database.lecture import Lecture
 
 
@@ -330,7 +331,7 @@ class Cohort:
             l_end = course.lectures[0].end_time
             l_fDay = course.lectures[0].day
             l_lDay = course.lectures[len(course.lectures) - 1].day
-            if (end_time > l_start > start_time) or (start_time < l_end < end_time) or (start_time < l_start and end_time > l_end) or (start_time > start_time and end_time < l_end) or (end_time == l_end and l_start == start_time):
+            if Classroom.check_time_conflict(start_time, l_start, end_time, l_end):
                 if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
                     return True
         return False

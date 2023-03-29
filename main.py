@@ -28,38 +28,85 @@ global schedule_day_labels
 
 semester_lectures=[]
 
-def update_calendar(*args):
+
+def update_calendar(var_chosenterm,var_dispmonth_calendar):
+    global init_list
+    
+    print('formed')
     # Refrences class selected, all classroom objects, the schedule grid, and the selected week
     global classroom_label, classroom_list, entries, var_display_week
 
     # global lbl_x,lbl_y
     # lbl_x,lbl_y=10,10
     
-    #First Clear Grid
+
+    #Clear Grid
     cal_frame.clear_grid()
+    
+    #Reset Grid Array
+    cal_frame.clean_array()
+    
+    
+    #Reconstruct Grid
+    #cal_frame.setup_grid()
+    
+
+    #month_start=1
+    #month_length=30  # This is just a dummy value, need to find a way to get real value
+
+
+    #First Clear Grid
+    #cal_frame.clear_grid()
 
     
     
     #For each room in global list of classroom objects
-    for i in range (0,100,1):
-        day_lectures=[]
+    #for i in range (0,100,1):
+    #    day_lectures=[]
 
+
+    month_start,month_end,current_mon=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
+    
+    #print(f"Current Month Starts at {month_start}: Days {month_length} Current Month Ends at {month_end} Current Month {current_mon}")
+    
+    for day_in_month in range (month_start,month_end,1):  
+        day_lectures=[]
         for room in classroom_list:
-                #If room matches selected
+            #If room matches selected
             if room.name == var_dispclass_calendar.get():
                 for cohort in room.cohorts:
                     for course in cohort.courses:
-                            # For each lecture for each course assigned to this room
+                        # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
-                                if lecture.day==i:
-                                    day_lectures.append([i,course.name,cohort.name])
+
+                            if lecture.day==day_in_month:
+                                    start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
+                                    day_lectures.append([day_in_month,course.name,cohort.name,lecture.start_time])
+                                    #semester_lectures.append([i,course.name,cohort.name,lecture.start_time,lecture.end_time])
+                                    #Pass in lecture.start_time just to sort in calendar_entry_clicked
+                                    semester_lectures.append([day_in_month,course.name,cohort.name,start_time,end_game,lecture.start_time])
+
 
         #Sort the list based on Day
         sorted_list = sorted(day_lectures, key=lambda x: x[3])
         #print(sorted_list)
+
+        
+        
+        #Make a calendar entry for the day which returns day_of_week
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
+        #day_of_week+=1 ; school_day_count+=1
+ 
+ 
+#def main(): 
+    
+    #global classroom_list
+
+
       
         #Make a calendar entry for the day
-        cal_frame.calendar_day_entry(sorted_list,i)
+
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
         
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
@@ -72,6 +119,7 @@ def update_calendar(*args):
 
 
 def main():
+
 
     #Setup Window
     root = tk.Tk()
@@ -259,9 +307,12 @@ def main():
         course_label = customtkinter.CTkLabel(master=frame_t1_displayrest, text=label_text, font=roboto_18, text_color=mytext)   
         course_label.place(relwidth=0.2, relheight=0.1, relx=0.01, rely= (0.15+(0.15*(i))))
        
+  
+    #Information Tab Buttons
+      
+    #Import Regestration Button
 
     
-         
     #Create Buttons 
     btn_reset = Button(frame_t1_background, borderwidth=0, width=350, height=52, text="Reset", bg=myred, fg=mytext,
                        command = lambda: gu.reset(classroom_list, vars, spn_core, spn_noncore, info_label_totals, spn_core_obj+spn_noncore_obj))
@@ -276,7 +327,7 @@ def main():
 
 
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
-                                command=lambda: update_classroom_dropdown())
+                                command=lambda: update_classroom_dropdown(var_chosenterm))
     btn_classroom_list.place(relx=0.5, rely=0.92,relwidth=0.11, relheight=0.035)
     
     
@@ -294,11 +345,17 @@ def main():
     #Using temporary values, need to calc date using datetime probably & predict future terms
     # t1=gu.get_season()
 
+
+    #global var_chosenterm
+    #Create Dropdown to select current Term
+
     
     
+
     weeks=["Fall","Winter","Spring/Summer"]
     var_chosenterm = StringVar(root) ; var_chosenterm.set("Choose a Term") 
-    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: gu.term_changed(var_chosenterm,info_label_core,info_label_noncore)) #Replace Default Values with Classrooms
+    display_week=OptionMenu(frame_t1_background, var_chosenterm, *weeks,command=lambda x: term_changed(var_chosenterm,info_label_core,
+    info_label_noncore,dispmonth,var_dispmonth_calendar,display_week)) #Replace Default Values with Classrooms
     display_week.place(relwidth=0.12, relheight=0.04, relx=0.02, rely=0.03)
     display_week.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     # display_week.bind("<Leave>", gu.on_leave)
@@ -454,9 +511,23 @@ def main():
     #Create Dropdown for Classrooms
     global dispclass_3
     dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *class_names, #Replace Default Values with Classrooms
-    command= update_calendar ) 
+    command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    
+    #Create Var for Month Dropdown
+    global var_dispmonth_calendar,init_list
+    var_dispmonth_calendar = StringVar(root)
+    #var_dispmonth_calendar.set("September")
+    
+    init_list=["September","October","November","December"]
+    
+    #Create Dropdown for Months
+    dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*init_list, #Replace Default Values with Classrooms
+    command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
+    dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+    dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+    
     
     #Setup Grid for Calendar
 
@@ -489,10 +560,75 @@ def main():
     #Make it so that window cannot change size/shape
     #root.attributes('-fullscreen', False)
     #root.resizable(False, False)
-    
+
     root.mainloop()  
 
 
+
+# Function for when a new term is selected from dropdown.
+# Takes the term chosen from dropdown and label lists and updates title labels
+def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore,months_dropdown,months_dropdown_var,display_week):    
+    termlist=["Fall","Winter","Spring/Summer"]
+    fall_months=["September","October","November","December"]
+    winter_months=["January","February","March","April"]
+    spring_months=["May","June","July","August"]
+    
+    helv36 = tkFont.Font(family='Helvetica', size=10, weight=tkFont.BOLD)
+    mytext="#FFFFFF"
+
+    term=var_chosenterm.get()
+    if term=="Fall":
+        for i in range(1, 4):
+            infolabelscore[i].configure(text=termlist[i-1])
+            infolabelsnoncore[i-1].configure(text=termlist[i-1])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*fall_months, #Replace Default Values with Classrooms
+        command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(fall_months[0])  
+
+
+    elif term=="Winter":
+        infolabelscore[3].configure(text=termlist[0])
+        infolabelsnoncore[2].configure(text=termlist[0])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*winter_months, #Replace Default Values with Classrooms
+        command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar)) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(winter_months[0])  
+
+      
+
+    else:
+        infolabelscore[1].configure(text=termlist[2])
+        infolabelsnoncore[0].configure(text=termlist[2])
+        
+        for i in range(3, 1,-1):
+                infolabelscore[i].configure(text=termlist[i-2])
+                infolabelsnoncore[i-1].configure(text=termlist[i-2])
+        
+        #Rebuild Dropdown in Calendar Tab
+        months_dropdown.destroy()
+
+        dispmonth = OptionMenu(frame_t4_topbar, var_dispmonth_calendar,*spring_months, #Replace Default Values with Classrooms
+        command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
+        dispmonth.place(relx=0.15, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
+        dispmonth.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
+        dispmonth.config(bg="#252526",highlightthickness=0)
+
+        months_dropdown_var.set(spring_months[0])  
 
 
 
@@ -511,9 +647,12 @@ def update_schedule(*args):
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
     data = args[0]
-
+    info = data.split(" ")
     # Get current week from global dropdown variable
-    week = int(var_display_week.get()[-1])
+
+
+    #week = int(var_display_week.get()[-1])
+    week = int(info[1])
 
     gu.update_schedule_labels(schedule_day_labels, week)
     
@@ -562,7 +701,7 @@ def update_program_filter(menu, var):
 
 
 
-def update_classroom_dropdown():
+def update_classroom_dropdown(var_chosenterm):
     global classroom_list, dispclass, dispclass_2, dispclass_3
     global var_dispclass, var_dispclass_cohort, var_dispclass_calendar, display_cohorts
 
@@ -588,13 +727,13 @@ def update_classroom_dropdown():
     parent = dispclass_2.master
     dispclass_2.destroy()
     new_menu = OptionMenu(parent, var_dispclass_cohort, *classroom_list, #Replace Default Values with Classrooms
-    command=lambda x: gu.print_cohorts(room_list,var_dispclass_cohort.get(),display_cohorts))
+    command=lambda x: gu.print_cohorts(Classrooms(room_list),var_dispclass_cohort.get(),display_cohorts))
     
     new_menu.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     new_menu.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     dispclass_2 = new_menu
 
-    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= update_calendar ) 
+    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 

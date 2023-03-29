@@ -30,7 +30,7 @@ class DateCreate:
         self.term_start = 0
         self.start_day = 0
         #Holidays and reading weeks from Fall 2022 to Spring 2024
-        self.holidays = ['2022-09-05','2022-10-10','2022-11-07','2022-11-08','2022-11-09','2022-11-10','2022-11-11','2022-12-25','2023-01-2','2023-02-20','2023-02-21','2023-02-22','2023-02-23','2023-02-24','2023-04-7','2023-04-10','2023-05-22','2023-07-3','2023-08-07','2023-09-04','2023-10-09','2023-11-13','2023-11-14','2023-11-15','2023-11-16','2023-11-17','2023-12-25','2024-01-01','2024-02-19','2024-02-20','2024-02-21','2024-02-22','2024-02-23','2024-03-29','2024-04-01','2024-05-20','2024-07-01','2024-08-05']
+        self.holidays = ['2022-09-05','2022-10-10','2022-11-07','2022-11-08','2022-11-09','2022-11-10','2022-11-11','2022-12-25','2023-01-2','2023-02-20','2023-02-21','2023-02-22','2023-02-23','2023-02-24','2023-04-7','2023-04-10','2023-05-22','2023-07-3','2023-08-07','2023-09-04','2023-10-09','2023-11-13','2023-11-14','2023-11-15','2023-11-16','2023-11-17','2023-12-25','2024-01-01','2024-02-19','2024-11-20','2024-11-21','2024-11-22','2024-11-23','2024-03-29','2024-04-01','2024-05-20','2024-07-01','2024-08-05']
         # generating the day dictionaries within the month dictionaries
         self.generate_calendar()
 
@@ -67,25 +67,19 @@ class DateCreate:
         return month_dict
 
     def insert_class_days(self):
-        # first weekday of the month
         weekday = self.start_day
 
-        # initializing incrementers for the insertion loop
         lecture_day_counter = 1
-        #counts the days incrementd through the loop
-        day_counter = self.start_day
+        day_counter = 1
 
-        #first day with a lecture
-        first_lecture_day = self.first_class_day()
-
+        first_day = self.first_class_day()
 
         for month in self.calendar_dictionary:
             for date in self.calendar_dictionary[month]:
-                if day_counter >= first_lecture_day:
-                    if (weekday in (1, 2, 3, 4)) and date not in self.holidays:
+                if first_day < day_counter:
+                    if (weekday in (1, 2, 3, 4)):
                         self.calendar_dictionary[month][date] = lecture_day_counter
                         lecture_day_counter += 1
-
 
                 if weekday == 7:
                     weekday = 1
@@ -93,7 +87,6 @@ class DateCreate:
                     weekday += 1
 
                 day_counter += 1
-
         return None
 
     def locate_start_day(self):
@@ -101,8 +94,9 @@ class DateCreate:
         start_day = 0
 
         for i in Calendar().itermonthdates(self.year, month):
-            output_month = int(str(i).split("-")[1])
             start_day += 1
+            output_month = int(str(i).split("-")[1])
+
             if output_month == month:
                 return start_day
 
@@ -127,9 +121,10 @@ class DateCreate:
     def winter_day_calc(self):
         # first wednesday after January 1st
         weekday = self.start_day
-        loop_counter = 1
+        loop_counter = 0
 
         while weekday != 3:
+
             if weekday == 7:
                 weekday = 1
             else:
@@ -138,10 +133,6 @@ class DateCreate:
 
         return loop_counter
 
-    def summer_day_calc(self):
-        return self.start_day
-
-
     def first_class_day(self):
         if self.first_month == 9:
             return self.labor_day_calc()
@@ -149,7 +140,7 @@ class DateCreate:
             return self.winter_day_calc()
         else:
             # if it is spring, starts on May 1st or first monday after May 1st
-            return self.summer_day_calc()
+            return 0
     def add_holidays(self, holiday):
         self.holidays.append(holiday)
         return None
