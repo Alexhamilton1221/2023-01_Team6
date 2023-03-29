@@ -554,32 +554,9 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
             entry.config(state=DISABLED)
 
 
-# Function for when a new term is selected from dropdown.
-# Takes the term chosen from dropdown and label lists and updates title labels
-def term_changed(var_chosenterm,infolabelscore,infolabelsnoncore):
-    termlist=["Fall","Winter","Spring/Summer"]
-    term=var_chosenterm.get()
-    if term=="Fall":
-        for i in range(1, 4):
-            infolabelscore[i].configure(text=termlist[i-1])
-            infolabelsnoncore[i-1].configure(text=termlist[i-1])
-            
-    elif term=="Winter":
-        for i in range(1, 3):
-            infolabelscore[i].configure(text=termlist[i])
-            infolabelsnoncore[i-1].configure(text=termlist[i])
+
         
-        infolabelscore[3].configure(text=termlist[0])
-        infolabelsnoncore[2].configure(text=termlist[0])
-   
-    else:
-        infolabelscore[1].configure(text=termlist[2])
-        infolabelsnoncore[0].configure(text=termlist[2])
-        
-        for i in range(3, 1,-1):
-                infolabelscore[i].configure(text=termlist[i-2])
-                infolabelsnoncore[i-1].configure(text=termlist[i-2])
-        
+    
 # This function is called whenever a Spinbox is updated to print the new totals.
 def update_totals(spinners,total_labels,row_num,spinner_object):
 
@@ -877,7 +854,7 @@ class Calendar(tk.Frame):
         new_window_body=("Arial", 14) 
 
         #Number of columns
-        num_of_columns=7
+        num_of_columns=4
         index=  row *num_of_columns  + col
 
         # Create New Window Displaying Class Info
@@ -937,24 +914,24 @@ class Calendar(tk.Frame):
     
     def setup_grid(self):
         rect_size = 180
-        count=0
-        for row in range(5):
-            for col in range(7):
+        count=1
+        for row in range(8):
+            for col in range(4):
                 x1 = col * rect_size
                 y1 = row * rect_size
                 x2 = x1 + rect_size
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
-                self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col))
+                count+=1
+
+                self.canvas.tag_bind(count, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
 
                 #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
                 #self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
-
                 self.array_rect.append(rect)
-                count+=1
 
         #Deal With last Entry
-        self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
+        #self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
 
         #print(self.array_rect)
         
@@ -965,24 +942,41 @@ class Calendar(tk.Frame):
                 self.canvas.delete(item)
 
 
-    def calendar_day_entry(self,sorted_list,i):
+    def calendar_day_entry(self,sorted_list,day_in_month,month_end):
         count=0; rect_size = 180
-                
+        
+    
         # Font for Calendar Creation
         my_font = ("Arial", 24) 
-
-        for row in range(5):
-            for col in range(7):
+        current_day=day_in_month
+        
+        # if month_end==2:
+        #     count+=30
+        #     r_x=12 ; r_y = 8
+        calc_month=1
+        while calc_month < month_end:
+             count+=30 ; calc_month+=1
+        # if month_end==2:
+        #     count+=30
+        
+        
+        #print(sorted_list)
+        for row in range(8):
+            for col in range(4):
+                                
                 count+=1
                 pad_y=0
-                
+               
                 # Default Case: Print all Lectures
-                if count==i and len(sorted_list)<8:
+                if count==day_in_month and len(sorted_list)<8:
+                    #print(f"The Current Day is {day_in_month} and count is {count}")
+
+                
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
                     for cal_etr in sorted_list:
-                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
+                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
 
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         
@@ -990,20 +984,45 @@ class Calendar(tk.Frame):
                         pad_y+=15
                 
                 # Second Case: Print 8 lectures and add ...
-                elif count==i: 
+                elif count==day_in_month: 
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
 
                     for cal_etr in sorted_list[:8]:
-                        new_text=f" {cal_etr[1]} {cal_etr[2]}"
+                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
 
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         self.array_lbl.append(text)
                         pad_y+=15
                     text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)
-        #self.semester_lectures.append(sorted_list)
+
+    
+    def weekend_entry(self,i):
+        count=0; rect_size = 180
+
         
-        
+        for row in range(5):
+            for col in range(7):
+                count+=1
+                pad_y=0
+                
+                # Default Case: Print all Lectures
+                if count==i:
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+
+                    
+                    new_text=f"WEEKEND"
+
+                    text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
+                        
+                    self.array_lbl.append(text)
+                    pad_y+=15
+                
+             
+
+
+
 
 
 class Day(tk.Frame):
@@ -1053,6 +1072,82 @@ def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_ob
 
     update_all_totals(spn_core,spn_noncore,total_labels,spinner_object)
     return []
+
+
+def term_stats(var_chosenterm,var_dispmonth_calendar):
+    #Can add leap year later if needed
+    # days_in_month = {'January': 31,'February': 28, 'March': 31,'April': 30,'May': 31,
+    # 'June': 30,'July': 31,'August': 31,'September': 30,'October': 31,'November': 30,'December': 31 }
+    
+    fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
+    winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
+    springsum_months = {'May': 31,'June': 30,'July': 31}
+    
+    #Rough estimate, subtract fri, sat, sun, doest account for holidays
+    # fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
+    # winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
+    # springsum_months = {'May': 19,'June': 18,'July': 19}
+    
+    
+    month_start=0; month_length=30 ; month_end=0; current_mon=1
+    #Get Current month to find which term
+    current_term=var_chosenterm.get()
+    current_month=var_dispmonth_calendar.get()
+
+    print('The current term is ',current_term)
+    print('The current month is ',current_month)
+    
+    if current_term=="Fall":
+        print("Fall Time")
+        # TESTING
+        # for key,value in fall_months.items():
+        #     if key != current_month:
+        #         print(f"Processing: {key} Value {value}")
+        #     else:
+        #         print(f"End: {key} Value {value}")
+        #         return month_start,month_length
+        for key,value in fall_months.items():
+            if key != current_month: #If it is not the right month
+                month_start+=value
+                month_end+=value
+                current_mon+=1
+            else:
+                month_end+=value
+                month_length=value
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
+
+                #Remove first montrh
+                return month_start,month_end,current_mon
+            
+    elif current_term=="Winter":
+        print("Winter Time")
+        for key,value in winter_months.items():
+            if key != current_month: #If it is not the right month
+                month_start+=value
+                month_end+=value
+                current_mon+=1
+            else:
+                month_end+=value
+                month_length=value
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
+
+                #Remove first montrh
+                return month_start,month_end,current_mon
+    elif current_term=="Spring/Summer":
+        print("Spring/Summer Time")
+        for key,value in springsum_months.items():
+            if key != current_month: #If it is not the right month
+                month_start+=value
+                month_end+=value
+                current_mon+=1
+            else:
+                month_end+=value
+                month_length=value
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
+
+                #Remove first montrh
+                return month_start,month_end,current_mon
+    return month_start,month_end,current_mon
 
 
 def update_schedule_labels(labels, week):
@@ -1148,4 +1243,5 @@ def value_to_key(dict, val):
             return key
     print("Not Found", val)
     return False
+
 
