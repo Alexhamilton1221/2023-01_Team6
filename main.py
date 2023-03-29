@@ -40,8 +40,12 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
     # lbl_x,lbl_y=10,10
     
 
+    #Clear Grid
+    cal_frame.clear_grid()
+    
     #Reset Grid Array
     cal_frame.clean_array()
+    
     
     #Reconstruct Grid
     #cal_frame.setup_grid()
@@ -101,7 +105,8 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
       
         #Make a calendar entry for the day
-        cal_frame.calendar_day_entry(sorted_list,day_in_month)
+
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
         
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
