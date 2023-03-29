@@ -915,7 +915,7 @@ class Calendar(tk.Frame):
     def setup_grid(self):
         rect_size = 180
         count=1
-        for row in range(8):
+        for row in range(5):
             for col in range(4):
                 x1 = col * rect_size
                 y1 = row * rect_size
@@ -942,7 +942,7 @@ class Calendar(tk.Frame):
                 self.canvas.delete(item)
 
 
-    def calendar_day_entry(self,sorted_list,day_in_month,month_end):
+    def calendar_day_entry(self,sorted_list,day_in_month,month_end,prev_month_lengths):
         count=0; rect_size = 180
         
     
@@ -950,20 +950,27 @@ class Calendar(tk.Frame):
         my_font = ("Arial", 24) 
         current_day=day_in_month
         
+        
+        #print(sorted_list)
+        # for sub_arr in sorted_list:
+        #     print(f'is {sub_arr[0]} < {month_start}')
+        #     if sub_arr[0]<month_start:
+        #         print('Removing', sorted_list[0])
+        #         sorted_list.pop(sub_arr[0])
+        
         # if month_end==2:
         #     count+=30
         #     r_x=12 ; r_y = 8
         calc_month=1
-        while calc_month < month_end:
-             count+=30 ; calc_month+=1
-        # if month_end==2:
-        #     count+=30
+        
+        #while calc_month < month_end:
+        count+= prev_month_lengths; calc_month+=1
         
         
         #print(sorted_list)
-        for row in range(8):
+        for row in range(5):
             for col in range(4):
-                                
+                print(f'TESTING Count: {count} day_in_month {day_in_month}')             
                 count+=1
                 pad_y=0
                
@@ -1079,17 +1086,17 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
     # days_in_month = {'January': 31,'February': 28, 'March': 31,'April': 30,'May': 31,
     # 'June': 30,'July': 31,'August': 31,'September': 30,'October': 31,'November': 30,'December': 31 }
     
-    fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
-    winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
-    springsum_months = {'May': 31,'June': 30,'July': 31}
+    # fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
+    # winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
+    # springsum_months = {'May': 31,'June': 30,'July': 31}
     
     #Rough estimate, subtract fri, sat, sun, doest account for holidays
-    # fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
-    # winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
-    # springsum_months = {'May': 19,'June': 18,'July': 19}
+    fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
+    winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
+    springsum_months = {'May': 19,'June': 18,'July': 19}
     
     
-    month_start=0; month_length=30 ; month_end=0; current_mon=1
+    month_start=1; month_end=0; current_mon=1 ;prev_month_lengths=0
     #Get Current month to find which term
     current_term=var_chosenterm.get()
     current_month=var_dispmonth_calendar.get()
@@ -1099,25 +1106,19 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
     
     if current_term=="Fall":
         print("Fall Time")
-        # TESTING
-        # for key,value in fall_months.items():
-        #     if key != current_month:
-        #         print(f"Processing: {key} Value {value}")
-        #     else:
-        #         print(f"End: {key} Value {value}")
-        #         return month_start,month_length
+    
         for key,value in fall_months.items():
             if key != current_month: #If it is not the right month
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
             else:
                 month_end+=value
-                month_length=value
                 #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
 
                 #Remove first montrh
-                return month_start,month_end,current_mon
+                return month_start,month_end,current_mon,prev_month_lengths
             
     elif current_term=="Winter":
         print("Winter Time")
@@ -1126,13 +1127,14 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
+
             else:
                 month_end+=value
-                month_length=value
                 #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
 
                 #Remove first montrh
-                return month_start,month_end,current_mon
+                return month_start,month_end,current_mon,prev_month_lengths
     elif current_term=="Spring/Summer":
         print("Spring/Summer Time")
         for key,value in springsum_months.items():
@@ -1140,14 +1142,16 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
+
             else:
                 month_end+=value
-                month_length=value
                 #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
 
                 #Remove first montrh
                 return month_start,month_end,current_mon
-    return month_start,month_end,current_mon
+    return month_start,month_end,current_mon,prev_month_lengths
+
 
 
 def update_schedule_labels(labels, week):
