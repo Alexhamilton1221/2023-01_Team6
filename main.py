@@ -110,8 +110,6 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
 
 
-        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
-
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
         #     text.place(x=lbl_x,y=lbl_y)
@@ -651,12 +649,12 @@ def update_schedule(*args):
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
     data = args[0]
-    info = data.split(" ")
+
     # Get current week from global dropdown variable
 
+    week_str =var_display_week.get().split(" ")
 
-    #week = int(var_display_week.get()[-1])
-    week = int(info[1])
+    week = int(week_str[1])
 
     gu.update_schedule_labels(schedule_day_labels, week)
     
