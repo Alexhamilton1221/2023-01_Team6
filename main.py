@@ -42,11 +42,11 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
     #Clear Grid
     cal_frame.clear_grid()
-    
+
     #Reset Grid Array
     cal_frame.clean_array()
     
-    
+
     #Reconstruct Grid
     #cal_frame.setup_grid()
     
@@ -109,7 +109,9 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
         cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
 
 
-        
+
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
+
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
         #     text.place(x=lbl_x,y=lbl_y)
@@ -391,7 +393,7 @@ def main():
     var_dispclass.set(classroom_list[0]) 
     #var_dispclass.trace_variable('w', update_schedule)
 
-    dispclass = OptionMenu(frame_t2_background, var_dispclass, *classroom_list, command=update_schedule) #Replace Default Values with Classrooms
+    #dispclass = OptionMenu(frame_t2_background, var_dispclass, *classroom_list, command=update_schedule) #Replace Default Values with Classrooms
     dispclass = create_room_dropdown(frame_t2_background, var_dispclass, classroom_list, update_schedule)
     dispclass.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.05, anchor='n')
     dispclass.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
@@ -649,13 +651,12 @@ def update_schedule(*args):
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
     data = args[0]
-
+    info = data.split(" ")
     # Get current week from global dropdown variable
 
-    week_str = var_display_week.get().split(" ")
 
-    week = int(week_str[1])
-
+    #week = int(var_display_week.get()[-1])
+    week = int(info[1])
 
     gu.update_schedule_labels(schedule_day_labels, week)
     
