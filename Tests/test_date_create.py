@@ -34,9 +34,13 @@ class TestDateCreate(TestCase):
 
     def test_date_dict(self):
         print(create_date_dict(2023,"Fall"))
+        print(create_date_dict(2024, "Winter"))
+        print(create_date_dict(2024, "Spring"))
+
 
     def test_four_day_dict(self):
         print(create_four_day_dict(2023, "Fall"))
+        print(create_four_day_dict(2024, "Spring"))
 
 
 
