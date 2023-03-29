@@ -57,7 +57,7 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
 
 
-    month_start,month_end,current_mon,prev_month_lengths=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
+    month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
     
     print(f"Current Month Starts at {month_start} Current Month Ends at {month_end} Current Month {current_mon} Previous Month Lengths {prev_month_lengths}")
     
@@ -80,15 +80,14 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
         #Sort the list based on Day
         sorted_list = sorted(day_lectures, key=lambda x: x[3])
-        print(sorted_list)
+        #print(sorted_list)
         
         
         
         #Make a calendar entry for the day which returns day_of_week
-        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon,prev_month_lengths)
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon,prev_month_lengths,start_date_obj,month_start,current_mon_length)
         #day_of_week+=1 ; school_day_count+=1
- 
- 
+    #gu.reset_is_short()
 #def main(): 
     
     #global classroom_list
