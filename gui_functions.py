@@ -251,6 +251,7 @@ def get_registration(filename):
         return None
     
     student_list = Students()
+    student_list.students = []
     registration = {}
 
     # Check format for registration file
@@ -1062,8 +1063,10 @@ class Day(tk.Frame):
 
 
 def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_object):
-    global reg_numbers
+    global reg_numbers, student_info
+    student_info.students = []
     reg_numbers = []
+
     for room in classroom_list:
         room.cohorts = []
 
