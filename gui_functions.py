@@ -25,6 +25,8 @@ import datetime
 new_window_open = False
 new_window = None
 
+#Track if previous month was Febuary (short)
+#is_short=False
 
 #import main as m
 
@@ -858,7 +860,8 @@ class Calendar(tk.Frame):
         #Number of columns
         num_of_columns=4
         index=  row *num_of_columns  + col
-
+        new_index=index #Used to account for weekends
+        
         # Create New Window Displaying Class Info
         # TODO Make the title the appropriate date
         if not new_window_open:
@@ -872,6 +875,9 @@ class Calendar(tk.Frame):
             entry_frame = Day(new_window)
             entry_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
             
+            if new_index>4:
+                new_index=new_index+3
+            
             indexed_lecs=[]
             for subarr in self.semester_lectures:
                 if subarr[0]==index:
@@ -883,12 +889,12 @@ class Calendar(tk.Frame):
             #For Testing
             #TODO Place Date in this Object 
             #This is just for testing, replace this later
-            try:
-                title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
-                title.pack()
-            except:
-                title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
-                title.pack()
+            # try:
+            #     title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+            #     title.pack()
+            # except:
+            #     title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
+            #     title.pack()
 
 
             
@@ -917,7 +923,7 @@ class Calendar(tk.Frame):
     def setup_grid(self):
         rect_size = 180
         count=1
-        for row in range(8):
+        for row in range(5):
             for col in range(4):
                 x1 = col * rect_size
                 y1 = row * rect_size
@@ -925,12 +931,14 @@ class Calendar(tk.Frame):
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
                 count+=1
-
+               
                 self.canvas.tag_bind(count, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
-
+               
                 #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
                 #self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
                 self.array_rect.append(rect)
+
+            #count=count+3 #Account for Fri Sat Sun
 
         #Deal With last Entry
         #self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
@@ -944,28 +952,38 @@ class Calendar(tk.Frame):
                 self.canvas.delete(item)
 
 
-    def calendar_day_entry(self,sorted_list,day_in_month,month_end):
+    def get_date(self,date,number):
+        new_date = date + datetime.timedelta(days=number-1)
+        date_str = new_date.strftime('%B %d, %Y')
+        return date_str
+    
+    
+    def calendar_day_entry(self,sorted_list,day_in_month,month_end,prev_month_lengths,start_date_obj,month_start,current_mon_length):
         count=0; rect_size = 180
-        
+        #global is_short
     
         # Font for Calendar Creation
         my_font = ("Arial", 24) 
-        current_day=day_in_month
+                
+        count += prev_month_lengths; date_diff=0
+        extra_days=0
+        #Accounting for change in months since loop resets
+        print('Current Month is:',current_mon_length)
         
-        # if month_end==2:
-        #     count+=30
-        #     r_x=12 ; r_y = 8
-        calc_month=1
-        while calc_month < month_end:
-             count+=30 ; calc_month+=1
-        # if month_end==2:
-        #     count+=30
+
+        
+        #if it isnt first month of term or febuary
+        if (month_end>1):
+            extra_days=((month_end-1)*5 + 7*(month_end-1))
         
         
         #print(sorted_list)
-        for row in range(8):
+        for row in range(5):
+            if row>=1:
+                #This accounts for weekends
+                date_diff=3*row
             for col in range(4):
-                                
+                #print(f'TESTING Count: {count} day_in_month {day_in_month}')             
                 count+=1
                 pad_y=0
                
@@ -973,12 +991,23 @@ class Calendar(tk.Frame):
                 if count==day_in_month and len(sorted_list)<8:
                     #print(f"The Current Day is {day_in_month} and count is {count}")
 
-                
+                    # Add Date Title to Grid Tiles
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
+                    
+                    date_str=self.get_date(start_date_obj,count+date_diff+extra_days)
+                    
+                    new_text=f"{date_str}"
 
+                    text = self.canvas.create_text(x1,y1+pad_y,text=new_text, font=("Helvetica", 10, "bold"))
+                        
+                    self.array_lbl.append(text)
+                    pad_y+=25
+                
                     for cal_etr in sorted_list:
-                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
+
+                        #new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}" for testing
+                        new_text=f"{cal_etr[1]} {cal_etr[2]}"
 
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         
@@ -989,16 +1018,32 @@ class Calendar(tk.Frame):
                 elif count==day_in_month: 
                     x1 = col * rect_size; x1+=85
                     y1 = row * rect_size+pad_y; y1+=15; 
+                    
+                    # Add Date Title to Grid Tiles
+                    x1 = col * rect_size; x1+=85
+                    y1 = row * rect_size+pad_y; y1+=15; 
+                    
+                    date_str=self.get_date(start_date_obj,count+date_diff-(month_start-1))
+                    
+                    new_text=f"{date_str}"
+
+                    text = self.canvas.create_text(x1,y1+pad_y,text=new_text, font=("Helvetica", 10, "bold"))
+                        
+                    self.array_lbl.append(text)
+                    pad_y+=25
+                    
 
                     for cal_etr in sorted_list[:8]:
-                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
-
+                        #new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}" for testing
+                        new_text=f"{cal_etr[1]} {cal_etr[2]}"
+                        
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         self.array_lbl.append(text)
                         pad_y+=15
                     text = self.canvas.create_text(x1,y1+pad_y,text="...", font=my_font)
-
-    
+        is_short=True
+        
+       
     def weekend_entry(self,i):
         count=0; rect_size = 180
 
@@ -1022,6 +1067,10 @@ class Calendar(tk.Frame):
                     pad_y+=15
                 
              
+def reset_is_short():
+    global is_short
+    is_short=False
+    print('reseting')
 
 
 
@@ -1083,17 +1132,17 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
     # days_in_month = {'January': 31,'February': 28, 'March': 31,'April': 30,'May': 31,
     # 'June': 30,'July': 31,'August': 31,'September': 30,'October': 31,'November': 30,'December': 31 }
     
-    fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
-    winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
-    springsum_months = {'May': 31,'June': 30,'July': 31}
+    # fall_months = {'September': 30,'October': 31,'November': 30,'December': 31 }
+    # winter_months = {'January': 31,'February': 28, 'March': 31,'April': 30}
+    # springsum_months = {'May': 31,'June': 30,'July': 31}
     
     #Rough estimate, subtract fri, sat, sun, doest account for holidays
-    # fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
-    # winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
-    # springsum_months = {'May': 19,'June': 18,'July': 19}
+    fall_months = {'September':18,'October': 19,'November': 18,'December': 19 }
+    winter_months = {'January': 19,'February': 16, 'March': 19,'April': 18}
+    springsum_months = {'May': 19,'June': 18,'July': 19,'August':19}
     
-    
-    month_start=0; month_length=30 ; month_end=0; current_mon=1
+    start_date_obj=''
+    month_start=1; month_end=0; current_mon=1 ;prev_month_lengths=0;current_mon_length=0
     #Get Current month to find which term
     current_term=var_chosenterm.get()
     current_month=var_dispmonth_calendar.get()
@@ -1103,55 +1152,61 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
     
     if current_term=="Fall":
         print("Fall Time")
-        # TESTING
-        # for key,value in fall_months.items():
-        #     if key != current_month:
-        #         print(f"Processing: {key} Value {value}")
-        #     else:
-        #         print(f"End: {key} Value {value}")
-        #         return month_start,month_length
+        start_date_obj = datetime.date(2023, 9, 1)
+        
         for key,value in fall_months.items():
             if key != current_month: #If it is not the right month
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
             else:
                 month_end+=value
-                month_length=value
                 #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
 
-                #Remove first montrh
-                return month_start,month_end,current_mon
+                #Return legnth of current month
+                current_mon_length=value
+                return month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length
             
     elif current_term=="Winter":
         print("Winter Time")
+        start_date_obj = datetime.date(2024, 1, 1)
+
         for key,value in winter_months.items():
             if key != current_month: #If it is not the right month
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
+
             else:
                 month_end+=value
-                month_length=value
-                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
-
-                #Remove first montrh
-                return month_start,month_end,current_mon
+                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}"
+                #Return legnth of current month
+                current_mon_length=value
+                return month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length
+            
     elif current_term=="Spring/Summer":
         print("Spring/Summer Time")
+        start_date_obj = datetime.date(2024, 5, 1)
+
         for key,value in springsum_months.items():
             if key != current_month: #If it is not the right month
                 month_start+=value
                 month_end+=value
                 current_mon+=1
+                prev_month_lengths+=value
+
             else:
                 month_end+=value
-                month_length=value
-                #print(f"Current Month {key} Month Start: {month_start+1} Days {value} Total Days Elapsed {day_gap}")
-
+                print(f"Current Month {key} Month Start: {month_start+1} Days {value}")
                 #Remove first montrh
-                return month_start,month_end,current_mon
-    return month_start,month_end,current_mon
+                #Return legnth of current month
+                current_mon_length=value
+                
+                return month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length
+    return month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length
+
 
 
 def update_schedule_labels(labels, week):

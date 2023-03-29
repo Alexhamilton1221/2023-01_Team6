@@ -47,29 +47,26 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
     cal_frame.clean_array()
     
 
+
     #Reconstruct Grid
     #cal_frame.setup_grid()
-    
-
-    #month_start=1
-    #month_length=30  # This is just a dummy value, need to find a way to get real value
-
-
-    #First Clear Grid
-    #cal_frame.clear_grid()
 
     
-    
-    #For each room in global list of classroom objects
-    #for i in range (0,100,1):
-    #    day_lectures=[]
 
 
-    month_start,month_end,current_mon=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
+    month_start=1
+    month_length=30  # This is just a dummy value, need to find a way to get real value
+
+
     
-    #print(f"Current Month Starts at {month_start}: Days {month_length} Current Month Ends at {month_end} Current Month {current_mon}")
+
+
+
+    month_start,month_end,current_mon,prev_month_lengths,start_date_obj,current_mon_length=gu.term_stats(var_chosenterm,var_dispmonth_calendar)
     
-    for day_in_month in range (month_start,month_end,1):  
+    print(f"Current Month Starts at {month_start} Current Month Ends at {month_end} Current Month {current_mon} Previous Month Lengths {prev_month_lengths}")
+    
+    for day_in_month in range (month_start,month_end+1,1):  
         day_lectures=[]
         for room in classroom_list:
             #If room matches selected
@@ -90,14 +87,13 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
         #Sort the list based on Day
         sorted_list = sorted(day_lectures, key=lambda x: x[3])
         #print(sorted_list)
-
+        
         
         
         #Make a calendar entry for the day which returns day_of_week
-        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon,prev_month_lengths,start_date_obj,month_start,current_mon_length)
         #day_of_week+=1 ; school_day_count+=1
- 
- 
+    #gu.reset_is_short()
 #def main(): 
     
     #global classroom_list
@@ -106,7 +102,8 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
       
         #Make a calendar entry for the day
 
-        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
+        #cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
+
 
 
 
@@ -712,6 +709,8 @@ def update_classroom_dropdown(var_chosenterm):
 
 
     room_list = gu.import_excel("resouce_list_name",2)
+    
+    chosen_term=var_chosenterm.get()
 
     if room_list == None:
         return None
@@ -735,7 +734,7 @@ def update_classroom_dropdown(var_chosenterm):
     new_menu.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     dispclass_2 = new_menu
 
-    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
+    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= lambda event: update_calendar(chosen_term,var_dispmonth_calendar) ) 
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
