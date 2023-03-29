@@ -5,22 +5,40 @@ from calendar import Calendar
 # Calendar1.Calendar_dictionary -> returns the dictionary of dicationaries for the dates
 # if you want to add holidays manually, use the format yyyy-mm-dd with Calendar1.add_holidays("2023-09-01")
 #
-# Days that have None, do not have lecutures. All other days have integer based on the class day for the schedule
+# Days that have None, do not have lectures. All other days have integer based on the class day for the schedule
+
+#create_date_dict() helper function to return date dictionary
+def create_date_dict(year,semester):
+    date_create_obj = DateCreate(year, semester)
+    return date_create_obj.calendar_dictionary
+
+# creates dictiory that only includes days that classes are on
+# key is date, value is tuple, first value is incrementing lecture day
+# second value in tuple is day of the week 1 = monday, 2 = tuesday etc ...
+def create_four_day_dict(year,semester):
+    four_day_date_create_obj = DateCreate(year, semester)
+    four_day_date_create_obj.generate_four_day_dict()
+    return four_day_date_create_obj.four_day_dictionary
 
 class DateCreate:
     def __init__(self, year, term):
         self.calendar_dictionary = {}
+        self.four_day_dictionary = {}
+
         self.year = year
         self.term = term
         self.term_start = 0
         self.start_day = 0
-        self.holidays = []
-
+        #Holidays and reading weeks from Fall 2022 to Spring 2024
+        self.holidays = ['2022-09-05','2022-10-10','2022-11-07','2022-11-08','2022-11-09','2022-11-10','2022-11-11','2022-12-25','2023-01-2','2023-02-20','2023-02-21','2023-02-22','2023-02-23','2023-02-24','2023-04-7','2023-04-10','2023-05-22','2023-07-3','2023-08-07','2023-09-04','2023-10-09','2023-11-13','2023-11-14','2023-11-15','2023-11-16','2023-11-17','2023-12-25','2024-01-01','2024-02-19','2024-11-20','2024-11-21','2024-11-22','2024-11-23','2024-03-29','2024-04-01','2024-05-20','2024-07-01','2024-08-05']
         # generating the day dictionaries within the month dictionaries
         self.generate_calendar()
 
         self.first_month = list(self.calendar_dictionary.keys())[0]
         self.start_day = self.locate_start_day()
+        self.insert_class_days()
+
+        #return self.calendar_dictionary
 
     def generate_calendar(self):
         months = []
@@ -43,9 +61,9 @@ class DateCreate:
 
         for i in Calendar().itermonthdates(year, month):
             outputMonth = int(str(i).split("-")[1])
-
             if outputMonth == int(month):
                 month_dict[str(i)] = None
+
         return month_dict
 
     def insert_class_days(self):
@@ -126,3 +144,22 @@ class DateCreate:
     def add_holidays(self, holiday):
         self.holidays.append(holiday)
         return None
+
+    def generate_four_day_dict(self):
+        day_counter = self.start_day
+        lecture_day = 1
+
+        for month in self.calendar_dictionary:
+            for day in self.calendar_dictionary[month]:
+                if (day_counter in [1,2,3,4]) and (self.calendar_dictionary[month][day] is not None):
+                    self.four_day_dictionary[str(day)] = (lecture_day,day_counter)
+                    lecture_day += 1
+                if day_counter == 7:
+                    day_counter = 1
+                else:
+                    day_counter += 1
+
+        return self.four_day_dictionary
+
+
+

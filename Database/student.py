@@ -17,6 +17,12 @@ class Student:
         # The program cohort of the student
         self.program_cohort = program_cohort
 
+    def convert_str_programs_to_object_programs(self, programs):
+        # converts self.core and self.program from str format to program object format
+        core = programs.get_program(lambda cprogram: cprogram.name == self.core)
+        self.core = core
+        program = programs.get_program(lambda cprogram: cprogram.name == self.program)
+        self.program = program
     def __repr__(self) -> str:
         return "Id: " + str(self.id) + "\nName: " + self.name  + "\nCore: "\
             + str(self.core) + "\n\tCohort: " + str(self.core_cohort)+ "\nProgram: "\

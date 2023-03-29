@@ -1,9 +1,13 @@
 class Students:
 
-    def __init__(self, students = []):
+    def __init__(self, students=[]):
         # a list of all students
         self.students = students
 
+    def convert_student_strs_to_objects(self, programs):
+        # Converts all string info from students to program info for core and program
+        for student in self.students:
+            student.convert_str_programs_to_object_programs(programs)
     def get_students(self, specification):
         # Finds students with the following specification
         students = []
@@ -23,7 +27,6 @@ class Students:
             else:
                 comparator = lambda student: student.program == program
 
-
             for term in range(1, 4):
                 students = self.get_students(lambda student: comparator(student) and student.term == term)
                 count = len(students)
@@ -31,6 +34,7 @@ class Students:
                     student_counts.append((program.name + " " + str(term), count))
 
         return student_counts
+
     def add_to_cohorts(self, programs, cohorts):
         # Adds the students to each cohort
         for program in programs.programs:
@@ -44,10 +48,3 @@ class Students:
                 students = self.get_students(lambda student: comparator(student) and student.term == term)
                 for cohort in cohorts.get_cohorts(lambda cohort: cohort.program == program and cohort.term == term):
                     cohort.add_students(students)
-
-
-
-
-
-
-

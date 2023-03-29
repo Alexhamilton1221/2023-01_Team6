@@ -17,6 +17,7 @@ from Database.programs import Programs
 from hardCodedClassrooms import temp_Classroom_add
 from hardCodedCourses import temp_create_courses
 import date_create
+import datetime
 
 #from datetime import datetime, timedelta
 
@@ -35,6 +36,9 @@ new_window = None
 #This is for Calendar Creation
 global lbl_x,lbl_y
 global reg_numbers 
+global date_dict
+date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Fall')
+date_dict.insert_class_days()
 reg_numbers = []
 global student_info
 
@@ -71,59 +75,82 @@ def import_excel(file_name,imp_type, spn=None):
 # Calls various subroutines to create schedule, add it to classrooms, and insert students
 def form_schedule(classroom_list, vars, var_chosen_term):
     global stud_file,res_file #These are the complete paths to the 2 excel files
-    global reg_numbers, student_info
+    global reg_numbers, student_info, date_dict
 
-    cur_semester = 1
+    cur_semester = 0
     if var_chosen_term.get() == "Fall":
+        date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Fall')
         cur_semester = 1
     elif var_chosen_term.get() == "Winter":
+        date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Winter')
         cur_semester = 2
     elif var_chosen_term.get() == "Spring/Summer":
+        date_dict = date_create.DateCreate(datetime.datetime.now().year, 'Spring')
         cur_semester = 3
 
-    reg_numbers = match_spinners_to_reg(vars, reg_numbers, student_info)
-    #print(classroom_list)
+    if cur_semester == 0:
+        messagebox.showwarning("Warning", "No semester Selected, select a semester")
+        return
 
-    for room in classroom_list:
-        print(room, room.size)
+    date_dict.insert_class_days()
+
+    # Checks if values in spinners match given list, if spinner is higher use that value
+    reg_numbers = match_spinners_to_reg(vars, reg_numbers, student_info)
 
  
     if reg_numbers == None or reg_numbers == []:
         print("EMPTY REGISTRATION")
         return
+
     programs = Programs(temp_create_courses())
     classrooms = Classrooms(classroom_list)
     students = reg_numbers
+
     print(students)
 
     has_made_schedule = False
-    time_mod = 1.0
+    time_mods = []
     cohorts = Cohorts()
-
-
+    fail_array = None
     while has_made_schedule == False:
-        try:
-            has_made_schedule = True
-            classrooms.clear_cohorts()
-            cohorts.cohorts = []
-            cohorts.create_cohorts(classrooms, programs, students, 2, time_mod)
-            cohorts.create_schedules(cur_semester)
-        except ValueError:
+
+        has_made_schedule = True
+        classrooms.clear_cohorts()
+        cohorts.cohorts = []
+        fail_array = cohorts.create_cohorts(classrooms, programs, students, cur_semester, time_mods)
+        failed_cohorts = cohorts.create_schedules(cur_semester)
+        if failed_cohorts != []:
+            for cohort in failed_cohorts:
+                for mod in time_mods:
+                    if mod.program == cohort.program:
+                        mod.modifier += 0.1
+
+                        break
+                else:
+                    time_mods.append(Cohorts.timeModifer(cohort.program))
+
             has_made_schedule = False
-            time_mod += 0.1
+    if fail_array != None:
+        outputString = ""
+        for fail_data in fail_array:
+            if fail_data[4]:
+                outputString += "For Program: " + fail_data[0] + " term " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " classes needed of size minimum size " + str(fail_data[3]) + "\n"
+            else:
+                outputString += "For Program: " + fail_data[0] + " term: " + str(fail_data[1]) + "\n " + str(
+                    fail_data[2]) + " labs needed of size minimum size " + str(fail_data[3]) + "\n"
+
+        messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
+
 
 
     print_schedule(classrooms)
+    student_info.convert_student_strs_to_objects(programs)
     student_info.add_to_cohorts(programs, cohorts)
 
     print("Added")
 
-    for room in classrooms.get_rooms():
-        room.check_for_conflict()
 
- 
-    #If the schedule creation is successfull show successful message.
-    #messagebox.showinfo("Note", "Successfully formed a Schedule")
 
 # If value in spinner is not equal to the registraion list of lists, update or append it
 def match_spinners_to_reg(spn_vars, reg_nums, students):
@@ -159,35 +186,6 @@ def match_spinners_to_reg(spn_vars, reg_nums, students):
 
 
     return reg_numbers
-
-
-'''
-
-            reg_nums.append([spn_order[i], int(var.get())])
-        print("EMPTY INTO -", reg_nums)
-        return reg_nums
-
-
-    else:
-        for i, var in enumerate(spn_vars):
-
-            if int(var.get()) == 0:
-                continue
-
-            reg = 0
-
-            for course in reg_numbers:
-                if course[0] == spn_order[i]:
-                    reg = course[1]
-                    print("FOUND MATCH #########################################")
-                    course[1] = int(var.get())
-            if reg == 0:
-                reg_nums.append([spn_order[i], var.get()])
-
-
-    return [reg_nums, create_student_objects(reg_numbers=reg_nums)]
-
-'''
 
 
 #Function for downloading scedule, maybe need this
@@ -241,7 +239,7 @@ def update_spinners(registration, spn):
 
 # Parse registration numbers from excel file
 # Takes a file name of the excel file
-# Returns a dictionary formatted: "{Corse_Name} {Term}": int(Registration_Amount) 
+# Returns a list of lists formatted as [["{COURSE} {TERM}" NUM_STUDENTS]]
 def get_registration(filename):
     global reg_numbers, student_info
      #Open excel file 
@@ -326,7 +324,7 @@ def create_student_objects(reg_numbers):
     core_courses = ['PCOM', 'BCOM']
     core_registrations = {}
     noncore_registrations = []
-    students = Students()
+    student_list = Students()
 
     data = reg_numbers.copy()
     id = -1
@@ -352,9 +350,10 @@ def create_student_objects(reg_numbers):
             for i in range(num_students):
                 for j, (noncore_course, noncore_term) in enumerate(noncore_registrations):
                     if term == noncore_term:
-                        new_student = Student(id=-(len(Students.students)+1), name="Fname", core=core_course, program=noncore_course)
-                        students.students.append(new_student)
+                        new_student = Student(id=id, name="Fname", core=core_course, program=noncore_course, term=term)
+                        student_list.students.append(new_student)
                         del noncore_registrations[j]
+                        id -= 1
                         break
 
     return Students
@@ -382,7 +381,7 @@ def get_classrooms(filename):
             continue
 
         #Sterilize room No. info
-        room_no = row[0].value.split(' ')[0]
+        room_no = row[0].value
         #Save capacity as an int
         cap = int(row[1].value)
         #Create Classroom object
@@ -400,16 +399,17 @@ def conv_time(start_time,end_time):
     display_time = start_time
     display_time_end = end_time
     start_pm = False; end_pm = False
+    start_pm = False; end_pm = False
 
     # If time is greater than 12, keep in 12hr format
-    if display_time > 12:
+    if display_time >= 13:
         display_time -= 12
         start_pm = True
-    if display_time_end > 12:
+    if display_time_end >= 13:
         display_time_end -= 12
         end_pm = True
 
-    # If start or end time is a half hour,  
+    # If start or end time is a half hour,
     if display_time.is_integer():
         display_time = f"{int(display_time)}:00"
     else:
@@ -429,7 +429,7 @@ def conv_time(start_time,end_time):
         display_time_end += "pm"
     else:
         display_time_end += "am"
-        
+
     return display_time,display_time_end
 
 
@@ -541,13 +541,8 @@ def create_schedule_block(entries_dict, lecture, name, cohort):
 
         #Set color to course specific color
         entry.config(disabledbackground = color)
-        #entry.config(borderwidth=0)
-        #entry.config()
 
-        # Weird function to get course name and time printed in the middle of the block
-        # Feel free to redo, idek what i was thinking
-        
-        
+        # Tries to place the label for the schedule block in the middle of the block
         if hour == int(length)-1:
             entry.config(state=NORMAL)
             entry.insert(0, cohort.name + ' - ' + name)
@@ -723,71 +718,83 @@ def print_schedule(classrooms):
                         
                         
 def print_cohorts(classrooms,cohort_name,text_field):
-    #print('###################################################################################################')
-    #print('###################################################################################################')
-    #print('TEST',cohort_name)
+
     #Testing Print
     text_field.configure(state='normal')
 
     text_field.delete("1.0", "end") #Clear Text Field
     for i,x in enumerate(classrooms.classrooms):
-        for cohort in classrooms.classrooms[3].cohorts:
-            for course in cohort.courses:
-                if classrooms.classrooms[i].name==cohort_name:
-                    for lecture in course.lectures:
-                        #Fixing Indentation
-                        if lecture.day<10:
-                            days_spacing="   -"
-                        elif lecture.day<99:
-                            days_spacing=" -"
-                        else:
-                            days_spacing="-"
+        if classrooms.classrooms[i].name == cohort_name:
+            for cohort in classrooms.classrooms[i].cohorts:
+                text_field.insert(tk.END, cohort.name + "\nClassroom: " + str(cohort.room) + " Lab: " + str(cohort.lab) + "\n")
+                text_field.insert(tk.END, "Students: \n")
+                count = 0
+                student_info = ""
+                for student in cohort.students:
+                    student_info += "    Id: " + str(student.id) + "    name: " + student.name + ", "
+                    count += 1
+                    if count == 5:
+                        text_field.insert(tk.END, student_info + '\n')
+                        student_info = ""
+                        count = 0
 
-                        #Init display variable
-                        display_time = lecture.start_time
-                        display_time_end = lecture.end_time
-                        start_pm = False; end_pm = False
+                text_field.insert(tk.END, "Courses: \n")
+                for course in cohort.courses:
+
+                    lecture = course.lectures[0]
+                    end_lecture = course.lectures[len(course.lectures) - 1]
+                    days_spacing = " - "
+                    # if lecture.day<10:
+                    #     days_spacing="   -"
+                    # elif lecture.day<99:
+                    #     days_spacing=" -"
+                    # else:
+                    #     days_spacing="-"
+
+                    #Init display variable
+                    display_time = lecture.start_time
+                    display_time_end = lecture.end_time
+                    start_pm = False; end_pm = False
 
                         # If time is greater than 12, keep in 12hr format
-                        if display_time > 12:
-                            display_time -= 12
-                            start_pm = True
-                        if display_time_end > 12:
-                            display_time_end -= 12
-                            end_pm = True
+                    if display_time > 12:
+                        display_time -= 12
+                        start_pm = True
+                    if display_time_end > 12:
+                        display_time_end -= 12
+                        end_pm = True
 
-                        # If start or end time is a half hour,  
-                        if display_time.is_integer():
-                            display_time = f"{int(display_time)}:00"
-                        else:
-                            display_time = f"{int(display_time)}:30"
+                      # If start or end time is a half hour,
+                    if display_time.is_integer():
+                        display_time = f"{int(display_time)}:00"
+                    else:
+                        display_time = f"{int(display_time)}:30"
 
-                        if start_pm:
-                            display_time += "pm"
-                        else:
-                            display_time += "am"
+                    if start_pm:
+                        display_time += "pm"
+                    else:
+                        display_time += "am"
 
-                        if display_time_end.is_integer():
-                            display_time_end = f"{int(display_time_end)}:00"
-                        else:
-                            display_time_end = f"{int(display_time_end)}:30"
+                    if display_time_end.is_integer():
+                        display_time_end = f"{int(display_time_end)}:00"
+                    else:
+                        display_time_end = f"{int(display_time_end)}:30"
 
-                        if end_pm:
-                            display_time_end += "pm"
-                        else:
-                            display_time_end += "am"
+                    if end_pm:
+                        display_time_end += "pm"
+                    else:
+                        display_time_end += "am"
 
-                        
-                        #print("TESTING",display_time)    
-                        if len(display_time)==6:
-                            #print("HERE"+ display_time)
-                            display_time=f"0{display_time} "
-                        
-                        #print(classrooms.classrooms[i].name, ' - ', course.name, lecture.day, lecture.start_time, course.delivery)
+
+                    if len(display_time)==6:
+                        display_time=f"0{display_time} "
+
                         #For testing include classroom name but remove later
-                        text_field.insert(tk.END,classrooms.classrooms[i].name+ ' - ' +course.name+' - Days: '+str(lecture.day)+str(days_spacing)+
-                        '      Start Time: '+str(display_time) +'      Delivery Type: '+ course.delivery+'\n')
-                        
+                    text_field.insert(tk.END,course.name+' - Days: '+str(lecture.day)+str(days_spacing)+str(end_lecture.day)+
+                    '      Time: '+str(display_time) + " - " + str(display_time_end)+'      Delivery Type: '+ course.delivery+'\n')
+                text_field.insert(tk.END, '   \n')
+
+
     text_field.configure(state='disabled')
         
 class Calendar(tk.Frame):
@@ -1055,7 +1062,8 @@ class Day(tk.Frame):
 
 
 def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_object):
-
+    global reg_numbers
+    reg_numbers = []
     for room in classroom_list:
         room.cohorts = []
 
@@ -1063,8 +1071,8 @@ def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_ob
         var.set(0)
 
     update_all_totals(spn_core,spn_noncore,total_labels,spinner_object)
-
     return []
+
 
 def term_stats(var_chosenterm,var_dispmonth_calendar):
     #Can add leap year later if needed
@@ -1140,3 +1148,100 @@ def term_stats(var_chosenterm,var_dispmonth_calendar):
                 #Remove first montrh
                 return month_start,month_end,current_mon
     return month_start,month_end,current_mon
+
+
+def update_schedule_labels(labels, week):
+    global date_dict
+
+
+    week_start_day = (((week-1)*4)+1)-2
+
+
+
+    for i, label in enumerate(labels):
+        if week_start_day+i == 0 or week_start_day+i == -1:
+            day_num = date_dict.locate_start_day()+week_start_day+i
+            txt = f"{month_num_to_name(str(list(date_dict.calendar_dictionary.keys())[0]))}"
+            txt += f" {date_suffix(day_num)}"
+
+
+        else:
+            txt = schedule_day_to_date(date_dict, week_start_day+i)
+
+        label.configure(text=txt)
+
+def date_suffix(date):
+    suffix_dict = {1: "1st",
+               2: "2nd",
+               3: "3rd",
+               4: "4th",
+               5: "5th",
+               6: "6th",
+               7: "7th",
+               8: "8th",
+               9: "9th",
+               10: "10th",
+               11: "11th",
+               12: "12th"}
+
+    return suffix_dict[date]
+
+def month_num_to_name(num):
+    months = {	'1':'Janauary',
+		'2':'February',
+		'3':'March',
+		'4':'April',
+		'5':'May',
+		'6':'June',
+		'7':'July',
+		'8':'August',
+		'9':'September',
+		'10':'October',
+		'11':'November',
+		'12':'December'		}
+
+    return months[num]
+
+
+
+def schedule_day_to_date(date_dict, day):
+
+
+
+
+    if day in [0,-1]:
+        txt = month_num_to_name(date_dict.calendar_dictionary.keys()[0])
+        txt += f"{(date_dict.locate_start_day())+day}"
+
+
+
+
+    for month in date_dict.calendar_dictionary:
+
+        for date in date_dict.calendar_dictionary[month]:
+            if date_dict.calendar_dictionary[month][date] == day:
+                date_num = int(date.split('-')[-1])
+                text =  f"{month_num_to_name(str(month))} {date_num}"
+
+                if date_num == 1:
+                    text += "st"
+                elif date_num == 2:
+                    text += "nd"
+                elif date_num == 3:
+                    text += "rd"
+                else:
+                    text += "th"
+
+                return text
+
+
+
+def value_to_key(dict, val):
+
+    for key in dict:
+        if dict[key] == val:
+            return key
+    print("Not Found", val)
+    return False
+
+

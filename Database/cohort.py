@@ -1,6 +1,7 @@
 import math
 
 import hardcodedother
+from Database.classroom import Classroom
 from Database.lecture import Lecture
 
 
@@ -44,7 +45,7 @@ class Cohort:
             time_change_mod = -0.5
             time_offset = 10.5
         else:
-            max_end_time = 16.50
+            max_end_time = 15.50
             time_change_mod = 0.5
             time_offset = 0
         max_start_time = 8.50
@@ -323,12 +324,15 @@ class Cohort:
 
     def has_time_conflict(self, start_day, end_day, start_time, end_time):
         # This checks if the course has a time conflict with itself
-        start_lecture = Lecture(start_day, start_time, end_time)
-        end_lecture = Lecture(end_day, start_time, end_time)
+
 
         for course in self.courses:
-            for lecture in course.lectures:
-                if lecture.is_within(start_lecture) or lecture.is_within(end_lecture):
+            l_start = course.lectures[0].start_time
+            l_end = course.lectures[0].end_time
+            l_fDay = course.lectures[0].day
+            l_lDay = course.lectures[len(course.lectures) - 1].day
+            if Classroom.check_time_conflict(start_time, l_start, end_time, l_end):
+                if (end_day >= l_fDay >= start_day) or (start_day <= l_lDay <= end_day) or (start_day <= l_fDay and end_day >= l_lDay) or (start_day >= l_fDay and end_day <= l_lDay):
                     return True
         return False
 
