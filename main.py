@@ -42,10 +42,15 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
     #Clear Grid
     cal_frame.clear_grid()
-    
+
     #Reset Grid Array
     cal_frame.clean_array()
     
+
+
+    #Reconstruct Grid
+    #cal_frame.setup_grid()
+
     
 
 
@@ -70,6 +75,7 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
                     for course in cohort.courses:
                         # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
+
                             if lecture.day==day_in_month:
                                     start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
                                     day_lectures.append([day_in_month,course.name,cohort.name,lecture.start_time])
@@ -95,9 +101,12 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
       
         #Make a calendar entry for the day
+
         #cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
 
-        
+
+
+
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
         #     text.place(x=lbl_x,y=lbl_y)
@@ -637,12 +646,12 @@ def update_schedule(*args):
     gu.clear_schedule(entries)
     # Text selected from updated dropdown, either week or classroom
     data = args[0]
-    info = data.split(" ")
+
     # Get current week from global dropdown variable
 
+    week_str =var_display_week.get().split(" ")
 
-    #week = int(var_display_week.get()[-1])
-    week = int(info[1])
+    week = int(week_str[1])
 
     gu.update_schedule_labels(schedule_day_labels, week)
     

@@ -77,7 +77,7 @@ class DateCreate:
         for month in self.calendar_dictionary:
             for date in self.calendar_dictionary[month]:
                 if first_day < day_counter:
-                    if (weekday in (1, 2, 3, 4)) and date not in self.holidays:
+                    if (weekday in (1, 2, 3, 4)):
                         self.calendar_dictionary[month][date] = lecture_day_counter
                         lecture_day_counter += 1
 
