@@ -710,8 +710,7 @@ def update_classroom_dropdown(var_chosenterm):
 
     room_list = gu.import_excel("resouce_list_name",2)
     
-    chosen_term=var_chosenterm.get()
-
+    
     if room_list == None:
         return None
 
@@ -734,7 +733,7 @@ def update_classroom_dropdown(var_chosenterm):
     new_menu.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
     dispclass_2 = new_menu
 
-    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= lambda event: update_calendar(chosen_term,var_dispmonth_calendar) ) 
+    dispclass_3 = OptionMenu(frame_t4_topbar, var_dispclass_calendar, *classroom_list, command= lambda event: update_calendar(var_chosenterm,var_dispmonth_calendar) ) 
     dispclass_3.place(relx=0.85, rely=0.03, relwidth=0.14, relheight=0.6, anchor='n')
     dispclass_3.config(font=helv36,bg="#252526",highlightthickness=0, foreground=mytext)
 
