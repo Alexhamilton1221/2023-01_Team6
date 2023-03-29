@@ -135,10 +135,10 @@ def form_schedule(classroom_list, vars, var_chosen_term):
         for fail_data in fail_array:
             if fail_data[4]:
                 outputString += "For Program: " + fail_data[0] + " term " + str(fail_data[1]) + "\n " + str(
-                    fail_data[2]) + " classes needed of size minimum size " + str(fail_data[3]) + "\n"
+                    fail_data[2]) + " labs needed of size minimum size " + str(fail_data[3]) + "\n"
             else:
                 outputString += "For Program: " + fail_data[0] + " term: " + str(fail_data[1]) + "\n " + str(
-                    fail_data[2]) + " labs needed of size minimum size " + str(fail_data[3]) + "\n"
+                    fail_data[2]) + " classes needed of size minimum size " + str(fail_data[3]) + "\n"
 
         messagebox.showwarning("Warning", "Too many students for classrooms: \n" + str(outputString))
 
@@ -251,6 +251,7 @@ def get_registration(filename):
         return None
     
     student_list = Students()
+    student_list.students = []
     registration = {}
 
     # Check format for registration file
@@ -374,6 +375,7 @@ def get_classrooms(filename):
 
     #Object to hold each Classroom
     room_list = Classrooms()
+    room_list.classrooms = []
 
     #For each classroom row, skipping the header
     for row in ws.iter_rows(min_row=2):
@@ -1062,8 +1064,10 @@ class Day(tk.Frame):
 
 
 def reset(classroom_list, spn_vars, spn_core,spn_noncore,total_labels,spinner_object):
-    global reg_numbers
+    global reg_numbers, student_info
+    student_info.students = []
     reg_numbers = []
+
     for room in classroom_list:
         room.cohorts = []
 
@@ -1162,6 +1166,8 @@ def update_schedule_labels(labels, week):
         if week_start_day+i == 0 or week_start_day+i == -1:
             day_num = date_dict.locate_start_day()+week_start_day+i
             txt = f"{month_num_to_name(str(list(date_dict.calendar_dictionary.keys())[0]))}"
+            if day_num == 0:
+                day_num = 1
             txt += f" {date_suffix(day_num)}"
 
 
@@ -1171,20 +1177,14 @@ def update_schedule_labels(labels, week):
         label.configure(text=txt)
 
 def date_suffix(date):
-    suffix_dict = {1: "1st",
+    if date < 4:
+        suffix_dict = {1: "1st",
                2: "2nd",
                3: "3rd",
-               4: "4th",
-               5: "5th",
-               6: "6th",
-               7: "7th",
-               8: "8th",
-               9: "9th",
-               10: "10th",
-               11: "11th",
-               12: "12th"}
-
-    return suffix_dict[date]
+                       }
+        return suffix_dict[date]
+    else:
+        return str(date) + "th"
 
 def month_num_to_name(num):
     months = {	'1':'January',

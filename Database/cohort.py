@@ -140,7 +140,8 @@ class Cohort:
                 if start_day <= holidays[i] <= end_day and end_day % 2 == holidays[i] % 2:
                     end_day += 2
 
-
+            if occupied_room == None:
+                print("HERE")
             time_resets = 0
             # NOTE: THE online checks do not stop new lectures from being scheduled before or after
             # might cause issues later
