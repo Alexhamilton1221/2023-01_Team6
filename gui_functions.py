@@ -375,6 +375,7 @@ def get_classrooms(filename):
 
     #Object to hold each Classroom
     room_list = Classrooms()
+    room_list.classrooms = []
 
     #For each classroom row, skipping the header
     for row in ws.iter_rows(min_row=2):
