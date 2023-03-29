@@ -320,7 +320,7 @@ class Cohorts:
                     # Removes all possibles hours from the classroom
                     total_hours -= hours_per_cohort * fitting_cohorts
                     lab_hours[room_num][4] -= hours_per_cohort * fitting_cohorts
-
+                    assigned_lab_index += fitting_cohorts
                     if total_hours > 0 and fitting_cohorts == 0:
                         lab_hours[room_num][3] += lab_hours[room_num][4]
                         lab_hours[room_num][4] = 0
