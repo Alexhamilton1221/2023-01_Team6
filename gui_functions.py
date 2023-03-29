@@ -858,7 +858,8 @@ class Calendar(tk.Frame):
         #Number of columns
         num_of_columns=4
         index=  row *num_of_columns  + col
-
+        new_index=index #Used to account for weekends
+        
         # Create New Window Displaying Class Info
         # TODO Make the title the appropriate date
         if not new_window_open:
@@ -872,6 +873,9 @@ class Calendar(tk.Frame):
             entry_frame = Day(new_window)
             entry_frame.place(relx=0.5, rely=0.1, relwidth=1, relheight=0.9, anchor='n')    
             
+            if new_index>4:
+                new_index=new_index+3
+            
             indexed_lecs=[]
             for subarr in self.semester_lectures:
                 if subarr[0]==index:
@@ -883,12 +887,12 @@ class Calendar(tk.Frame):
             #For Testing
             #TODO Place Date in this Object 
             #This is just for testing, replace this later
-            try:
-                title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
-                title.pack()
-            except:
-                title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
-                title.pack()
+            # try:
+            #     title = tk.Label(new_window, text=f"Date {sorted_list[0][0]}", bg="#252526", fg='white',font=new_window_body)
+            #     title.pack()
+            # except:
+            #     title = tk.Label(new_window, text=f"Date", bg="#252526", fg='white',font=new_window_body)
+            #     title.pack()
 
 
             
@@ -925,12 +929,14 @@ class Calendar(tk.Frame):
                 y2 = y1 + rect_size
                 rect=self.canvas.create_rectangle(x1, y1, x2, y2, outline='black', fill='white')
                 count+=1
-
+               
                 self.canvas.tag_bind(count, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
-
+               
                 #self.canvas.tag_bind(rect, "<Button-1>", lambda event, index=count: self.on_rectangle_click())
                 #self.canvas.tag_bind(rect, "<Button-1>", self.calendar_entry_clicked)
                 self.array_rect.append(rect)
+
+            #count=count+3 #Account for Fri Sat Sun
 
         #Deal With last Entry
         #self.canvas.tag_bind(count+1, "<Button-1>", lambda event, row=row, col=col: self.calendar_entry_clicked(event,row, col+1))
@@ -998,7 +1004,8 @@ class Calendar(tk.Frame):
                 
                     for cal_etr in sorted_list:
 
-                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
+                        #new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}" for testing
+                        new_text=f"{cal_etr[1]} {cal_etr[2]}"
 
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         
@@ -1025,8 +1032,9 @@ class Calendar(tk.Frame):
                     
 
                     for cal_etr in sorted_list[:8]:
-                        new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}"
-
+                        #new_text=f"{cal_etr[0]} {cal_etr[1]} {cal_etr[2]}" for testing
+                        new_text=f"{cal_etr[1]} {cal_etr[2]}"
+                        
                         text = self.canvas.create_text(x1,y1+pad_y,text=new_text)
                         self.array_lbl.append(text)
                         pad_y+=15
