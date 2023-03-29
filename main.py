@@ -78,6 +78,7 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
                     for course in cohort.courses:
                         # For each lecture for each course assigned to this room
                         for lecture in course.lectures:
+
                             if lecture.day==day_in_month:
                                     start_time,end_game=gu.conv_time(lecture.start_time,lecture.end_time)
                                     day_lectures.append([day_in_month,course.name,cohort.name,lecture.start_time])
@@ -104,8 +105,8 @@ def update_calendar(var_chosenterm,var_dispmonth_calendar):
 
       
         #Make a calendar entry for the day
-        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
 
+        cal_frame.calendar_day_entry(sorted_list,day_in_month,current_mon)
         
         # for j in sorted_list:
         #     text = tk.Label(frame_t4_calendar,text=j)
@@ -326,7 +327,7 @@ def main():
 
 
     btn_classroom_list = Button(frame_t1_background,borderwidth=0, width=350, height=52, text="Import Classrooms",bg=myred,fg=mytext,
-                                command=lambda: update_classroom_dropdown())
+                                command=lambda: update_classroom_dropdown(var_chosenterm))
     btn_classroom_list.place(relx=0.5, rely=0.92,relwidth=0.11, relheight=0.035)
     
     
@@ -700,7 +701,7 @@ def update_program_filter(menu, var):
 
 
 
-def update_classroom_dropdown():
+def update_classroom_dropdown(var_chosenterm):
     global classroom_list, dispclass, dispclass_2, dispclass_3
     global var_dispclass, var_dispclass_cohort, var_dispclass_calendar, display_cohorts
 

@@ -1187,7 +1187,7 @@ def date_suffix(date):
     return suffix_dict[date]
 
 def month_num_to_name(num):
-    months = {	'1':'Janauary',
+    months = {	'1':'January',
 		'2':'February',
 		'3':'March',
 		'4':'April',
