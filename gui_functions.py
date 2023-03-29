@@ -1165,6 +1165,8 @@ def update_schedule_labels(labels, week):
         if week_start_day+i == 0 or week_start_day+i == -1:
             day_num = date_dict.locate_start_day()+week_start_day+i
             txt = f"{month_num_to_name(str(list(date_dict.calendar_dictionary.keys())[0]))}"
+            if day_num == 0:
+                day_num = 1
             txt += f" {date_suffix(day_num)}"
 
 
